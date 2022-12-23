@@ -1,0 +1,33 @@
+<div>
+  <h2>{{ mode | titlecase }} recipe</h2>
+  <form>
+    <div class="row">
+      <div class="col-xs-12">
+        <label for="name">Name</label>
+        <input
+          class="form-control"
+          type="text"
+          id="name"
+          name="name"
+          [(ngModel)]="newName"
+        />
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <label for="description">Description</label>
+        <textarea
+          class="form-control"
+          type="text"
+          id="description"
+          name="description"
+          [(ngModel)]="newDescription"
+        ></textarea>
+      </div>
+    </div>
+    <hr />
+    <button class="btn btn-primary" (click)="save()" [disabled]="!isChanged()">
+      Save
+    </button>
+  </form>
+</div>

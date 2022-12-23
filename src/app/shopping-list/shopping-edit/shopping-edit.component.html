@@ -4,22 +4,64 @@
       <div class="row">
         <div class="col-sm-5 form-group">
           <label for="name">Name</label>
-          <input type="text" id="name" class="form-control" />
+          <input
+            type="text"
+            id="name"
+            name="name"
+            class="form-control"
+            [(ngModel)]="newName"
+            #nameInput
+          />
         </div>
         <div class="col-sm-2 form-group">
           <label for="amount">Amount</label>
-          <input type="number" id="amount" class="form-control" />
+          <input
+            type="number"
+            id="amount"
+            name="amount"
+            class="form-control"
+            [(ngModel)]="newAmount"
+            #amountInput
+          />
+        </div>
+        <div class="col-sm-2 form-group">
+          <label for="amount">Unit</label>
+          <select
+            id="unit"
+            name="unit"
+            class="form-control"
+            [(ngModel)]="newUnit"
+            required
+            #amountInput
+          >
+            <option
+              [value]="unit.value"
+              *ngFor="let unit of RecipeUnit | keyvalue"
+              [selected]="unit.value === newUnit"
+            >
+              {{ unit.value }}
+            </option>
+          </select>
         </div>
       </div>
       <div class="row">
         <div class="col-xs-12">
-          <button class="btn btn-success action-row-btn" type="submit">
+          <button
+            class="btn btn-success action-row-btn"
+            type="submit"
+            (click)="addNewItem()"
+            [disabled]="!newName?.trim() || !newAmount"
+          >
             Add
           </button>
           <button class="btn btn-danger action-row-btn" type="button">
             Delete
           </button>
-          <button class="btn btn-primary action-row-btn" type="button">
+          <button
+            class="btn btn-primary action-row-btn"
+            type="reset"
+            (click)="clearShoppingList()"
+          >
             Clear
           </button>
         </div>

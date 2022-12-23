@@ -6,9 +6,9 @@
       <a
         class="list-group-item"
         style="cursor: pointer"
-        *ngFor="let ingredient of ingredients"
+        *ngFor="let item of items"
       >
-        {{ ingredient.name }} ({{ ingredient.amount }})
+        <app-shopping-list-item [item]="item"></app-shopping-list-item>
       </a>
     </ul>
   </div>
