@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { faPen, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { RoutePath } from '../../app-routing.module';
 import { IdPathTrackingComponent } from '../../shared/classes/id-path-tracking-component';
 import {
@@ -15,6 +16,10 @@ import { RecipeService } from '../services/recipe.service';
   styleUrls: ['./recipe-detail.component.css'],
 })
 export class RecipeDetailComponent extends IdPathTrackingComponent {
+  iconEdit = faPen;
+  iconDelete = faTrash;
+  iconShop = faPlus;
+
   selectedRecipe?: Recipe;
   dropdownOpen: boolean = false;
   RecipeRootView = RoutePath.Recipe;
@@ -64,6 +69,17 @@ export class RecipeDetailComponent extends IdPathTrackingComponent {
   }
 
   deleteRecipe() {
-    // TODO
+    if (!this.selectedRecipe) {
+      return;
+    }
+
+    if (
+      confirm(
+        'Are you sure to delete the recipe "' + this.selectedRecipe?.name + '"?'
+      )
+    ) {
+      this.recipeService.delete(this.selectedRecipe.id);
+      this.router.navigate(['../'], { relativeTo: this.route });
+    }
   }
 }

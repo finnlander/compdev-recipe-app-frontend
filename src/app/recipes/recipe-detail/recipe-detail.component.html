@@ -26,16 +26,26 @@
         </button>
         <ul class="dropdown-menu">
           <li>
-            <a class="link" (click)="addToShoppingList()">To Shopping List</a>
+            <a class="link" (click)="addToShoppingList()">
+              <fa-icon class="icon" [icon]="iconShop"></fa-icon>
+              To Shopping List
+            </a>
           </li>
           <li>
             <a
               class="link"
               [routerLink]="[RecipeRootView, selectedRecipe.id, 'edit']"
-              >Edit Recipe</a
             >
+              <fa-icon class="icon" [icon]="iconEdit"></fa-icon>
+              Edit Recipe
+            </a>
           </li>
-          <li><a class="link" (click)="deleteRecipe()">Delete Recipe</a></li>
+          <li>
+            <a class="link" (click)="deleteRecipe()">
+              <fa-icon class="icon" [icon]="iconDelete"></fa-icon>
+              Delete Recipe
+            </a>
+          </li>
         </ul>
       </div>
     </div>

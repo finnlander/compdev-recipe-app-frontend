@@ -52,6 +52,19 @@ export class RecipeService {
     return { ...recipe } as Recipe;
   }
 
+  delete(recipeId: number) {
+    const match = this.findRecipeById(recipeId, true)!!;
+    const index = this.recipes.findIndex((it) => it.id === recipeId);
+    if (index < 0) {
+      throw Error(
+        'Deletion failed: invalid input recipe identifier #' + recipeId
+      );
+    }
+
+    this.recipes.splice(index, 1);
+    this.recipesChanged.next([...this.recipes]);
+  }
+
   getRecipes() {
     return [...this.recipes];
   }
