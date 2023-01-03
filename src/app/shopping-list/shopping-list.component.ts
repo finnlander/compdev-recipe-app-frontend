@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { SubscribingComponent } from '../shared/classes/subscribing-component';
 import { ShoppingListItem } from './models/shopping-list-item-model';
 import { ShoppingListService } from './services/shopping-list.service';
 
@@ -8,11 +8,16 @@ import { ShoppingListService } from './services/shopping-list.service';
   templateUrl: './shopping-list.component.html',
   styleUrls: ['./shopping-list.component.css'],
 })
-export class ShoppingListComponent implements OnInit, OnDestroy {
+export class ShoppingListComponent
+  extends SubscribingComponent
+  implements OnInit
+{
   items: ShoppingListItem[] = [];
-  changeSubscription?: Subscription;
+  selectedItem?: ShoppingListItem;
 
-  constructor(private shoppingListService: ShoppingListService) {}
+  constructor(private shoppingListService: ShoppingListService) {
+    super();
+  }
 
   ngOnInit(): void {
     // Add some samples
@@ -20,15 +25,25 @@ export class ShoppingListComponent implements OnInit, OnDestroy {
       this.shoppingListService.generateSampleData();
     }
 
-    this.changeSubscription =
+    this.addSubscription(
       this.shoppingListService.shoppingListChanged.subscribe(
         (updatedItems) => (this.items = updatedItems)
-      );
+      )
+    );
 
     this.items = this.shoppingListService.getItems();
   }
 
-  ngOnDestroy(): void {
-    this.changeSubscription?.unsubscribe();
+  onSelectItem(item: ShoppingListItem) {
+    if (this.selectedItem?.ordinal === item.ordinal) {
+      //deselect
+      this.selectedItem = undefined;
+    } else {
+      this.selectedItem = item;
+    }
+  }
+
+  onEditCompleted() {
+    this.selectedItem = undefined;
   }
 }

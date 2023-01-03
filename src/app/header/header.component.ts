@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
 import { RoutePath } from '../app-routing.module';
+import { SubscribingComponent } from '../shared/classes/subscribing-component';
 import { ShoppingListService } from '../shopping-list/services/shopping-list.service';
 
 @Component({
@@ -8,24 +8,21 @@ import { ShoppingListService } from '../shopping-list/services/shopping-list.ser
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
 })
-export class HeaderComponent implements OnInit, OnDestroy {
+export class HeaderComponent extends SubscribingComponent implements OnInit {
   collapsed: boolean = false;
   shoppingListCount: number = 0;
   Routes = RoutePath;
 
-  private shoppingListChangeSubscription?: Subscription;
-
-  constructor(private shoppingListService: ShoppingListService) {}
+  constructor(private shoppingListService: ShoppingListService) {
+    super();
+  }
 
   ngOnInit(): void {
     this.shoppingListCount = this.shoppingListService.getCount();
-    this.shoppingListChangeSubscription =
+    this.addSubscription(
       this.shoppingListService.shoppingListChanged.subscribe(
         (items) => (this.shoppingListCount = items.length)
-      );
-  }
-
-  ngOnDestroy(): void {
-    this.shoppingListChangeSubscription?.unsubscribe();
+      )
+    );
   }
 }

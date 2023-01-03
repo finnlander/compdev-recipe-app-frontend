@@ -11,7 +11,7 @@ export class Recipe {
     public id: number,
     public name: string,
     public description: string,
-    public imagePath: string
+    public imageUrl: string
   ) {}
 
   addIngredient(
@@ -27,6 +27,11 @@ export class Recipe {
     phase.items.push(item);
 
     return this;
+  }
+
+  clearItems() {
+    this.items = [];
+    this.phases = [];
   }
 
   /* Helper Methods */

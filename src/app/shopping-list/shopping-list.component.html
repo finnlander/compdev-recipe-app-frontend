@@ -1,14 +1,21 @@
 <div class="row">
   <div class="col-xs-10">
-    <app-shopping-edit></app-shopping-edit>
+    <app-shopping-edit
+      [shoppingListItem]="selectedItem"
+      (onCompleted)="onEditCompleted()"
+    ></app-shopping-edit>
     <hr />
     <ul class="list-group">
       <a
         class="list-group-item"
         style="cursor: pointer"
         *ngFor="let item of items"
+        [ngClass]="selectedItem?.ordinal === item.ordinal ? 'selected' : ''"
       >
-        <app-shopping-list-item [item]="item"></app-shopping-list-item>
+        <app-shopping-list-item
+          [item]="item"
+          (click)="onSelectItem(item)"
+        ></app-shopping-list-item>
       </a>
     </ul>
   </div>

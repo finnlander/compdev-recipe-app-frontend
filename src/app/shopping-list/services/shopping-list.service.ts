@@ -1,5 +1,6 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import * as _ from 'lodash';
+import { Subject } from 'rxjs';
 import { Ingredient } from '../../shared/models/ingredient.model';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { IngredientService } from '../../shared/services/ingredient.service';
@@ -22,7 +23,7 @@ export interface ItemData {
 export class ShoppingListService {
   private items: ShoppingListItem[] = [];
 
-  shoppingListChanged = new EventEmitter<ShoppingListItem[]>();
+  shoppingListChanged = new Subject<ShoppingListItem[]>();
 
   constructor(private ingredientService: IngredientService) {}
 
@@ -37,7 +38,7 @@ export class ShoppingListService {
   }
 
   deleteItem(ordinal: number) {
-    const item = _.find(this.items, (it) => it.ordinal === ordinal);
+    const item = this.findItemByOrdinal(ordinal);
     if (!item) {
       return;
     }
@@ -48,6 +49,16 @@ export class ShoppingListService {
       item.ordinal = index + 1;
     });
 
+    this.onShoppingListUpdated();
+  }
+
+  updateItem(ordinal: number, data: ItemData) {
+    const item = this.findItemByOrdinal(ordinal);
+    if (!item) {
+      return;
+    }
+
+    this.updateShoppingListItem(item, data);
     this.onShoppingListUpdated();
   }
 
@@ -91,6 +102,22 @@ export class ShoppingListService {
     item.amount += data.amount;
   }
 
+  private updateShoppingListItem(item: ShoppingListItem, data: ItemData) {
+    if (item.ingredient.name !== data.ingredientName) {
+      const ingredient = this.ingredientService.getOrAddIngredient(
+        data.ingredientName
+      );
+      item.ingredient = ingredient;
+    }
+
+    item.amount = data.amount;
+    item.unit = data.unit;
+  }
+
+  private findItemByOrdinal(ordinal: number) {
+    return _.find(this.items, (it) => it.ordinal === ordinal);
+  }
+
   private getOrCreateItem(
     ingredient: Ingredient,
     unit: RecipeUnit
@@ -109,6 +136,6 @@ export class ShoppingListService {
   }
 
   private onShoppingListUpdated() {
-    this.shoppingListChanged.emit([...this.items]);
+    this.shoppingListChanged.next([...this.items]);
   }
 }

@@ -1,16 +1,33 @@
-import { EventEmitter, Injectable } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Subject, Subscription } from 'rxjs';
 import { Ingredient } from '../../shared/models/ingredient.model';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { IngredientService } from '../../shared/services/ingredient.service';
 import { Recipe } from '../models/recipe.model';
 
+export const DEFAULT_RECIPE_IMG =
+  'https://cdn-icons-png.flaticon.com/512/3565/3565418.png';
+
+export interface RecipeData {
+  name: string;
+  description: string;
+  imageUrl: string;
+  ingredientItems: RecipeIngredientData[];
+}
+
+export interface RecipeIngredientData {
+  ingredientName: string;
+  amount: number;
+  unit: RecipeUnit;
+  phase?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class RecipeService {
-  recipesChanged = new EventEmitter<Recipe[]>();
-  private recipeSelected = new EventEmitter<Recipe>();
+  recipesChanged = new Subject<Recipe[]>();
+  private recipeSelected = new Subject<Recipe>();
   private selectedRecipe?: Recipe;
   private recipes: Recipe[] = [];
 
@@ -18,40 +35,46 @@ export class RecipeService {
     this.addSampleData();
   }
 
-  addRecipe(
-    name: string,
-    description: string,
-    imagePath: string = 'https://cdn-icons-png.flaticon.com/512/3565/3565418.png'
-  ): Recipe {
+  addRecipe(data: RecipeData): Recipe {
+    const { name, description, imageUrl, ingredientItems } = data;
     const recipe = new Recipe(
       this.recipes.length + 1,
       name,
       description,
-      imagePath
+      imageUrl
     );
 
-    this.recipes.push(recipe);
-    this.recipesChanged.emit([...this.recipes]);
+    ingredientItems.forEach((item) => this.addIngredientItem(recipe, item));
 
-    return recipe;
+    this.recipes.push(recipe);
+    this.recipesChanged.next([...this.recipes]);
+
+    return { ...recipe } as Recipe;
   }
 
   getRecipes() {
     return [...this.recipes];
   }
 
+  getRecipeById(recipeId: number): Recipe | undefined {
+    const match = this.findRecipeById(recipeId);
+    if (!match) return undefined;
+
+    return { ...match } as Recipe;
+  }
+
   setSelectedRecipe(recipe?: Recipe) {
     this.selectedRecipe = { ...recipe } as Recipe;
     if (recipe) {
-      this.recipeSelected.emit({ ...recipe } as Recipe);
+      this.recipeSelected.next({ ...recipe } as Recipe);
     } else {
-      this.recipeSelected.emit(undefined);
+      this.recipeSelected.next(undefined);
     }
   }
 
   selectRecipeById(id: number) {
     if (this.selectedRecipe?.id === id) {
-      console.log('recipe ', id, 'already selected');
+      console.debug('recipe ', id, 'already selected');
       return;
     }
 
@@ -59,18 +82,16 @@ export class RecipeService {
     return this.setSelectedRecipe(match);
   }
 
-  save(recipe: Recipe): Recipe {
-    if (recipe.id === null) {
-      throw Error('Save operation is not supported for new recipes');
-    }
+  update(recipeId: number, newData: RecipeData): Recipe {
+    const { name, description, imageUrl, ingredientItems } = newData;
+    const match = this.findRecipeById(recipeId, true)!!;
 
-    const match = this.recipes.find((it) => it.id === recipe.id);
-    if (!match) {
-      throw Error('Invalid input recipe identifier #' + recipe.id);
-    }
+    match.name = name;
+    match.description = description;
+    match.imageUrl = imageUrl;
 
-    match.name = recipe.name;
-    match.description = recipe.description;
+    match.clearItems();
+    ingredientItems.forEach((item) => this.addIngredientItem(match, item));
 
     // note: select to allow updating selected value on different components
     this.setSelectedRecipe(match);
@@ -91,97 +112,112 @@ export class RecipeService {
     return this.ingredientService.getOrAddIngredient(ingredientName);
   }
 
-  private addSampleData() {
-    this.addRecipe(
-      'A burger',
-      'Sample recipe of a burger',
-      'https://upload.wikimedia.org/wikipedia/commons/f/fb/Burger-King-Bacon-Cheeseburger.jpg'
-    )
-      .addIngredient(this.getIngredient('bun'), 1)
-      .addIngredient(this.getIngredient('cheese slice'), 1)
-      .addIngredient(this.getIngredient('beef steak'), 1)
-      .addIngredient(this.getIngredient('pickles'), 2)
-      .addIngredient(this.getIngredient('tomato slices'), 2)
-      .addIngredient(this.getIngredient('green salad slice'), 1);
-
-    this.addRecipe(
-      'Mac & Cheese',
-      'Sample recipe of mac and cheese',
-      'https://upload.wikimedia.org/wikipedia/commons/4/44/Original_Mac_n_Cheese_.jpg'
-    )
-      .addIngredient(
-        this.getIngredient('macaroni (elbow pasta)'),
-        250.0,
-        RecipeUnit.GRAMS,
-        'macaroni'
-      )
-      .addIngredient(
-        this.getIngredient('unsalted butter'),
-        15,
-        RecipeUnit.GRAMS,
-        'macaroni'
-      )
-      .addIngredient(
-        this.getIngredient('panko breadcrumbs'),
-        11,
-        RecipeUnit.CUP,
-        'topping'
-      )
-      .addIngredient(
-        this.getIngredient('unsalted butter'),
-        30,
-        RecipeUnit.GRAMS,
-        'topping'
-      )
-      .addIngredient(
-        this.getIngredient('salt'),
-        0.25,
-        RecipeUnit.TEA_SPOON,
-        'topping'
-      )
-      .addIngredient(
-        this.getIngredient('unsalted butter'),
-        60,
-        RecipeUnit.GRAMS,
-        'sauce'
-      )
-      .addIngredient(this.getIngredient('flour'), 0.33, RecipeUnit.CUP, 'sauce')
-      .addIngredient(this.getIngredient('milk'), 3, RecipeUnit.CUP, 'sauce')
-      .addIngredient(
-        this.getIngredient('freshly shredded cheese'),
-        2,
-        RecipeUnit.CUP,
-        'sauce'
-      )
-      .addIngredient(
-        this.getIngredient('freshly shredded mozzarella cheese'),
-        1,
-        RecipeUnit.CUP,
-        'sauce'
-      )
-      .addIngredient(
-        this.getIngredient('salt'),
-        0.75,
-        RecipeUnit.TEA_SPOON,
-        'topping'
-      )
-      .addIngredient(
-        this.getIngredient('garlic powder'),
-        1,
-        RecipeUnit.TEA_SPOON,
-        'seasonings (optional)'
-      )
-      .addIngredient(
-        this.getIngredient('onion powder'),
-        0.5,
-        RecipeUnit.TEA_SPOON,
-        'seasonings (optional)'
-      )
-      .addIngredient(
-        this.getIngredient('mustard powder'),
-        0.5,
-        RecipeUnit.TEA_SPOON,
-        'seasonings (optional)'
-      );
+  private addIngredientItem(recipe: Recipe, item: RecipeIngredientData): void {
+    recipe.addIngredient(
+      this.getIngredient(item.ingredientName),
+      item.amount,
+      item.unit,
+      item.phase
+    );
   }
+
+  private findRecipeById(recipeId: number, required: boolean = false) {
+    const match = this.recipes.find((it) => it.id === recipeId);
+
+    if (!match && required) {
+      throw Error('Invalid input recipe identifier #' + recipeId);
+    }
+
+    return match;
+  }
+
+  private addSampleData() {
+    generateSampleData().forEach((recipe) => this.addRecipe(recipe));
+  }
+}
+
+function toIngredientData(
+  ingredientName: string,
+  amount: number,
+  unit: RecipeUnit = RecipeUnit.PCS,
+  phase?: string
+): RecipeIngredientData {
+  return {
+    ingredientName,
+    amount,
+    unit,
+    phase,
+  };
+}
+
+function generateSampleData(): RecipeData[] {
+  return [
+    // Sample burger recipe
+    {
+      name: 'A burger',
+      description: 'Sample recipe of a burger',
+      imageUrl:
+        'https://upload.wikimedia.org/wikipedia/commons/f/fb/Burger-King-Bacon-Cheeseburger.jpg',
+      ingredientItems: [
+        toIngredientData('bun', 1),
+        toIngredientData('cheese slice', 1),
+        toIngredientData('beef steak', 1),
+        toIngredientData('pickles', 2),
+        toIngredientData('tomato slices', 2),
+        toIngredientData('green salad slice', 1),
+      ],
+    },
+    // Sample mac & cheese recipe
+    {
+      name: 'Mac & Cheese',
+      description: 'Sample recipe of mac and cheese',
+      imageUrl:
+        'https://upload.wikimedia.org/wikipedia/commons/4/44/Original_Mac_n_Cheese_.jpg',
+      ingredientItems: [
+        // macaroni
+        toIngredientData(
+          'macaroni (elbow pasta)',
+          250,
+          RecipeUnit.GRAMS,
+          'macaroni'
+        ),
+        toIngredientData('unsalted butter', 15, RecipeUnit.GRAMS, 'macaroni'),
+        // topping
+        toIngredientData('panko breadcrumbs', 11, RecipeUnit.CUP, 'topping'),
+        toIngredientData('unsalted butter', 30, RecipeUnit.GRAMS, 'topping'),
+        toIngredientData('salt', 0.25, RecipeUnit.TEA_SPOON, 'topping'),
+        // sauce
+        toIngredientData('unsalted butter', 60, RecipeUnit.GRAMS, 'sauce'),
+        toIngredientData('flour', 0.33, RecipeUnit.CUP, 'sauce'),
+        toIngredientData('milk', 3, RecipeUnit.CUP, 'sauce'),
+        toIngredientData('freshly shredded cheese', 2, RecipeUnit.CUP, 'sauce'),
+        toIngredientData(
+          'freshly shredded mozzarella cheese',
+          1,
+          RecipeUnit.CUP,
+          'sauce'
+        ),
+        toIngredientData('salt', 0.75, RecipeUnit.TEA_SPOON, 'sauce'),
+        // Seasonings
+        toIngredientData(
+          'garlic powder',
+          1,
+          RecipeUnit.TEA_SPOON,
+          'seasonings (optional)'
+        ),
+        toIngredientData(
+          'onion powder',
+          0.5,
+          RecipeUnit.TEA_SPOON,
+          'seasonings (optional)'
+        ),
+        toIngredientData(
+          'mustard powder',
+          0.5,
+          RecipeUnit.TEA_SPOON,
+          'seasonings (optional)'
+        ),
+      ],
+    },
+  ];
 }

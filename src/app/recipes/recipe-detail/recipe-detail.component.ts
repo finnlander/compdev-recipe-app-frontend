@@ -1,7 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RoutePath } from '../../app-routing.module';
+import { IdPathTrackingComponent } from '../../shared/classes/id-path-tracking-component';
 import {
   ItemData,
   ShoppingListService,
@@ -14,43 +14,51 @@ import { RecipeService } from '../services/recipe.service';
   templateUrl: './recipe-detail.component.html',
   styleUrls: ['./recipe-detail.component.css'],
 })
-export class RecipeDetailComponent implements OnInit, OnDestroy {
-  recipe?: Recipe;
+export class RecipeDetailComponent extends IdPathTrackingComponent {
+  selectedRecipe?: Recipe;
   dropdownOpen: boolean = false;
-  private subscriptions: Subscription[] = [];
   RecipeRootView = RoutePath.Recipe;
 
   constructor(
+    route: ActivatedRoute,
     private shoppingListService: ShoppingListService,
     private recipeService: RecipeService,
-    private route: ActivatedRoute
-  ) {}
-
-  ngOnInit(): void {
-    this.recipe = this.recipeService.getSelectedRecipe();
-
-    this.subscriptions.push(
-      this.recipeService.subscribeOnSelect((recipe) => (this.recipe = recipe))
-    );
-
-    const currentRecipeId = +this.route.snapshot.params['id'];
-    if (currentRecipeId !== this.recipe?.id) {
-      this.recipeService.selectRecipeById(currentRecipeId);
-    }
+    private router: Router
+  ) {
+    super(route);
   }
-  ngOnDestroy(): void {
-    this.subscriptions.forEach((it) => it.unsubscribe());
-    this.subscriptions = [];
+
+  onCurrentIdChanged(currentId: number | undefined): void {
+    if (currentId === this.selectedRecipe?.id) {
+      return;
+    }
+
+    const selectedRecipe = currentId
+      ? this.recipeService.getRecipeById(currentId)
+      : undefined;
+
+    if (!selectedRecipe) {
+      console.warn(
+        'Selected non-existing recipe #' +
+          currentId +
+          ' -> navigating to parent path'
+      );
+      this.router.navigate(['../'], { relativeTo: this.route });
+    }
+
+    this.selectedRecipe = selectedRecipe;
   }
 
   addToShoppingList() {
-    const shoppingItemData: ItemData[] = this.recipe!!.items.map((item) => {
-      return {
-        ingredientName: item.ingredient.name,
-        amount: item.amount,
-        unit: item.unit,
-      };
-    });
+    const shoppingItemData: ItemData[] = this.selectedRecipe!!.items.map(
+      (item) => {
+        return {
+          ingredientName: item.ingredient.name,
+          amount: item.amount,
+          unit: item.unit,
+        };
+      }
+    );
 
     this.shoppingListService.addNewItems(shoppingItemData);
   }

@@ -1,0 +1,17 @@
+.btn-secondary {
+  margin-left: 1em;
+}
+
+.btn-delete {
+  margin-right: 1em;
+  margin-left: 1em;
+  padding-top: 1.3em;
+}
+
+.ml-1 {
+  margin-left: 1em;
+}
+
+.numeric-field {
+  max-width: 6em;
+}
