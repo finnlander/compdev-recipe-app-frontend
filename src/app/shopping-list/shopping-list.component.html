@@ -4,7 +4,7 @@
       [shoppingListItem]="selectedItem"
       (onCompleted)="onEditCompleted()"
     ></app-shopping-edit>
-    <hr />
+    <hr *ngIf="items.length > 0" />
     <ul class="list-group">
       <a
         class="list-group-item"
@@ -18,5 +18,14 @@
         ></app-shopping-list-item>
       </a>
     </ul>
+    <hr />
+    <button
+      class="btn btn-danger"
+      type="button"
+      (click)="onClearAll()"
+      [disabled]="items.length === 0"
+    >
+      <fa-icon [icon]="iconClearAll"></fa-icon> Clear all
+    </button>
   </div>
 </div>

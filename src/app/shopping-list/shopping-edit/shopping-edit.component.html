@@ -44,6 +44,7 @@
             type="submit"
             [disabled]="!form.valid"
           >
+            <fa-icon [icon]="shoppingListItem ? iconUpdate : iconAdd"></fa-icon>
             {{ shoppingListItem ? "Update" : "Add" }}
           </button>
           <button
@@ -52,6 +53,7 @@
             *ngIf="shoppingListItem"
             (click)="onDelete()"
           >
+            <fa-icon [icon]="iconDelete"></fa-icon>
             Delete
           </button>
           <button
@@ -59,7 +61,10 @@
             type="reset"
             (click)="onClear()"
           >
-            Clear
+            <fa-icon
+              [icon]="shoppingListItem ? iconCancel : iconClear"
+            ></fa-icon>
+            {{ shoppingListItem ? "Cancel" : "Clear" }}
           </button>
         </div>
       </div>

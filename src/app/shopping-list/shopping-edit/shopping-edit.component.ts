@@ -9,7 +9,19 @@ import {
   ViewChild,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import {
+  faCheck,
+  faPlus,
+  faTrashCan,
+  faUndo,
+  faX,
+} from '@fortawesome/free-solid-svg-icons';
+import {
+  ConfirmationResult,
+  ConfirmationType,
+} from '../../shared/models/confirmation.types';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
+import { ModalService } from '../../shared/services/modal.service';
 import { ShoppingListItem } from '../models/shopping-list-item-model';
 import {
   ItemData,
@@ -35,12 +47,20 @@ const DEFAULT_FORM_VALUES: FormModel = {
 })
 export class ShoppingEditComponent implements AfterViewInit, OnChanges {
   RecipeUnit = RecipeUnit;
+  iconAdd = faPlus;
+  iconCancel = faUndo;
+  iconClear = faTrashCan;
+  iconDelete = faX;
+  iconUpdate = faCheck;
 
   @Input() shoppingListItem?: ShoppingListItem;
   @Output() onCompleted = new EventEmitter<void>();
   @ViewChild('form', { static: true }) addItemForm?: NgForm;
 
-  constructor(private shoppingListService: ShoppingListService) {}
+  constructor(
+    private shoppingListService: ShoppingListService,
+    private modalService: ModalService
+  ) {}
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -91,16 +111,17 @@ export class ShoppingEditComponent implements AfterViewInit, OnChanges {
       return;
     }
 
-    if (
-      confirm(
-        'Are you sure to delete shopping list item "' +
-          this.shoppingListItem.ingredient.name +
-          '"?'
-      )
-    ) {
-      this.shoppingListService.deleteItem(this.shoppingListItem.ordinal);
-      this.onClear();
-    }
+    const targetItem = this.shoppingListItem;
+    this.modalService.handleConfirmation({
+      confirmationType: ConfirmationType.DELETE,
+      itemDescription: `"${targetItem.ingredient.name}" shopping list item`,
+      onConfirmationResult: (res) => {
+        if (res == ConfirmationResult.YES) {
+          this.shoppingListService.deleteItem(targetItem.ordinal);
+          this.onClear();
+        }
+      },
+    });
   }
 
   /* Helper Methods */

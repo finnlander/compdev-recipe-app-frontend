@@ -27,14 +27,9 @@
     <!-- phases -->
     <div class="form-group">
       <h4>Cooking Phases</h4>
-      <div class="form-check">
-        <input
-          class="form-check-input"
-          type="checkbox"
-          name="usePhases"
-          formControlName="usePhases"
-        />
-        <label class="form-check-label ml-1" for="usePhases">
+      <div class="row">
+        <label class="col-sm-12 ml-1" for="usePhases">
+          <input type="checkbox" name="usePhases" formControlName="usePhases" />
           Divide recipe into phases
         </label>
       </div>
@@ -76,7 +71,8 @@
                   <div class="pull-left">{{ phaseControl.value }}</div>
                   <div class="pull-right">
                     <button
-                      class="btn btn-danger"
+                      type="button"
+                      class="btn btn-xs btn-danger"
                       [disabled]="!canDeletePhase(phaseControl.value)"
                       [title]="
                         canDeletePhase(phaseControl.value)
@@ -167,13 +163,13 @@
                 </select>
               </label>
             </div>
-            <div class="pull-right btn-delete">
-              <button class="btn btn-danger">
-                <fa-icon
-                  size="sm"
-                  [icon]="iconDelete"
-                  (click)="onDeleteIngredient(i)"
-                ></fa-icon>
+            <div class="pull-left btn-delete">
+              <button
+                class="btn btn-danger btn-sm"
+                type="button"
+                (click)="onDeleteIngredient(i)"
+              >
+                <fa-icon [icon]="iconDelete"></fa-icon>
               </button>
             </div>
           </div>

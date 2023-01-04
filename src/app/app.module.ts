@@ -3,6 +3,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { ModalModule } from 'ngx-bootstrap/modal';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { DropdownDirective } from './directives/dropdown.directive';
@@ -13,6 +14,7 @@ import { RecipeEditComponent } from './recipes/recipe-edit/recipe-edit.component
 import { RecipeItemComponent } from './recipes/recipe-list/recipe-item/recipe-item.component';
 import { RecipeListComponent } from './recipes/recipe-list/recipe-list.component';
 import { RecipesComponent } from './recipes/recipes.component';
+import { ConfirmationModalComponent } from './shared/components/confirmation-modal/confirmation-modal.component';
 import { ShoppingEditComponent } from './shopping-list/shopping-edit/shopping-edit.component';
 import { ShoppingListItemComponent } from './shopping-list/shopping-list-item/shopping-list-item.component';
 import { ShoppingListComponent } from './shopping-list/shopping-list.component';
@@ -31,6 +33,7 @@ import { ShoppingListComponent } from './shopping-list/shopping-list.component';
     ShoppingListItemComponent,
     ErrorPageComponent,
     RecipeEditComponent,
+    ConfirmationModalComponent,
   ],
   imports: [
     BrowserModule,
@@ -38,6 +41,7 @@ import { ShoppingListComponent } from './shopping-list/shopping-list.component';
     ReactiveFormsModule,
     FontAwesomeModule,
     AppRoutingModule,
+    ModalModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent],

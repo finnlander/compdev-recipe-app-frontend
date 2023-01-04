@@ -1,8 +1,13 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { faPen, faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPen, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { RoutePath } from '../../app-routing.module';
 import { IdPathTrackingComponent } from '../../shared/classes/id-path-tracking-component';
+import {
+  ConfirmationResult,
+  ConfirmationType,
+} from '../../shared/models/confirmation.types';
+import { ModalService } from '../../shared/services/modal.service';
 import {
   ItemData,
   ShoppingListService,
@@ -17,7 +22,7 @@ import { RecipeService } from '../services/recipe.service';
 })
 export class RecipeDetailComponent extends IdPathTrackingComponent {
   iconEdit = faPen;
-  iconDelete = faTrash;
+  iconDelete = faTrashCan;
   iconShop = faPlus;
 
   selectedRecipe?: Recipe;
@@ -28,7 +33,8 @@ export class RecipeDetailComponent extends IdPathTrackingComponent {
     route: ActivatedRoute,
     private shoppingListService: ShoppingListService,
     private recipeService: RecipeService,
-    private router: Router
+    private router: Router,
+    private modalService: ModalService
   ) {
     super(route);
   }
@@ -73,13 +79,16 @@ export class RecipeDetailComponent extends IdPathTrackingComponent {
       return;
     }
 
-    if (
-      confirm(
-        'Are you sure to delete the recipe "' + this.selectedRecipe?.name + '"?'
-      )
-    ) {
-      this.recipeService.delete(this.selectedRecipe.id);
-      this.router.navigate(['../'], { relativeTo: this.route });
-    }
+    const recipe = this.selectedRecipe;
+    this.modalService.handleConfirmation({
+      confirmationType: ConfirmationType.DELETE,
+      itemDescription: `"${recipe.name}" recipe`,
+      onConfirmationResult: (res) => {
+        if (res == ConfirmationResult.YES) {
+          this.recipeService.delete(recipe.id);
+          this.router.navigate(['../'], { relativeTo: this.route });
+        }
+      },
+    });
   }
 }

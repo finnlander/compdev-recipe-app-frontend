@@ -8,10 +8,15 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { first } from 'lodash';
 import { IdPathTrackingComponent } from '../../shared/classes/id-path-tracking-component';
+import {
+  ConfirmationResult,
+  ConfirmationType,
+} from '../../shared/models/confirmation.types';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
+import { ModalService } from '../../shared/services/modal.service';
 import { RecipeItem } from '../models/recipe-item.model';
 import { Recipe } from '../models/recipe.model';
 import {
@@ -61,7 +66,7 @@ export class RecipeEditComponent
   extends IdPathTrackingComponent
   implements OnInit
 {
-  iconDelete = faTrash;
+  iconDelete = faTrashCan;
   iconAdd = faPlus;
   RecipeUnit = RecipeUnit;
   selectedRecipe?: Recipe;
@@ -72,6 +77,7 @@ export class RecipeEditComponent
   constructor(
     route: ActivatedRoute,
     private recipeService: RecipeService,
+    private modalService: ModalService,
     private router: Router,
     private fb: FormBuilder
   ) {
@@ -140,13 +146,21 @@ export class RecipeEditComponent
   }
 
   onCancel() {
-    if (this.canSave()) {
-      if (!confirm('Do you want to discard all changes?')) {
-        return;
-      }
+    if (!this.canSave()) {
+      this.router.navigate(['../'], { relativeTo: this.route });
+      return;
     }
 
-    this.router.navigate(['../'], { relativeTo: this.route });
+    this.modalService.handleConfirmation({
+      confirmationType: ConfirmationType.DISCARD,
+      itemDescription: `all changes`,
+      removeQuotes: true,
+      onConfirmationResult: (res) => {
+        if (res == ConfirmationResult.YES) {
+          this.router.navigate(['../'], { relativeTo: this.route });
+        }
+      },
+    });
   }
 
   onAddPhase() {
@@ -207,15 +221,21 @@ export class RecipeEditComponent
     const item = this.ingredientItems.controls[index];
     const value: RecipeIngredientData = item.value;
 
-    if (value.ingredientName) {
-      if (!confirm('Delete ingredient "' + value.ingredientName + '"?')) {
-        return;
-      }
+    if (!value.ingredientName) {
+      this.handleDeleteIngredient(index);
+      return;
     }
 
-    this.ingredientItems.removeAt(index);
-    this.form.markAsDirty();
-    this.form.markAsTouched();
+    this.modalService.handleConfirmation({
+      confirmationType: ConfirmationType.DELETE,
+      itemDescription: `"${value.ingredientName}" ingredient`,
+      removeQuotes: true,
+      onConfirmationResult: (res) => {
+        if (res == ConfirmationResult.YES) {
+          this.handleDeleteIngredient(index);
+        }
+      },
+    });
   }
 
   onCurrentIdChanged(currentId: number | undefined): void {
@@ -254,6 +274,12 @@ export class RecipeEditComponent
   private addPhase(phaseName: string) {
     const phaseControl = this.fb.control(phaseName);
     this.phases.push(phaseControl);
+  }
+
+  private handleDeleteIngredient(index: number) {
+    this.ingredientItems.removeAt(index);
+    this.form.markAsDirty();
+    this.form.markAsTouched();
   }
 
   private onSelectedRecipeChanged(id: number | undefined, recipe?: Recipe) {
