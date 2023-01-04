@@ -181,7 +181,6 @@ export class RecipeEditComponent
       };
     }
 
-    console.log('modelUpdate:', modelUpdate);
     this.form.patchValue(modelUpdate);
   }
 

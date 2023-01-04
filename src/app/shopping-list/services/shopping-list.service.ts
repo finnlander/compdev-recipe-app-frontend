@@ -64,7 +64,7 @@ export class ShoppingListService {
 
   clearAll() {
     this.items = [];
-    console.log('cleared shopping list');
+    console.debug('cleared shopping list');
 
     this.onShoppingListUpdated();
   }
