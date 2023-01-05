@@ -16,10 +16,7 @@ import {
   faUndo,
   faX,
 } from '@fortawesome/free-solid-svg-icons';
-import {
-  ConfirmationResult,
-  ConfirmationType,
-} from '../../shared/models/confirmation.types';
+import { ConfirmationType } from '../../shared/models/confirmation.types';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { ModalService } from '../../shared/services/modal.service';
 import { ShoppingListItem } from '../models/shopping-list-item-model';
@@ -115,11 +112,9 @@ export class ShoppingEditComponent implements AfterViewInit, OnChanges {
     this.modalService.handleConfirmation({
       confirmationType: ConfirmationType.DELETE,
       itemDescription: `"${targetItem.ingredient.name}" shopping list item`,
-      onConfirmationResult: (res) => {
-        if (res == ConfirmationResult.YES) {
-          this.shoppingListService.deleteItem(targetItem.ordinal);
-          this.onClear();
-        }
+      onConfirmYes: () => {
+        this.shoppingListService.deleteItem(targetItem.ordinal);
+        this.onClear();
       },
     });
   }

@@ -167,7 +167,7 @@ function generateSampleData(): RecipeData[] {
   return [
     // Sample burger recipe
     {
-      name: 'A burger',
+      name: 'A Mighty Burger',
       description: 'Sample recipe of a burger',
       imageUrl:
         'https://upload.wikimedia.org/wikipedia/commons/f/fb/Burger-King-Bacon-Cheeseburger.jpg',
@@ -180,9 +180,20 @@ function generateSampleData(): RecipeData[] {
         toIngredientData('green salad slice', 1),
       ],
     },
+    // Sample Snitchel recipe
+    {
+      name: 'Wiener Schnitzel',
+      description: 'A traditional german schnitzel recipe',
+      imageUrl:
+        'https://upload.wikimedia.org/wikipedia/commons/7/72/Schnitzel.JPG',
+      ingredientItems: [
+        toIngredientData('Premium wieners', 4, RecipeUnit.PCS),
+        toIngredientData('French fries', 0.5, RecipeUnit.KG),
+      ],
+    },
     // Sample mac & cheese recipe
     {
-      name: 'Mac & Cheese',
+      name: 'Traditional Mac & Cheese',
       description: 'Sample recipe of mac and cheese',
       imageUrl:
         'https://upload.wikimedia.org/wikipedia/commons/4/44/Original_Mac_n_Cheese_.jpg',

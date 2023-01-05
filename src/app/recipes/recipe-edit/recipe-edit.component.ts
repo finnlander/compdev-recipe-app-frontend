@@ -11,12 +11,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { first } from 'lodash';
 import { IdPathTrackingComponent } from '../../shared/classes/id-path-tracking-component';
-import {
-  ConfirmationResult,
-  ConfirmationType,
-} from '../../shared/models/confirmation.types';
+import { ConfirmationType } from '../../shared/models/confirmation.types';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { ModalService } from '../../shared/services/modal.service';
+import { ToastService } from '../../shared/services/toast.service';
 import { RecipeItem } from '../models/recipe-item.model';
 import { Recipe } from '../models/recipe.model';
 import {
@@ -78,6 +76,7 @@ export class RecipeEditComponent
     route: ActivatedRoute,
     private recipeService: RecipeService,
     private modalService: ModalService,
+    private toastService: ToastService,
     private router: Router,
     private fb: FormBuilder
   ) {
@@ -126,21 +125,28 @@ export class RecipeEditComponent
       console.debug('Ignored "save" button press: canSave() returned false');
       return;
     }
+    const isNew = this.mode === 'new';
+    const recipe = this.selectedRecipe;
+
+    if (!isNew && !recipe) {
+      return;
+    }
 
     const model = this.getData()!!;
     const data = { ...model, imageUrl: model.imageUrl || DEFAULT_RECIPE_IMG };
 
-    if (this.mode === 'new') {
+    if (isNew) {
       this.recipeService.addRecipe(data);
-      this.router.navigate(['../'], { relativeTo: this.route });
-      return;
+    } else {
+      this.recipeService.update(recipe!!.id, data);
     }
 
-    if (!this.selectedRecipe) {
-      return;
-    }
-
-    this.recipeService.update(this.selectedRecipe.id, data);
+    this.toastService.success({
+      title: 'Saved successfully',
+      message: `Recipe "${data.name}" ${
+        isNew ? 'created' : 'saved'
+      } successfully`,
+    });
 
     this.router.navigate(['../'], { relativeTo: this.route });
   }
@@ -155,10 +161,8 @@ export class RecipeEditComponent
       confirmationType: ConfirmationType.DISCARD,
       itemDescription: `all changes`,
       removeQuotes: true,
-      onConfirmationResult: (res) => {
-        if (res == ConfirmationResult.YES) {
-          this.router.navigate(['../'], { relativeTo: this.route });
-        }
+      onConfirmYes: () => {
+        this.router.navigate(['../'], { relativeTo: this.route });
       },
     });
   }
@@ -229,11 +233,7 @@ export class RecipeEditComponent
       confirmationType: ConfirmationType.DELETE,
       itemDescription: `"${value.ingredientName}" ingredient`,
       removeQuotes: true,
-      onConfirmationResult: (res) => {
-        if (res == ConfirmationResult.YES) {
-          this.handleDeleteIngredient(index);
-        }
-      },
+      onConfirmYes: () => this.handleDeleteIngredient(index),
     });
   }
 

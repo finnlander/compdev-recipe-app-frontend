@@ -3,11 +3,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { faPen, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { RoutePath } from '../../app-routing.module';
 import { IdPathTrackingComponent } from '../../shared/classes/id-path-tracking-component';
-import {
-  ConfirmationResult,
-  ConfirmationType,
-} from '../../shared/models/confirmation.types';
+import { ConfirmationType } from '../../shared/models/confirmation.types';
 import { ModalService } from '../../shared/services/modal.service';
+import { ToastService } from '../../shared/services/toast.service';
 import {
   ItemData,
   ShoppingListService,
@@ -31,10 +29,11 @@ export class RecipeDetailComponent extends IdPathTrackingComponent {
 
   constructor(
     route: ActivatedRoute,
+    private router: Router,
     private shoppingListService: ShoppingListService,
     private recipeService: RecipeService,
-    private router: Router,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private toastService: ToastService
   ) {
     super(route);
   }
@@ -71,7 +70,18 @@ export class RecipeDetailComponent extends IdPathTrackingComponent {
       }
     );
 
-    this.shoppingListService.addNewItems(shoppingItemData);
+    this.modalService.handleConfirmation({
+      confirmationType: ConfirmationType.PROCEED_CONFIRMATION,
+      itemDescription: `add ${shoppingItemData.length} ingredient(s) to the shopping list`,
+      removeQuotes: true,
+      onConfirmYes: () => {
+        this.shoppingListService.addNewItems(shoppingItemData);
+        this.toastService.success({
+          title: 'Shopping list updated',
+          message: `${shoppingItemData.length} item(s) added to the shopping list`,
+        });
+      },
+    });
   }
 
   deleteRecipe() {
@@ -83,11 +93,15 @@ export class RecipeDetailComponent extends IdPathTrackingComponent {
     this.modalService.handleConfirmation({
       confirmationType: ConfirmationType.DELETE,
       itemDescription: `"${recipe.name}" recipe`,
-      onConfirmationResult: (res) => {
-        if (res == ConfirmationResult.YES) {
-          this.recipeService.delete(recipe.id);
-          this.router.navigate(['../'], { relativeTo: this.route });
-        }
+      removeQuotes: true,
+      onConfirmYes: () => {
+        this.recipeService.delete(recipe.id);
+        this.toastService.success({
+          title: 'Deleted successfully',
+          message: `Recipe "${recipe.name}" deleted successfully`,
+        });
+
+        this.router.navigate(['../'], { relativeTo: this.route });
       },
     });
   }

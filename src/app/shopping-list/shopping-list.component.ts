@@ -1,11 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { faTrashCanArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { SubscribingComponent } from '../shared/classes/subscribing-component';
-import {
-  ConfirmationResult,
-  ConfirmationType,
-} from '../shared/models/confirmation.types';
+import { ConfirmationType } from '../shared/models/confirmation.types';
 import { ModalService } from '../shared/services/modal.service';
+import { ToastService } from '../shared/services/toast.service';
 import { ShoppingListItem } from './models/shopping-list-item-model';
 import { ShoppingListService } from './services/shopping-list.service';
 
@@ -24,7 +22,8 @@ export class ShoppingListComponent
 
   constructor(
     private shoppingListService: ShoppingListService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private toastService: ToastService
   ) {
     super();
   }
@@ -66,10 +65,12 @@ export class ShoppingListComponent
       confirmationType: ConfirmationType.CLEAR_ALL,
       itemDescription: 'shopping list items',
       removeQuotes: true,
-      onConfirmationResult: (res) => {
-        if (res == ConfirmationResult.YES) {
-          this.shoppingListService.clearAll();
-        }
+      onConfirmYes: () => {
+        this.shoppingListService.clearAll();
+        this.toastService.success({
+          title: 'Cleared successfully',
+          message: 'Shopping list was cleared successfully',
+        });
       },
     });
   }

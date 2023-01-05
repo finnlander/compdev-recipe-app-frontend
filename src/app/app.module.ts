@@ -2,8 +2,10 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { ToastrModule } from 'ngx-toastr';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { DropdownDirective } from './directives/dropdown.directive';
@@ -41,7 +43,9 @@ import { ShoppingListComponent } from './shopping-list/shopping-list.component';
     ReactiveFormsModule,
     FontAwesomeModule,
     AppRoutingModule,
+    BrowserAnimationsModule,
     ModalModule.forRoot(),
+    ToastrModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent],

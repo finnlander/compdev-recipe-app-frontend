@@ -21,7 +21,11 @@
         class="form-control"
         placeholder="https://"
         formControlName="imageUrl"
+        #imageUrl
       />
+    </div>
+    <div class="form-group">
+      <img class="img-responsive" [src]="imageUrl.value" alt="[recipe image]" />
     </div>
     <hr />
     <!-- phases -->

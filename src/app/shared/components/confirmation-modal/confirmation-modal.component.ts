@@ -45,8 +45,19 @@ export class ConfirmationModalComponent {
         return 'clear all';
       case ConfirmationType.DELETE:
         return 'remove';
+      case ConfirmationType.PROCEED_CONFIRMATION:
+        return 'proceed to';
       default:
         return '' + this.confirmationType;
+    }
+  }
+
+  get yesButtonClasses() {
+    switch (this.confirmationType) {
+      case ConfirmationType.PROCEED_CONFIRMATION:
+        return 'btn-success';
+      default:
+        return 'btn-danger';
     }
   }
 

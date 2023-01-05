@@ -15,7 +15,12 @@
   Are you sure you want to {{ action }} {{ description }}?
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-danger" (click)="onConfirm()">
+  <button
+    type="button"
+    class="btn"
+    [ngClass]="yesButtonClasses"
+    (click)="onConfirm()"
+  >
     Yes
   </button>
   <button type="button" class="btn" (click)="onCancel()">No</button>

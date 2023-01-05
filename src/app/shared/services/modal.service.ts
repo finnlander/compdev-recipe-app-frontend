@@ -14,7 +14,15 @@ import {
 export interface ConfirmationOperationProps {
   confirmationType: ConfirmationType;
   itemDescription: string;
-  onConfirmationResult: (result: ConfirmationResult) => void;
+
+  /**
+   * Callback function for confirmation result.
+   */
+  onConfirmationResult?: (result: ConfirmationResult) => void;
+  /**
+   * Callback function for confirming 'yes' as a result.
+   */
+  onConfirmYes?: () => void;
   removeQuotes?: boolean;
 }
 
@@ -36,6 +44,7 @@ export class ModalService {
       itemDescription,
       removeQuotes,
       onConfirmationResult,
+      onConfirmYes,
     } = props;
 
     const initialState: ConfirmationModalContent = {
@@ -50,7 +59,14 @@ export class ModalService {
 
     const modal = modalRef.content as ConfirmationModalComponent;
     const subscription = modal.confirmationResult.subscribe((res) => {
-      onConfirmationResult(res);
+      if (onConfirmationResult) {
+        onConfirmationResult(res);
+      }
+
+      if (res == ConfirmationResult.YES && onConfirmYes) {
+        onConfirmYes();
+      }
+
       subscription.unsubscribe();
     });
   }
