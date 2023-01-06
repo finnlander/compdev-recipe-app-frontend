@@ -1,14 +1,20 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ModalModule } from 'ngx-bootstrap/modal';
+import { NgxSpinnerModule } from 'ngx-spinner';
 import { ToastrModule } from 'ngx-toastr';
+import { AuthInterceptor } from './api/interceptors/auth-interceptor.service';
+import { ErrorInterceptor } from './api/interceptors/error-interceptor.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { AuthComponent } from './auth/auth.component';
 import { DropdownDirective } from './directives/dropdown.directive';
+import { EqualityValidatorDirective } from './directives/require-equality-validator.directive';
 import { ErrorPageComponent } from './error-page/error-page.component';
 import { HeaderComponent } from './header/header.component';
 import { RecipeDetailComponent } from './recipes/recipe-detail/recipe-detail.component';
@@ -36,18 +42,34 @@ import { ShoppingListComponent } from './shopping-list/shopping-list.component';
     ErrorPageComponent,
     RecipeEditComponent,
     ConfirmationModalComponent,
+    AuthComponent,
+    EqualityValidatorDirective,
   ],
   imports: [
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
+    HttpClientModule,
     FontAwesomeModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    NgxSpinnerModule.forRoot({ type: 'ball-newton-cradle' }),
     ModalModule.forRoot(),
     ToastrModule.forRoot(),
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ErrorInterceptor,
+      multi: true,
+    },
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

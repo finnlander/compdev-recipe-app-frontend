@@ -32,7 +32,8 @@ export class RecipeService {
   private recipes: Recipe[] = [];
 
   constructor(private ingredientService: IngredientService) {
-    this.addSampleData();
+    // uncomment when needing sample data
+    //this.addSampleData();
   }
 
   addRecipe(data: RecipeData): Recipe {
@@ -62,6 +63,11 @@ export class RecipeService {
     }
 
     this.recipes.splice(index, 1);
+    this.recipesChanged.next([...this.recipes]);
+  }
+
+  setRecipes(recipes: Recipe[]) {
+    this.recipes = recipes;
     this.recipesChanged.next([...this.recipes]);
   }
 

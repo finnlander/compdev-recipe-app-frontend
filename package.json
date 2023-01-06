@@ -25,6 +25,7 @@
     "bootstrap": "^3.4.1",
     "lodash": "^4.17.21",
     "ngx-bootstrap": "6.2.0",
+    "ngx-spinner": "^15.0.1",
     "ngx-toastr": "^16.0.1",
     "rxjs": "^6.6.7",
     "rxjs-compat": "^6.6.7",
