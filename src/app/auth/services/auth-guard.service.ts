@@ -7,6 +7,7 @@ import {
   UrlTree,
 } from '@angular/router';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { RoutePath } from '../../app-routing.module';
 import { AuthService } from './auth.service';
 
@@ -22,14 +23,19 @@ export class AuthGuard implements CanActivate {
     | UrlTree
     | Observable<boolean | UrlTree>
     | Promise<boolean | UrlTree> {
-    if (this.authService.isLoggedIn()) {
-      return true;
-    }
+    return this.authService.afterInitialized().pipe(
+      map(() => {
+        if (this.authService.isLoggedIn()) {
+          return true;
+        }
 
-    // redirect to login
-    this.router.navigate([RoutePath.Auth], {
-      queryParams: { returnUrl: state.url },
-    });
-    return false;
+        // redirect to login
+        this.router.navigate([RoutePath.Auth], {
+          queryParams: { returnUrl: state.url },
+        });
+
+        return false;
+      })
+    );
   }
 }

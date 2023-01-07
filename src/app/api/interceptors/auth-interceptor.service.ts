@@ -19,11 +19,10 @@ export class AuthInterceptor implements HttpInterceptor {
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    if (!this.authService.isLoggedIn()) {
+    const authHeaderValue: string = this.authService.getAuthToken()!!;
+    if (!authHeaderValue) {
       return next.handle(req);
     }
-
-    const authHeaderValue: string = this.authService.getAuthToken()!!;
 
     const modifiedReq = req.clone({
       headers: req.headers.append('Authorization', authHeaderValue),

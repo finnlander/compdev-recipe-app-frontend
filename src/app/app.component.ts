@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RoutePath } from './app-routing.module';
 import { AuthService } from './auth/services/auth.service';
 import { RecipeService } from './recipes/services/recipe.service';
@@ -20,7 +20,8 @@ export class AppComponent extends SubscribingComponent implements OnInit {
     private dataStorageService: DataStorageService,
     private recipeService: RecipeService,
     private shoppingListService: ShoppingListService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     super();
   }
@@ -40,17 +41,21 @@ export class AppComponent extends SubscribingComponent implements OnInit {
         }
       })
     );
+
+    // resume session, if available
+    this.authService.resume();
   }
 
   /* Lifecycle methods */
 
   private onLogin() {
-    console.debug('onLogin');
-    this.dataStorageService.loadRecipes();
+    console.debug('onLogin initiated');
+    this.dataStorageService.loadRecipes().subscribe();
   }
 
   private onLogout() {
-    console.debug('onLogout');
+    console.debug('onLogout initiated');
+
     this.shoppingListService.clearAll();
     this.recipeService.setRecipes([]);
     this.recipeService.setSelectedRecipe();

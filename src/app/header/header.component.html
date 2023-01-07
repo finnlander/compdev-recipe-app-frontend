@@ -23,10 +23,10 @@
         (window:resize)="collapsed = true"
       >
         <ul class="nav navbar-nav">
-          <li routerLinkActive="active">
+          <li *ngIf="isLoggedIn" routerLinkActive="active">
             <a [routerLink]="[Routes.Recipe]">Recipes</a>
           </li>
-          <li routerLinkActive="active">
+          <li *ngIf="isLoggedIn" routerLinkActive="active">
             <a [routerLink]="[Routes.ShoppingList]"
               >Shopping List (<span [innerText]="shoppingListCount"></span>)</a
             >
@@ -42,7 +42,7 @@
             </li>
           </ng-template>
 
-          <li class="dropdown" appDropdown>
+          <li *ngIf="isLoggedIn" class="dropdown" appDropdown>
             <a style="cursor: pointer" class="dropdown-toggle" role="button"
               >Manage <span class="caret"></span
             ></a>

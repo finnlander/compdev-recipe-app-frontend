@@ -1,5 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { Recipe } from '../../recipes/models/recipe.model';
 import { RecipeService } from '../../recipes/services/recipe.service';
 import { getApiUrl } from '../utils/common.util';
@@ -34,18 +36,15 @@ export class DataStorageService {
 
   loadRecipes() {
     const url = getApiUrl('recipes');
-    return new Promise<Recipe[]>((resolve, reject) => {
-      this.http.get<Recipe[]>(url).subscribe(
-        (recipes) => {
-          console.debug('Loaded recipes:', recipes);
-          this.recipeService.setRecipes(recipes);
-          resolve(recipes);
-        },
-        (error: HttpErrorResponse) => {
-          console.error('API error occurred on loading recipes: ', error);
-          reject(error.message);
-        }
-      );
-    });
+    return this.http.get<Recipe[]>(url).pipe(
+      tap((recipes) => {
+        console.debug('Loaded recipes:', recipes);
+        this.recipeService.setRecipes(recipes);
+      }),
+      catchError((error: HttpErrorResponse) => {
+        console.error('API error occurred on loading recipes: ', error);
+        return throwError(error.message);
+      })
+    );
   }
 }

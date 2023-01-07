@@ -83,7 +83,7 @@ export class HeaderComponent extends SubscribingComponent implements OnInit {
       itemDescription: 'loading recipes',
       removeQuotes: true,
       onConfirmYes: () => {
-        this.dataStorageService.loadRecipes().then(
+        this.dataStorageService.loadRecipes().subscribe(
           () => {
             this.recipeService.setSelectedRecipe();
             this.toastService.success({
