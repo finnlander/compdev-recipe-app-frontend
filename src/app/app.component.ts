@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { environment } from '../environments/environment';
 import { RoutePath } from './app-routing.module';
 import { AuthService } from './auth/services/auth.service';
 import { RecipeService } from './recipes/services/recipe.service';
@@ -27,6 +28,8 @@ export class AppComponent extends SubscribingComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    console.log('Env: ', environment);
+
     this.addSubscription(
       this.authService.loginChange.subscribe((isLoggedIn) => {
         if (isLoggedIn === this.loggedIn) {

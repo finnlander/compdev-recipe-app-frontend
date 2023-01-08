@@ -1,4 +1,9 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import {
+  CUSTOM_ELEMENTS_SCHEMA,
+  EnvironmentProviders,
+  NgModule,
+  Provider,
+} from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -8,7 +13,9 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ToastrModule } from 'ngx-toastr';
+import { environment } from '../environments/environment';
 import { AuthInterceptor } from './api/interceptors/auth-interceptor.service';
+import { BackendMockInterceptor } from './api/interceptors/backend-mock-interceptor.service';
 import { ErrorInterceptor } from './api/interceptors/error-interceptor.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -26,6 +33,28 @@ import { ConfirmationModalComponent } from './shared/components/confirmation-mod
 import { ShoppingEditComponent } from './shopping-list/shopping-edit/shopping-edit.component';
 import { ShoppingListItemComponent } from './shopping-list/shopping-list-item/shopping-list-item.component';
 import { ShoppingListComponent } from './shopping-list/shopping-list.component';
+
+const providers: (Provider | EnvironmentProviders)[] = [
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: AuthInterceptor,
+    multi: true,
+  },
+  {
+    provide: HTTP_INTERCEPTORS,
+    useClass: ErrorInterceptor,
+    multi: true,
+  },
+];
+
+if (environment.enableBackendMock) {
+  console.info('Enabling backend mocking');
+  providers.push({
+    provide: HTTP_INTERCEPTORS,
+    useClass: BackendMockInterceptor,
+    multi: true,
+  });
+}
 
 @NgModule({
   declarations: [
@@ -57,18 +86,7 @@ import { ShoppingListComponent } from './shopping-list/shopping-list.component';
     ModalModule.forRoot(),
     ToastrModule.forRoot(),
   ],
-  providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true,
-    },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: ErrorInterceptor,
-      multi: true,
-    },
-  ],
+  providers: providers,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent],
 })

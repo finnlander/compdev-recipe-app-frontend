@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import * as _ from 'lodash';
-import { Subject } from 'rxjs';
+import { find, remove } from 'lodash';
+import { forkJoin, of, Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Ingredient } from '../../shared/models/ingredient.model';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { IngredientService } from '../../shared/services/ingredient.service';
@@ -28,13 +29,14 @@ export class ShoppingListService {
   constructor(private ingredientService: IngredientService) {}
 
   addNewItem(data: ItemData) {
-    this.addNewItemToShoppingList(data);
-    this.onShoppingListUpdated();
+    this.addNewItemToShoppingList(data).subscribe(() =>
+      this.onShoppingListUpdated()
+    );
   }
 
   addNewItems(data: ItemData[]) {
-    data.forEach((it) => this.addNewItemToShoppingList(it));
-    this.onShoppingListUpdated();
+    const observables = data.map((it) => this.addNewItemToShoppingList(it));
+    forkJoin(observables).subscribe(() => this.onShoppingListUpdated());
   }
 
   deleteItem(ordinal: number) {
@@ -43,7 +45,7 @@ export class ShoppingListService {
       return;
     }
 
-    _.remove(this.items, (it) => it.ordinal === ordinal);
+    remove(this.items, (it) => it.ordinal === ordinal);
 
     this.items.forEach((item, index) => {
       item.ordinal = index + 1;
@@ -58,8 +60,9 @@ export class ShoppingListService {
       return;
     }
 
-    this.updateShoppingListItem(item, data);
-    this.onShoppingListUpdated();
+    this.updateShoppingListItem(item, data).subscribe(() =>
+      this.onShoppingListUpdated()
+    );
   }
 
   clearAll() {
@@ -94,35 +97,45 @@ export class ShoppingListService {
   /* Helper Methods */
 
   private addNewItemToShoppingList(data: ItemData) {
-    const ingredient = this.ingredientService.getOrAddIngredient(
-      data.ingredientName
+    return this.ingredientService.getOrAddIngredient(data.ingredientName).pipe(
+      map((ingredient) => {
+        const item = this.getOrCreateItem(ingredient, data.unit);
+        item.amount += data.amount;
+        return item;
+      })
     );
-
-    const item = this.getOrCreateItem(ingredient, data.unit);
-    item.amount += data.amount;
   }
 
   private updateShoppingListItem(item: ShoppingListItem, data: ItemData) {
     if (item.ingredient.name !== data.ingredientName) {
-      const ingredient = this.ingredientService.getOrAddIngredient(
-        data.ingredientName
-      );
-      item.ingredient = ingredient;
+      return this.ingredientService
+        .getOrAddIngredient(data.ingredientName)
+        .pipe(
+          map((ingredient) => {
+            item.ingredient = ingredient;
+            item.amount = data.amount;
+            item.unit = data.unit;
+
+            return item;
+          })
+        );
     }
 
     item.amount = data.amount;
     item.unit = data.unit;
+
+    return of(item);
   }
 
   private findItemByOrdinal(ordinal: number) {
-    return _.find(this.items, (it) => it.ordinal === ordinal);
+    return find(this.items, (it) => it.ordinal === ordinal);
   }
 
   private getOrCreateItem(
     ingredient: Ingredient,
     unit: RecipeUnit
   ): ShoppingListItem {
-    const existingItem = _.find(
+    const existingItem = find(
       this.items,
       (it) => it.ingredient.id === ingredient.id && it.unit === unit
     );

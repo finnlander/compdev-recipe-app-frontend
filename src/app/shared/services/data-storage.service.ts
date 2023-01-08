@@ -1,10 +1,11 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Recipe } from '../../recipes/models/recipe.model';
 import { RecipeService } from '../../recipes/services/recipe.service';
 import { getApiUrl } from '../utils/common.util';
+import { IngredientService } from './ingredient.service';
 
 interface PutResponse {
   status: string;
@@ -14,7 +15,13 @@ interface PutResponse {
   providedIn: 'root',
 })
 export class DataStorageService {
-  constructor(private http: HttpClient, private recipeService: RecipeService) {}
+  private loadSubscription?: Observable<Recipe[]>;
+
+  constructor(
+    private http: HttpClient,
+    private recipeService: RecipeService,
+    private ingredientService: IngredientService
+  ) {}
 
   storeRecipes() {
     const recipes = this.recipeService.getRecipes();
@@ -34,7 +41,21 @@ export class DataStorageService {
     });
   }
 
-  loadRecipes() {
+  loadRecipes(forceReload: boolean = false) {
+    if (this.loadSubscription && !forceReload) {
+      return this.loadSubscription;
+    }
+
+    this.loadSubscription = this.ingredientService.loadIngredients().pipe(
+      // note: same http call is shared between subscribers, unless reload is forced
+      shareReplay(),
+      switchMap((_) => this.createLoadRecipesObservable())
+    );
+
+    return this.loadSubscription;
+  }
+
+  private createLoadRecipesObservable() {
     const url = getApiUrl('recipes');
     return this.http.get<Recipe[]>(url).pipe(
       tap((recipes) => {

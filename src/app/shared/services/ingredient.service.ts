@@ -1,51 +1,109 @@
-import { EventEmitter, Injectable } from '@angular/core';
-import * as _ from 'lodash';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable, of, throwError } from 'rxjs';
+import { catchError, map, tap } from 'rxjs/operators';
 import { Ingredient } from '../models/ingredient.model';
+import { getApiUrl } from '../utils/common.util';
 
 @Injectable({
   providedIn: 'root',
 })
 export class IngredientService {
-  private ingredients: Ingredient[] = [];
+  // local cache structures
+  private ingredientsById: Map<number, Ingredient> = new Map();
+  private ingredientIdsByName: Map<string, number> = new Map();
 
-  ingredientsChanged = new EventEmitter<Ingredient[]>();
+  constructor(private http: HttpClient) {}
 
-  constructor() {}
+  getOrAddIngredients(ingredientNames: string[]): Observable<Ingredient[]> {
+    if (
+      ingredientNames.every((ingredientName) =>
+        this.ingredientIdsByName.has(ingredientName)
+      )
+    ) {
+      // use local cache
+      const ingredients = ingredientNames.map((ingredientName) => {
+        const id = this.ingredientIdsByName.get(ingredientName)!!;
+        return this.ingredientsById.get(id)!!;
+      });
 
-  getOrAddIngredient(ingredientName: string): Ingredient {
-    const existingIngredient = _.find(
-      this.ingredients,
-      (it) => it.name === ingredientName
-    );
-
-    if (existingIngredient) {
-      return existingIngredient;
+      return of(ingredients);
     }
 
-    const id = this.ingredients.length + 1;
-    const ingredient = new Ingredient(id, ingredientName);
-
-    this.ingredients.push(ingredient);
-    this.onIngredientsChanged();
-
-    return ingredient;
+    // fetch from backend, if any cache misses (to simplify things)
+    return this.requestNewIngredients(ingredientNames);
   }
 
-  deleteIngredient(id: number) {
-    const ingredient = _.find(this.ingredients, (it) => it.id === id);
-    if (!ingredient) {
-      return;
+  getOrAddIngredient(ingredientName: string): Observable<Ingredient> {
+    const existingId = this.ingredientIdsByName.get(ingredientName);
+    if (existingId) {
+      return of(this.ingredientsById.get(existingId)!!);
     }
 
-    _.remove(this.ingredients, (it) => it.id === id);
-    this.onIngredientsChanged();
+    return this.requestNewIngredient(ingredientName).pipe(
+      tap((ingredient) => {
+        this.ingredientsById.set(ingredient.id, ingredient);
+        this.ingredientIdsByName.set(ingredientName, ingredient.id);
+      })
+    );
   }
 
   getIngredients() {
-    return [...this.ingredients];
+    return [...this.ingredientsById.values()];
   }
 
-  private onIngredientsChanged() {
-    this.ingredientsChanged.emit([...this.ingredients]);
+  loadIngredients() {
+    this.ingredientIdsByName.clear();
+    this.ingredientsById.clear();
+
+    return this.queryAllIngredients().pipe(
+      tap((ingredients) => {
+        ingredients.forEach((ingredient) => this.setToCache(ingredient));
+      }),
+      catchError((err: HttpErrorResponse) => {
+        console.error('Ingredient loading failed on error: ', err);
+        return throwError(err.message);
+      })
+    );
+  }
+
+  private requestNewIngredient(ingredientName: string) {
+    const url = getApiUrl('ingredients');
+    const body = { ingredientNames: [ingredientName] };
+
+    return this.requestNewIngredients([ingredientName]).pipe(
+      map((ingredients) => ingredients[0])
+    );
+  }
+
+  private requestNewIngredients(ingredientNames: string[]) {
+    const url = getApiUrl('ingredients');
+    const body = { ingredientNames };
+
+    return this.http.post<Ingredient[]>(url, body).pipe(
+      tap((ingredients) =>
+        ingredients.forEach((ingredient) => this.setToCache(ingredient))
+      ),
+      catchError((err: HttpErrorResponse) => {
+        console.error('Ingredient add failed on error: ', err);
+        return throwError(err.message);
+      })
+    );
+  }
+
+  private setToCache(ingredient: Ingredient) {
+    this.ingredientIdsByName.set(ingredient.name, ingredient.id);
+    this.ingredientsById.set(ingredient.id, ingredient);
+  }
+
+  private clearFromCache(ingredient: Ingredient) {
+    this.ingredientIdsByName.delete(ingredient.name);
+    this.ingredientsById.delete(ingredient.id);
+  }
+
+  private queryAllIngredients() {
+    const url = getApiUrl('ingredients');
+
+    return this.http.get<Ingredient[]>(url);
   }
 }

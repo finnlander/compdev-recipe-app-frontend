@@ -25,6 +25,7 @@ export class RecipesResolverService implements Resolve<Recipe[]> {
       return recipes;
     }
 
+    // make sure recipes are loaded before transition to the view occurs
     return this.dataStorageService.loadRecipes();
   }
 }

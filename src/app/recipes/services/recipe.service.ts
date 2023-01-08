@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Subject, Subscription } from 'rxjs';
+import { clone, sortedUniq } from 'lodash';
+import { Observable, Subject, Subscription } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { Ingredient } from '../../shared/models/ingredient.model';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { IngredientService } from '../../shared/services/ingredient.service';
@@ -31,26 +33,19 @@ export class RecipeService {
   private selectedRecipe?: Recipe;
   private recipes: Recipe[] = [];
 
-  constructor(private ingredientService: IngredientService) {
-    // uncomment when needing sample data
-    //this.addSampleData();
-  }
+  constructor(private ingredientService: IngredientService) {}
 
-  addRecipe(data: RecipeData): Recipe {
-    const { name, description, imageUrl, ingredientItems } = data;
-    const recipe = new Recipe(
-      this.recipes.length + 1,
-      name,
-      description,
-      imageUrl
+  addRecipe(data: RecipeData): Observable<Recipe> {
+    const ingredientNames = extractUniqueIngredientNames(data);
+
+    return this.ingredientService.getOrAddIngredients(ingredientNames).pipe(
+      map((ingredients) => this.createNewRecipe(data, ingredients)),
+      map((recipe) => {
+        this.recipes.push(recipe);
+        this.recipesChanged.next([...this.recipes]);
+        return { ...recipe } as Recipe;
+      })
     );
-
-    ingredientItems.forEach((item) => this.addIngredientItem(recipe, item));
-
-    this.recipes.push(recipe);
-    this.recipesChanged.next([...this.recipes]);
-
-    return { ...recipe } as Recipe;
   }
 
   delete(recipeId: number) {
@@ -67,7 +62,13 @@ export class RecipeService {
   }
 
   setRecipes(recipes: Recipe[]) {
+    recipes.forEach((recipe) => {
+      recipe.items.forEach((it) =>
+        this.ingredientService.getOrAddIngredient(it.ingredient.name)
+      );
+    });
     this.recipes = recipes;
+
     this.recipesChanged.next([...this.recipes]);
   }
 
@@ -101,20 +102,18 @@ export class RecipeService {
     return this.setSelectedRecipe(match);
   }
 
-  update(recipeId: number, newData: RecipeData): Recipe {
-    const { name, description, imageUrl, ingredientItems } = newData;
-    const match = this.findRecipeById(recipeId, true)!!;
+  update(recipeId: number, newData: RecipeData) {
+    const recipe = this.findRecipeById(recipeId, true)!!;
 
-    match.name = name;
-    match.description = description;
-    match.imageUrl = imageUrl;
-
-    match.clearItems();
-    ingredientItems.forEach((item) => this.addIngredientItem(match, item));
-
-    // note: select to allow updating selected value on different components
-    this.setSelectedRecipe(match);
-    return { ...match } as Recipe;
+    const ingredientNames = extractUniqueIngredientNames(newData);
+    return this.ingredientService.getOrAddIngredients(ingredientNames).pipe(
+      map((ingredients) =>
+        this.updateExistingRecipe(recipe, newData, ingredients)
+      ),
+      // note: select to allow updating selected value on different components
+      tap((it) => this.setSelectedRecipe(it)),
+      map((it) => clone(it))
+    );
   }
 
   getSelectedRecipe() {
@@ -127,17 +126,35 @@ export class RecipeService {
 
   /* Helper Methods */
 
-  private getIngredient(ingredientName: string): Ingredient {
-    return this.ingredientService.getOrAddIngredient(ingredientName);
+  private createNewRecipe(data: RecipeData, ingredients: Ingredient[]): Recipe {
+    const { name, description, imageUrl, ingredientItems } = data;
+    const recipe = new Recipe(
+      this.recipes.length + 1,
+      name,
+      description,
+      imageUrl
+    );
+
+    addIngredients(recipe, ingredientItems, ingredients);
+
+    return recipe;
   }
 
-  private addIngredientItem(recipe: Recipe, item: RecipeIngredientData): void {
-    recipe.addIngredient(
-      this.getIngredient(item.ingredientName),
-      item.amount,
-      item.unit,
-      item.phase
-    );
+  private updateExistingRecipe(
+    recipe: Recipe,
+    data: RecipeData,
+    ingredients: Ingredient[]
+  ): Recipe {
+    const { name, description, imageUrl, ingredientItems } = data;
+
+    recipe.name = name;
+    recipe.description = description;
+    recipe.imageUrl = imageUrl;
+
+    recipe.clearItems();
+    addIngredients(recipe, ingredientItems, ingredients);
+
+    return recipe;
   }
 
   private findRecipeById(recipeId: number, required: boolean = false) {
@@ -149,105 +166,28 @@ export class RecipeService {
 
     return match;
   }
-
-  private addSampleData() {
-    generateSampleData().forEach((recipe) => this.addRecipe(recipe));
-  }
 }
 
-function toIngredientData(
-  ingredientName: string,
-  amount: number,
-  unit: RecipeUnit = RecipeUnit.PCS,
-  phase?: string
-): RecipeIngredientData {
-  return {
-    ingredientName,
-    amount,
-    unit,
-    phase,
-  };
+/* Helper Functions */
+
+function addIngredients(
+  recipe: Recipe,
+  ingredientItems: RecipeIngredientData[],
+  ingredients: Ingredient[]
+) {
+  ingredientItems.forEach((ingredientItem) => {
+    const ingredient = ingredients.find(
+      (it) => it.name === ingredientItem.ingredientName
+    )!!;
+    recipe.addIngredient(
+      ingredient,
+      ingredientItem.amount,
+      ingredientItem.unit,
+      ingredientItem.phase
+    );
+  });
 }
 
-function generateSampleData(): RecipeData[] {
-  return [
-    // Sample burger recipe
-    {
-      name: 'A Mighty Burger',
-      description: 'Sample recipe of a burger',
-      imageUrl:
-        'https://upload.wikimedia.org/wikipedia/commons/f/fb/Burger-King-Bacon-Cheeseburger.jpg',
-      ingredientItems: [
-        toIngredientData('bun', 1),
-        toIngredientData('cheese slice', 1),
-        toIngredientData('beef steak', 1),
-        toIngredientData('pickles', 2),
-        toIngredientData('tomato slices', 2),
-        toIngredientData('green salad slice', 1),
-      ],
-    },
-    // Sample Snitchel recipe
-    {
-      name: 'Wiener Schnitzel',
-      description: 'A traditional german schnitzel recipe',
-      imageUrl:
-        'https://upload.wikimedia.org/wikipedia/commons/7/72/Schnitzel.JPG',
-      ingredientItems: [
-        toIngredientData('Premium wieners', 4, RecipeUnit.PCS),
-        toIngredientData('French fries', 0.5, RecipeUnit.KG),
-      ],
-    },
-    // Sample mac & cheese recipe
-    {
-      name: 'Traditional Mac & Cheese',
-      description: 'Sample recipe of mac and cheese',
-      imageUrl:
-        'https://upload.wikimedia.org/wikipedia/commons/4/44/Original_Mac_n_Cheese_.jpg',
-      ingredientItems: [
-        // macaroni
-        toIngredientData(
-          'macaroni (elbow pasta)',
-          250,
-          RecipeUnit.GRAMS,
-          'macaroni'
-        ),
-        toIngredientData('unsalted butter', 15, RecipeUnit.GRAMS, 'macaroni'),
-        // topping
-        toIngredientData('panko breadcrumbs', 11, RecipeUnit.CUP, 'topping'),
-        toIngredientData('unsalted butter', 30, RecipeUnit.GRAMS, 'topping'),
-        toIngredientData('salt', 0.25, RecipeUnit.TEA_SPOON, 'topping'),
-        // sauce
-        toIngredientData('unsalted butter', 60, RecipeUnit.GRAMS, 'sauce'),
-        toIngredientData('flour', 0.33, RecipeUnit.CUP, 'sauce'),
-        toIngredientData('milk', 3, RecipeUnit.CUP, 'sauce'),
-        toIngredientData('freshly shredded cheese', 2, RecipeUnit.CUP, 'sauce'),
-        toIngredientData(
-          'freshly shredded mozzarella cheese',
-          1,
-          RecipeUnit.CUP,
-          'sauce'
-        ),
-        toIngredientData('salt', 0.75, RecipeUnit.TEA_SPOON, 'sauce'),
-        // Seasonings
-        toIngredientData(
-          'garlic powder',
-          1,
-          RecipeUnit.TEA_SPOON,
-          'seasonings (optional)'
-        ),
-        toIngredientData(
-          'onion powder',
-          0.5,
-          RecipeUnit.TEA_SPOON,
-          'seasonings (optional)'
-        ),
-        toIngredientData(
-          'mustard powder',
-          0.5,
-          RecipeUnit.TEA_SPOON,
-          'seasonings (optional)'
-        ),
-      ],
-    },
-  ];
+function extractUniqueIngredientNames(data: RecipeData) {
+  return sortedUniq(data.ingredientItems.map((it) => it.ingredientName));
 }

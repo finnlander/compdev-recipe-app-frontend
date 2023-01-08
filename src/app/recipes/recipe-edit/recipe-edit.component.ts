@@ -135,20 +135,20 @@ export class RecipeEditComponent
     const model = this.getData()!!;
     const data = { ...model, imageUrl: model.imageUrl || DEFAULT_RECIPE_IMG };
 
-    if (isNew) {
-      this.recipeService.addRecipe(data);
-    } else {
-      this.recipeService.update(recipe!!.id, data);
-    }
+    const observable = isNew
+      ? this.recipeService.addRecipe(data)
+      : this.recipeService.update(recipe!!.id, data);
 
-    this.toastService.success({
-      title: 'Saved successfully',
-      message: `Recipe "${data.name}" ${
-        isNew ? 'created' : 'saved'
-      } successfully`,
+    observable.subscribe((_) => {
+      this.toastService.success({
+        title: 'Saved successfully',
+        message: `Recipe "${data.name}" ${
+          isNew ? 'created' : 'saved'
+        } successfully`,
+      });
+
+      this.router.navigate(['../'], { relativeTo: this.route });
     });
-
-    this.router.navigate(['../'], { relativeTo: this.route });
   }
 
   onCancel() {
