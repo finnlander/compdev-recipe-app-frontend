@@ -60,6 +60,7 @@
             class="btn btn-primary action-row-btn"
             type="reset"
             (click)="onClear()"
+            [disabled]="!shoppingListItem && !form.touched"
           >
             <fa-icon
               [icon]="shoppingListItem ? iconCancel : iconClear"
