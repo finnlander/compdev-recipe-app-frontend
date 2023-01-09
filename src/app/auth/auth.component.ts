@@ -98,7 +98,7 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
     this.form!!.reset();
   }
 
-  onClearError() {
+  onDismissError() {
     this.error = undefined;
   }
 
@@ -147,10 +147,7 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
     this.onAuthenticationAttemptEnded();
 
     this.error = error;
-    this.toastService.error({
-      title: details.title,
-      message: `${details.errorMessagePrefix}: ${this.error}`,
-    });
+
     if (this.loggedOut) {
       // hide logged out message.
       this.loggedOut = false;

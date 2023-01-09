@@ -29,6 +29,7 @@ import { RecipeEditComponent } from './recipes/recipe-edit/recipe-edit.component
 import { RecipeItemComponent } from './recipes/recipe-list/recipe-item/recipe-item.component';
 import { RecipeListComponent } from './recipes/recipe-list/recipe-list.component';
 import { RecipesComponent } from './recipes/recipes.component';
+import { AlertComponent } from './shared/components/alert/alert.component';
 import { ConfirmationModalComponent } from './shared/components/confirmation-modal/confirmation-modal.component';
 import { ShoppingEditComponent } from './shopping-list/shopping-edit/shopping-edit.component';
 import { ShoppingListItemComponent } from './shopping-list/shopping-list-item/shopping-list-item.component';
@@ -72,6 +73,7 @@ if (environment.enableBackendMock) {
     RecipeEditComponent,
     ConfirmationModalComponent,
     AuthComponent,
+    AlertComponent,
     EqualityValidatorDirective,
   ],
   imports: [

@@ -1,0 +1,25 @@
+<div class="backdrop" (click)="onDismissClick()"></div>
+<div class="alert-box">
+  <div
+    *ngIf="message"
+    class="panel"
+    [ngClass]="{
+      'panel-danger': type === 'error',
+      'panel-primary': type === 'info',
+      'panel-warning': type === 'warning'
+    }"
+  >
+    <div class="panel-heading">
+      <h3 class="panel-title">{{ type | titlecase }}</h3>
+    </div>
+    <div class="panel-body">
+      {{ action ? action + " failed on error" : "An error occurred" }} :
+      {{ message }}
+    </div>
+    <div class="panel-footer alert-box-actions">
+      <button class="btn btn-primary" type="button" (click)="onDismissClick()">
+        Okay
+      </button>
+    </div>
+  </div>
+</div>
