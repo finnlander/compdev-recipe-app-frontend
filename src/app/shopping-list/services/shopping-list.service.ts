@@ -81,6 +81,7 @@ export class ShoppingListService {
   }
 
   generateSampleData() {
+    console.debug('Generating sample data for shopping list');
     this.addNewItem({
       ingredientName: 'Apples',
       amount: 5,

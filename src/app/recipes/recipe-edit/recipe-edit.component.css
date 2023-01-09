@@ -12,10 +12,6 @@ img {
   max-height: 15rem;
 }
 
-.numeric-field {
-  max-width: 6em;
-}
-
 input.ng-invalid.ng-touched,
 textarea.ng-invalid.ng-touched {
   border: 1px solid red;

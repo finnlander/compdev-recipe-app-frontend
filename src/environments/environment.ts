@@ -9,6 +9,11 @@ export const environment = {
   enableBackendMock: false,
 
   /**
+   * Generate some sample data, if none available
+   */
+  generateSampleData: true,
+
+  /**
    * Base URL to the backend server.
    */
   backendServerBaseUrl: 'http://localhost:3000',

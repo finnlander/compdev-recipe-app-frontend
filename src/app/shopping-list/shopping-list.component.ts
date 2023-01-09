@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { faTrashCanArrowUp } from '@fortawesome/free-solid-svg-icons';
+import { environment } from '../../environments/environment';
 import { SubscribingComponent } from '../shared/classes/subscribing-component';
 import { ConfirmationType } from '../shared/models/confirmation.types';
 import { ModalService } from '../shared/services/modal.service';
@@ -30,14 +31,18 @@ export class ShoppingListComponent
 
   ngOnInit(): void {
     // Add some samples
-    if (this.shoppingListService.getCount() == 0) {
+    if (
+      environment.generateSampleData &&
+      this.shoppingListService.getCount() == 0
+    ) {
       this.shoppingListService.generateSampleData();
     }
 
     this.addSubscription(
-      this.shoppingListService.shoppingListChanged.subscribe(
-        (updatedItems) => (this.items = updatedItems)
-      )
+      this.shoppingListService.shoppingListChanged.subscribe((updatedItems) => {
+        this.items = updatedItems;
+        this.selectedItem = undefined;
+      })
     );
 
     this.items = this.shoppingListService.getItems();

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import {
   ConfirmationResult,
@@ -13,8 +13,10 @@ import { ShoppingListService } from '../services/shopping-list.service';
   templateUrl: './shopping-list-item.component.html',
   styleUrls: ['./shopping-list-item.component.css'],
 })
-export class ShoppingListItemComponent {
+export class ShoppingListItemComponent implements OnInit {
   @Input() item?: ShoppingListItem;
+
+  newAmount: number = 0;
 
   iconTrash = faTrash;
 
@@ -23,27 +25,55 @@ export class ShoppingListItemComponent {
     private modalService: ModalService
   ) {}
 
+  ngOnInit(): void {
+    this.newAmount = this.item?.amount || 0;
+  }
+
   deleteItem() {
-    if (!this.item) {
+    const item = this.item;
+    if (!item) {
       console.debug('delete triggered without item');
       return;
     }
 
     this.modalService.handleConfirmation({
       confirmationType: ConfirmationType.DELETE,
-      itemDescription: this.item.ingredient.name,
+      itemDescription: item.ingredient.name,
       onConfirmationResult: (res) => {
         if (res == ConfirmationResult.YES) {
-          this.shoppingListService.deleteItem(this.item!!.ordinal);
+          this.shoppingListService.deleteItem(item.ordinal);
           console.debug(
-            'deletion completed for "' + this.item?.ingredient.name + '"'
+            'deletion completed for "' + item.ingredient.name + '"'
           );
         } else {
-          console.debug(
-            'deletion aborted for "' + this.item?.ingredient.name + '"'
-          );
+          console.debug('deletion aborted for "' + item.ingredient.name + '"');
         }
       },
     });
+  }
+
+  onAmountUpdate() {
+    const item = this.item;
+
+    if (!item) {
+      return;
+    }
+
+    if (isNaN(this.newAmount) || this.newAmount <= 0) {
+      this.newAmount = item.amount;
+      return;
+    }
+
+    //this.item!!.amount = this.newAmount;
+    this.shoppingListService.updateItem(item.ordinal, {
+      ingredientName: item.ingredient.name,
+      amount: this.newAmount,
+      unit: item.unit,
+    });
+  }
+
+  onAmountClick(event: Event) {
+    // prevent component click listener on amount update
+    event.stopPropagation();
   }
 }
