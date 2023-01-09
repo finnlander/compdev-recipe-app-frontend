@@ -30,11 +30,9 @@ export class AuthGuard implements CanActivate {
         }
 
         // redirect to login
-        this.router.navigate([RoutePath.Auth], {
+        return this.router.createUrlTree([RoutePath.Auth], {
           queryParams: { returnUrl: state.url },
         });
-
-        return false;
       })
     );
   }
