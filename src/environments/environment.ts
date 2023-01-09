@@ -6,7 +6,7 @@ export const environment = {
   /**
    * Enable mocking backend responses with HTTP interceptor.
    */
-  enableBackendMock: false,
+  enableBackendMock: true,
 
   /**
    * Generate some sample data, if none available

@@ -1,27 +1,21 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import jwtDecode, { JwtPayload } from 'jwt-decode';
+import jwtDecode from 'jwt-decode';
 import { Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
 import { catchError, map, take, tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+import {
+  AccessToken,
+  AuthRequest,
+  AuthResponse,
+} from '../../api/model/authentication.model';
+import { decodeMockAuthToken } from '../../api/services/backend-mock.service';
 import { User } from '../../shared/models/user.model';
 import { getApiUrl } from '../../shared/utils/common.util';
 
 const STORAGE_KEY_AUTH_TOKEN = 'token';
 
 /* Types */
-interface AuthRequest {
-  username: string;
-  password: string;
-}
-
-interface AuthResponse {
-  token: string;
-}
-
-type AccessToken = JwtPayload & {
-  id: number;
-  username: string;
-};
 
 /**
  * Service that handles authentication.
@@ -133,6 +127,7 @@ export class AuthService {
     }
 
     const decodedToken = getDecodedAccessToken(authToken);
+    console.log(decodedToken);
     if (!decodedToken) {
       this.initialized.next(true);
       return;
@@ -197,6 +192,7 @@ export class AuthService {
   private applyLogin(res: AuthResponse): User | undefined {
     const accessToken = getDecodedAccessToken(res.token);
     if (!accessToken) {
+      console.debug('failed to decode access token from: ', res.token);
       this.logout();
       return undefined;
     }
@@ -239,6 +235,10 @@ export class AuthService {
 function getDecodedAccessToken(token?: string): AccessToken | undefined {
   if (!token) {
     return undefined;
+  }
+
+  if (environment.enableBackendMock) {
+    return decodeMockAuthToken(token);
   }
 
   try {

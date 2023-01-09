@@ -28,7 +28,7 @@ export class AppComponent extends SubscribingComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('Env: ', environment);
+    console.debug('Env: ', environment);
 
     this.addSubscription(
       this.authService.loginChange.subscribe((isLoggedIn) => {

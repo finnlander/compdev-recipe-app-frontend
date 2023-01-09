@@ -6,6 +6,7 @@ import {
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { BackendMockService } from '../services/backend-mock.service';
 
@@ -19,12 +20,14 @@ export class BackendMockInterceptor implements HttpInterceptor {
       Object.entries({
         '/users/me': this.backendMockService.getCurrentUser,
         '/recipes': this.backendMockService.getRecipes,
+        '/ingredients': this.backendMockService.getIngredients,
       })
     ),
     POST: new Map(
       Object.entries({
         '/auth/login': this.backendMockService.login,
         '/auth/signup': this.backendMockService.signup,
+        '/ingredients': this.backendMockService.getOrAddIngredients,
       })
     ),
     PUT: new Map(
@@ -48,7 +51,13 @@ export class BackendMockInterceptor implements HttpInterceptor {
     const mockResponseProvider = respMethodMap.get(path);
 
     if (mockResponseProvider) {
-      return of(mockResponseProvider(req));
+      const res = mockResponseProvider(req);
+      console.debug(
+        `providing mock response for call [${method}}] ${path}: [${
+          res.status
+        }]${res.status !== 200 ? ': ' + JSON.stringify(res.body) : ''}`
+      );
+      return of(res).pipe(delay(100));
     }
 
     console.log(
