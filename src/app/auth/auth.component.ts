@@ -112,11 +112,19 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
   /* Helper Methods */
 
   private handleAuthentication(
-    subscription: Observable<User>,
+    subscription: Observable<User | undefined>,
     details: AuthOperationDetails
   ) {
     subscription.subscribe(
-      () => {
+      (user) => {
+        if (!user) {
+          this.onAuthenticationAttemptEndedWithError(
+            'authentication failed',
+            details
+          );
+          return;
+        }
+
         this.onAuthenticationAttemptEnded();
 
         this.toastService.success({
@@ -127,19 +135,26 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
         this.onLoggedIn();
       },
       (error: string) => {
-        this.onAuthenticationAttemptEnded();
-
-        this.error = error;
-        this.toastService.error({
-          title: details.title,
-          message: `${details.errorMessagePrefix}: ${this.error}`,
-        });
-        if (this.loggedOut) {
-          // hide logged out message.
-          this.loggedOut = false;
-        }
+        this.onAuthenticationAttemptEndedWithError(error, details);
       }
     );
+  }
+
+  private onAuthenticationAttemptEndedWithError(
+    error: string,
+    details: AuthOperationDetails
+  ) {
+    this.onAuthenticationAttemptEnded();
+
+    this.error = error;
+    this.toastService.error({
+      title: details.title,
+      message: `${details.errorMessagePrefix}: ${this.error}`,
+    });
+    if (this.loggedOut) {
+      // hide logged out message.
+      this.loggedOut = false;
+    }
   }
 
   private onAuthenticationAttemptEnded() {
