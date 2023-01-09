@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { clone, sortedUniq } from 'lodash';
 import { Observable, Subject, Subscription } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 import { Ingredient } from '../../shared/models/ingredient.model';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { IngredientService } from '../../shared/services/ingredient.service';
@@ -62,14 +62,27 @@ export class RecipeService {
   }
 
   setRecipes(recipes: Recipe[]) {
+    const recipeInstances: Recipe[] = [];
+    const ingredientNames = new Set<string>();
+
     recipes.forEach((recipe) => {
-      recipe.items.forEach((it) =>
-        this.ingredientService.getOrAddIngredient(it.ingredient.name)
+      const recipeInstance = copyRecipe(recipe);
+      recipeInstance.items.forEach((it) =>
+        ingredientNames.add(it.ingredient.name)
       );
+      recipeInstances.push(recipeInstance);
     });
-    this.recipes = recipes;
+
+    this.recipes = recipeInstances;
+
+    // make sure the ingredient service has all the loaded ingredients
+    this.ingredientService
+      .getOrAddIngredients([...ingredientNames.values()])
+      .pipe(take(1))
+      .subscribe();
 
     this.recipesChanged.next([...this.recipes]);
+    this.setSelectedRecipe();
   }
 
   getRecipes() {
@@ -84,10 +97,11 @@ export class RecipeService {
   }
 
   setSelectedRecipe(recipe?: Recipe) {
-    this.selectedRecipe = { ...recipe } as Recipe;
     if (recipe) {
+      this.selectedRecipe = { ...recipe } as Recipe;
       this.recipeSelected.next({ ...recipe } as Recipe);
     } else {
+      this.selectedRecipe = undefined;
       this.recipeSelected.next(undefined);
     }
   }
@@ -186,6 +200,23 @@ function addIngredients(
       ingredientItem.phase
     );
   });
+}
+
+function copyRecipe(source: Recipe): Recipe {
+  const recipe = new Recipe(
+    source.id,
+    source.name,
+    source.description,
+    source.imageUrl
+  );
+
+  source.phases.forEach((phase) => {
+    phase.items.forEach((it) => {
+      recipe.addIngredient(it.ingredient, it.amount, it.unit, phase.name);
+    });
+  });
+
+  return recipe;
 }
 
 function extractUniqueIngredientNames(data: RecipeData) {

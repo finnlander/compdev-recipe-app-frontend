@@ -25,6 +25,7 @@ export class DataStorageService {
 
   storeRecipes() {
     const recipes = this.recipeService.getRecipes();
+    console.log('recipes:', recipes);
 
     const url = getApiUrl('recipes');
     return new Promise<void>((resolve, reject) => {
