@@ -25,7 +25,7 @@ export class RecipeDetailComponent extends IdPathTrackingComponent {
 
   selectedRecipe?: Recipe;
   dropdownOpen: boolean = false;
-  RecipeRootView = RoutePath.Recipe;
+  RecipeRootView = RoutePath.Recipes;
 
   constructor(
     route: ActivatedRoute,

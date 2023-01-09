@@ -18,7 +18,7 @@ import { ShoppingListComponent } from './shopping-list/shopping-list.component';
 enum Views {
   Auth = 'auth',
   ShoppingList = 'shopping-list',
-  Recipe = 'recipe',
+  Recipes = 'recipes',
   Error = 'error',
   NotFound = 'not-found',
 }
@@ -34,7 +34,7 @@ type RoutePaths = { [key in keyof typeof Views]: `/${string}` };
  */
 export const RoutePath: RoutePaths = {
   Auth: `/${Views.Auth}`,
-  Recipe: `/${Views.Recipe}`,
+  Recipes: `/${Views.Recipes}`,
   ShoppingList: `/${Views.ShoppingList}`,
   Error: `/${Views.Error}`,
   NotFound: `/${Views.NotFound}`,
@@ -43,7 +43,7 @@ export const RoutePath: RoutePaths = {
 /**
  * Landing page definition.
  */
-const DEFAULT_HOME_ROUTE_PATH = RoutePath.Recipe;
+const DEFAULT_HOME_ROUTE_PATH = RoutePath.Recipes;
 
 /**
  * All app module route configurations.
@@ -52,7 +52,7 @@ const appRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: DEFAULT_HOME_ROUTE_PATH },
   { path: Views.Auth, component: AuthComponent },
   {
-    path: Views.Recipe,
+    path: Views.Recipes,
     component: RecipesComponent,
     canActivate: [AuthGuard],
     children: [

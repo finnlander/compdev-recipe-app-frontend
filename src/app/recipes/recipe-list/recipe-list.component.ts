@@ -15,7 +15,7 @@ export class RecipeListComponent
 {
   selectedRecipe?: Recipe;
   recipes: Recipe[] = [];
-  RecipeRootPath = RoutePath.Recipe;
+  RecipeRootPath = RoutePath.Recipes;
 
   constructor(private recipeService: RecipeService) {
     super();
