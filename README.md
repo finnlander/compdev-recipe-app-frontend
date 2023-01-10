@@ -25,7 +25,7 @@ The project structure follows mainly the practices provided by the official Angu
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-You may either run the frontend application using a mock backend server (check that `environments/environment.ts` has `enableBackendMock` flag set to `true`), or using a sample backend provided in a separate `recipe-app-backend` repository.
+You may either run the frontend application using a mock backend server (check that `environments/environment.ts` has `enableBackendMock` flag set to `true`), or using a sample backend provided in a separate [`recipe-app-backend`](https://github.com/finnlander/compdev-recipe-app-backend) repository. If using the backend, remember to set `enableBackendMock` flag to `false`. In addition, consider setting `generateSampleData` flag to `false` as well (to let the backend provide all the data).
 
 ### Build
 
