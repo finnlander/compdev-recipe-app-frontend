@@ -11,7 +11,6 @@ import { ShoppingListService } from './shopping-list/services/shopping-list.serv
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
 })
 export class AppComponent extends SubscribingComponent implements OnInit {
   private loggedIn = false;

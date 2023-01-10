@@ -13,7 +13,6 @@ import { ShoppingListService } from '../shopping-list/services/shopping-list.ser
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent extends SubscribingComponent implements OnInit {
   collapsed: boolean = false;
