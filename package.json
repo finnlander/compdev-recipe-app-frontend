@@ -1,6 +1,8 @@
 {
   "name": "receipe-app",
   "version": "0.0.0",
+  "author": "Janne Suomalainen",
+  "license": "MIT",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
