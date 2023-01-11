@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { RoutePath } from '../app-routing.module';
 import { AuthService } from '../auth/services/auth.service';
+import { RoutePath } from '../config/routes.config';
 import { RecipeService } from '../recipes/services/recipe.service';
 import { SubscribingComponent } from '../shared/classes/subscribing-component';
 import { ConfirmationType } from '../shared/models/confirmation.types';

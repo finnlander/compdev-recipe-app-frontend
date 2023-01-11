@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faPen, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
-import { RoutePath } from '../../app-routing.module';
+import { RoutePath } from '../../config/routes.config';
 import { IdPathTrackingComponent } from '../../shared/classes/id-path-tracking-component';
 import { ConfirmationType } from '../../shared/models/confirmation.types';
 import { ModalService } from '../../shared/services/modal.service';

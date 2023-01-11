@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { environment } from '../environments/environment';
-import { RoutePath } from './app-routing.module';
 import { AuthService } from './auth/services/auth.service';
+import { RoutePath } from './config/routes.config';
 import { RecipeService } from './recipes/services/recipe.service';
 import { SubscribingComponent } from './shared/classes/subscribing-component';
 import { DataStorageService } from './shared/services/data-storage.service';

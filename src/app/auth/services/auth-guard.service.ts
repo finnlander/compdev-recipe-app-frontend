@@ -8,7 +8,7 @@ import {
 } from '@angular/router';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { RoutePath } from '../../app-routing.module';
+import { RoutePath } from '../../config/routes.config';
 import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })

@@ -1,82 +1,20 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthComponent } from './auth/auth.component';
-import { AuthGuard } from './auth/services/auth-guard.service';
+import {
+  DEFAULT_HOME_ROUTE_PATH,
+  RoutePath,
+  Views,
+} from './config/routes.config';
 import {
   ErrorPageComponent,
   ErrorPageData,
 } from './error-page/error-page.component';
-import { RecipeDetailComponent } from './recipes/recipe-detail/recipe-detail.component';
-import { RecipeEditComponent } from './recipes/recipe-edit/recipe-edit.component';
-import { RecipesComponent } from './recipes/recipes.component';
-import { RecipesResolverService } from './recipes/services/recipes-resolver.service';
-import { ShoppingListComponent } from './shopping-list/shopping-list.component';
-
-/**
- * All named views.
- */
-enum Views {
-  Auth = 'auth',
-  ShoppingList = 'shopping-list',
-  Recipes = 'recipes',
-  Error = 'error',
-  NotFound = 'not-found',
-}
-
-type ValueOf<T> = T[keyof T];
-
-export type View = ValueOf<Views>;
-
-type RoutePaths = { [key in keyof typeof Views]: `/${string}` };
-
-/**
- * Paths to use in route navigation to all the available target views.
- */
-export const RoutePath: RoutePaths = {
-  Auth: `/${Views.Auth}`,
-  Recipes: `/${Views.Recipes}`,
-  ShoppingList: `/${Views.ShoppingList}`,
-  Error: `/${Views.Error}`,
-  NotFound: `/${Views.NotFound}`,
-};
-
-/**
- * Landing page definition.
- */
-const DEFAULT_HOME_ROUTE_PATH = RoutePath.Recipes;
 
 /**
  * All app module route configurations.
  */
 const appRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: DEFAULT_HOME_ROUTE_PATH },
-  { path: Views.Auth, component: AuthComponent },
-  {
-    path: Views.Recipes,
-    component: RecipesComponent,
-    canActivate: [AuthGuard],
-    children: [
-      {
-        path: 'new',
-        component: RecipeEditComponent,
-      },
-      {
-        path: ':id',
-        component: RecipeDetailComponent,
-        resolve: [RecipesResolverService],
-      },
-      {
-        path: ':id/edit',
-        component: RecipeEditComponent,
-        resolve: [RecipesResolverService],
-      },
-    ],
-  },
-  {
-    path: Views.ShoppingList,
-    component: ShoppingListComponent,
-    canActivate: [AuthGuard],
-  },
   { path: Views.Error, component: ErrorPageComponent },
   {
     path: Views.NotFound,
@@ -91,7 +29,7 @@ const appRoutes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(appRoutes, { useHash: false })],
+  imports: [RouterModule.forRoot(appRoutes)],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

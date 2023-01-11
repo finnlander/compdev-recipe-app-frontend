@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { RoutePath } from '../../app-routing.module';
+import { RoutePath } from '../../config/routes.config';
 import { SubscribingComponent } from '../../shared/classes/subscribing-component';
 import { Recipe } from '../models/recipe.model';
 import { RecipeService } from '../services/recipe.service';
