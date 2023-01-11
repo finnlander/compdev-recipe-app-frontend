@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from '../auth/services/auth-guard.service';
-import { Views } from '../config/routes.config';
 import { SharedModule } from '../shared/shared.module';
 import { RecipeDetailComponent } from './recipe-detail/recipe-detail.component';
 import { RecipeEditComponent } from './recipe-edit/recipe-edit.component';
@@ -16,7 +15,7 @@ import { RecipesResolverService } from './services/recipes-resolver.service';
  */
 const recipeRoutes: Routes = [
   {
-    path: Views.Recipes,
+    path: '',
     component: RecipesComponent,
     canActivate: [AuthGuard],
     children: [

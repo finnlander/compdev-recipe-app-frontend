@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from '../auth/services/auth-guard.service';
-import { Views } from '../config/routes.config';
 import { SharedModule } from '../shared/shared.module';
 import { ShoppingEditComponent } from './shopping-edit/shopping-edit.component';
 import { ShoppingListItemComponent } from './shopping-list-item/shopping-list-item.component';
@@ -13,9 +12,10 @@ import { ShoppingListComponent } from './shopping-list.component';
  */
 const shoppingListRoutes: Routes = [
   {
-    path: Views.ShoppingList,
+    path: '',
     component: ShoppingListComponent,
     canActivate: [AuthGuard],
+    children: [],
   },
 ];
 

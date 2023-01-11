@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { NoPreloading, RouterModule, Routes } from '@angular/router';
 import {
   DEFAULT_HOME_ROUTE_PATH,
   RoutePath,
@@ -15,6 +15,22 @@ import {
  */
 const appRoutes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: DEFAULT_HOME_ROUTE_PATH },
+  {
+    path: Views.Auth,
+    loadChildren: () => import('./auth/auth.module').then((m) => m.AuthModule),
+  },
+  {
+    path: Views.Recipes,
+    loadChildren: () =>
+      import('./recipes/recipes.module').then((m) => m.RecipesModule),
+  },
+  {
+    path: Views.ShoppingList,
+    loadChildren: () =>
+      import('./shopping-list/shopping-list.module').then(
+        (m) => m.ShoppingListModule
+      ),
+  },
   { path: Views.Error, component: ErrorPageComponent },
   {
     path: Views.NotFound,
@@ -29,7 +45,9 @@ const appRoutes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(appRoutes)],
+  imports: [
+    RouterModule.forRoot(appRoutes, { preloadingStrategy: NoPreloading }),
+  ],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

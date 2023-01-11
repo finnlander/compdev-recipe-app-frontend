@@ -14,12 +14,9 @@ import { BackendMockInterceptor } from './api/interceptors/backend-mock-intercep
 import { ErrorInterceptor } from './api/interceptors/error-interceptor.service';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { AuthModule } from './auth/auth.module';
 import { ErrorPageComponent } from './error-page/error-page.component';
 import { HeaderComponent } from './header/header.component';
-import { RecipesModule } from './recipes/recipes.module';
 import { SharedModule } from './shared/shared.module';
-import { ShoppingListModule } from './shopping-list/shopping-list.module';
 
 const providers: (Provider | EnvironmentProviders)[] = [
   {
@@ -50,9 +47,6 @@ if (environment.enableBackendMock) {
     HttpClientModule,
     BrowserAnimationsModule,
     SharedModule,
-    AuthModule,
-    RecipesModule,
-    ShoppingListModule,
     // note: AppRoutingModule needs to be the last import to keep the wildcard (default) route as the last evaluated route
     AppRoutingModule,
   ],
