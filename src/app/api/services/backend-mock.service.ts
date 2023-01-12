@@ -9,19 +9,14 @@ import {
 import { Ingredient } from '../../shared/models/ingredient.model';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { User } from '../../shared/models/user.model';
-import { AccessToken, AuthResponse } from '../model/authentication.model';
+import {
+  AccessToken,
+  AuthRequest,
+  AuthResponse,
+} from '../model/authentication.model';
+import { GenericResponse } from '../model/generic-response.model';
 
 const STORAGE_KEY_BACKEND_STATE = '_backendMockState';
-
-interface GenericResponse {
-  status: 'OK' | 'ERROR';
-  error?: string;
-}
-
-interface AuthRequest {
-  username: string;
-  password: string;
-}
 
 type DbUser = User & {
   password: string;

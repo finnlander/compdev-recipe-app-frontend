@@ -1,7 +1,6 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import jwtDecode from 'jwt-decode';
-import { Observable, of, ReplaySubject, Subject, throwError } from 'rxjs';
+import { Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { catchError, map, take, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import {
@@ -9,9 +8,9 @@ import {
   AuthRequest,
   AuthResponse,
 } from '../../api/model/authentication.model';
+import { AuthApi } from '../../api/services/auth-api.service';
 import { decodeMockAuthToken } from '../../api/services/backend-mock.service';
 import { User } from '../../shared/models/user.model';
-import { getApiUrl } from '../../shared/utils/common.util';
 
 const STORAGE_KEY_AUTH_TOKEN = 'token';
 
@@ -29,7 +28,7 @@ export class AuthService {
   loginChange = new Subject<boolean>();
   private initialized = new ReplaySubject<boolean>(1);
 
-  constructor(private http: HttpClient) {}
+  constructor(private authApi: AuthApi) {}
 
   /**
    * Gate observable to allow waiting until auth service has been initialized.
@@ -45,24 +44,14 @@ export class AuthService {
    * Sign up with a new user.
    */
   signup(data: AuthRequest) {
-    const url = getApiUrl('auth/signup');
-    return this.http.post<AuthResponse>(url, data).pipe(
-      map((res) => this.applyLogin(res)),
-      catchError(this.handleSignupError)
-    );
+    return this.authApi.signup(data).pipe(map((res) => this.applyLogin(res)));
   }
 
   /**
    * Login user.
    */
   login(data: AuthRequest) {
-    const url = getApiUrl('auth/login');
-
-    return this.http.post<AuthResponse>(url, data).pipe(
-      map((res) => this.applyLogin(res)),
-
-      catchError(this.handleLoginError)
-    );
+    return this.authApi.login(data).pipe(map((res) => this.applyLogin(res)));
   }
 
   /**
@@ -108,11 +97,9 @@ export class AuthService {
       return of<undefined>(undefined);
     }
 
-    const url = getApiUrl('users/me');
-    return this.http.get<User>(url).pipe(
-      tap((user) => (this.currentUser = { ...user })),
-      catchError(this.handleCurrentUserQueryError)
-    );
+    return this.authApi
+      .getAuthenticatedUser()
+      .pipe(tap((user) => (this.currentUser = { ...user })));
   }
 
   /**
@@ -162,32 +149,6 @@ export class AuthService {
   }
 
   /* Helper Functions */
-
-  private handleSignupError(error: HttpErrorResponse) {
-    if (error.status === 409) {
-      return throwError('username already exists');
-    }
-    console.error('Sign Up failed', error);
-    return throwError(error.message);
-  }
-
-  private handleLoginError(error: HttpErrorResponse) {
-    if (error.status === 403) {
-      return throwError('invalid username or password');
-    }
-
-    console.error('Login failed', error);
-    return throwError(error.message);
-  }
-
-  private handleCurrentUserQueryError(error: HttpErrorResponse) {
-    if (error.status === 404) {
-      return throwError('user not exist');
-    }
-
-    console.error('Current user query failed', error);
-    return throwError(error.message);
-  }
 
   private applyLogin(res: AuthResponse): User | undefined {
     const accessToken = getDecodedAccessToken(res.token);

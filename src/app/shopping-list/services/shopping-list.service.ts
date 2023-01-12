@@ -80,21 +80,6 @@ export class ShoppingListService {
     return this.items.length;
   }
 
-  generateSampleData() {
-    console.debug('Generating sample data for shopping list');
-    this.addNewItem({
-      ingredientName: 'Apples',
-      amount: 5,
-      unit: RecipeUnit.PCS,
-    });
-
-    this.addNewItem({
-      ingredientName: 'Grapes',
-      amount: 10,
-      unit: RecipeUnit.PCS,
-    });
-  }
-
   /* Helper Methods */
 
   private addNewItemToShoppingList(data: ItemData) {

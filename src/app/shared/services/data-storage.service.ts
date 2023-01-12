@@ -1,10 +1,9 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { catchError, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { shareReplay, switchMap, tap } from 'rxjs/operators';
+import { RecipesApi } from '../../api/services/recipes-api.service';
 import { Recipe } from '../../recipes/models/recipe.model';
 import { RecipeService } from '../../recipes/services/recipe.service';
-import { getApiUrl } from '../utils/common.util';
 import { IngredientService } from './ingredient.service';
 
 interface PutResponse {
@@ -18,28 +17,17 @@ export class DataStorageService {
   private loadSubscription?: Observable<Recipe[]>;
 
   constructor(
-    private http: HttpClient,
+    private recipesApi: RecipesApi,
     private recipeService: RecipeService,
     private ingredientService: IngredientService
   ) {}
 
   storeRecipes() {
     const recipes = this.recipeService.getRecipes();
-    console.log('recipes:', recipes);
 
-    const url = getApiUrl('recipes');
-    return new Promise<void>((resolve, reject) => {
-      this.http.put<PutResponse>(url, recipes).subscribe(
-        (res) => {
-          console.debug('Save response:', res);
-          resolve();
-        },
-        (error: HttpErrorResponse) => {
-          console.error('API error occurred on storing recipes: ', error);
-          reject(error.message);
-        }
-      );
-    });
+    return this.recipesApi
+      .replaceAllRecipes(recipes)
+      .pipe(tap((res) => console.debug('Recipes saved. Res: ', res)));
   }
 
   loadRecipes(forceReload: boolean = false) {
@@ -57,15 +45,10 @@ export class DataStorageService {
   }
 
   private createLoadRecipesObservable() {
-    const url = getApiUrl('recipes');
-    return this.http.get<Recipe[]>(url).pipe(
+    return this.recipesApi.getAllRecipes().pipe(
       tap((recipes) => {
         console.debug('Loaded recipes:', recipes);
         this.recipeService.setRecipes(recipes);
-      }),
-      catchError((error: HttpErrorResponse) => {
-        console.error('API error occurred on loading recipes: ', error);
-        return throwError(error.message);
       })
     );
   }
