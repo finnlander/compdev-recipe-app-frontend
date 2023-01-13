@@ -1,13 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  Output,
-  SimpleChanges,
-  ViewChild,
-} from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import {
   faCheck,
@@ -16,17 +7,23 @@ import {
   faUndo,
   faX,
 } from '@fortawesome/free-solid-svg-icons';
+import { Store } from '@ngrx/store';
+import { SubscribingComponent } from '../../shared/classes/subscribing-component';
 import { ConfirmationType } from '../../shared/models/confirmation.types';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { ModalService } from '../../shared/services/modal.service';
+import { RootState } from '../../store/app.store';
 import { ShoppingListItem } from '../models/shopping-list-item-model';
-import {
-  ItemData,
-  ShoppingListService,
-} from '../services/shopping-list.service';
+import { shoppingListActions, shoppingListSelectors } from '../store';
 
 interface FormModel {
   name: string;
+  amount: number;
+  unit: RecipeUnit;
+}
+
+interface ItemData {
+  ingredientName: string;
   amount: number;
   unit: RecipeUnit;
 }
@@ -42,7 +39,10 @@ const DEFAULT_FORM_VALUES: FormModel = {
   templateUrl: './shopping-edit.component.html',
   styleUrls: ['./shopping-edit.component.css'],
 })
-export class ShoppingEditComponent implements AfterViewInit, OnChanges {
+export class ShoppingEditComponent
+  extends SubscribingComponent
+  implements OnInit, OnDestroy
+{
   RecipeUnit = RecipeUnit;
   iconAdd = faPlus;
   iconCancel = faUndo;
@@ -50,70 +50,68 @@ export class ShoppingEditComponent implements AfterViewInit, OnChanges {
   iconDelete = faX;
   iconUpdate = faCheck;
 
-  @Input() shoppingListItem?: ShoppingListItem;
-  @Output() onCompleted = new EventEmitter<void>();
+  formMode: 'new' | 'update' = 'new';
+  updateItemOrdinal: number = -1;
+
   @ViewChild('form', { static: true }) addItemForm?: NgForm;
 
   constructor(
-    private shoppingListService: ShoppingListService,
-    private modalService: ModalService
-  ) {}
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      const model: FormModel = this.shoppingListItem
-        ? {
-            name: this.shoppingListItem.ingredient.name,
-            amount: this.shoppingListItem.amount,
-            unit: this.shoppingListItem.unit,
-          }
-        : DEFAULT_FORM_VALUES;
-
-      this.addItemForm!!.form.setValue(model);
-    }, 0);
+    private modalService: ModalService,
+    private store: Store<RootState>
+  ) {
+    super();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    const shoppingListItemChange = changes['shoppingListItem'];
-    if (shoppingListItemChange) {
-      if (!shoppingListItemChange.isFirstChange()) {
-        const model = this.getCurrentModel();
-        this.addItemForm?.form.setValue(model);
-      }
-    }
+  ngOnInit(): void {
+    this.addSubscription(
+      this.store
+        .select(shoppingListSelectors.getSelectedItem)
+        .subscribe((selectedItem) => this.applySelectedItemChange(selectedItem))
+    );
+  }
+
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    // clear selection
+    this.resetToDefault();
   }
 
   onSubmit(form: NgForm) {
     const data: ItemData = this.getItemData(form);
 
-    if (this.shoppingListItem) {
-      this.shoppingListService.updateItem(this.shoppingListItem.ordinal, data);
+    if (this.formMode === 'update') {
+      this.store.dispatch(
+        shoppingListActions.updateItemRequest({
+          ...data,
+          ordinal: this.updateItemOrdinal,
+        })
+      );
     } else {
-      this.shoppingListService.addNewItem(data);
+      this.store.dispatch(shoppingListActions.addItemRequest(data));
     }
 
-    this.addItemForm?.reset(DEFAULT_FORM_VALUES);
-    this.onCompleted.emit();
+    this.resetToDefault();
   }
 
   onClear() {
-    setTimeout(() => {
-      this.addItemForm?.reset(DEFAULT_FORM_VALUES);
-    }, 0);
-    this.onCompleted.emit();
+    setTimeout(() => this.resetToDefault(), 0);
   }
 
   onDelete() {
-    if (!this.shoppingListItem) {
+    if (this.formMode !== 'update') {
       return;
     }
 
-    const targetItem = this.shoppingListItem;
+    const data = this.getItemData(this.addItemForm!!);
+    const itemOrdinal = this.updateItemOrdinal;
+
     this.modalService.handleConfirmation({
       confirmationType: ConfirmationType.DELETE,
-      itemDescription: `"${targetItem.ingredient.name}" shopping list item`,
+      itemDescription: `"${data.ingredientName}" shopping list item`,
       onConfirmYes: () => {
-        this.shoppingListService.deleteItem(targetItem.ordinal);
+        this.store.dispatch(
+          shoppingListActions.removeItem({ ordinal: itemOrdinal })
+        );
         this.onClear();
       },
     });
@@ -121,16 +119,28 @@ export class ShoppingEditComponent implements AfterViewInit, OnChanges {
 
   /* Helper Methods */
 
-  private getCurrentModel(): FormModel {
-    const model: FormModel = this.shoppingListItem
+  private applySelectedItemChange(selectedItem: ShoppingListItem | null) {
+    const model: FormModel = selectedItem
       ? {
-          name: this.shoppingListItem.ingredient.name,
-          amount: this.shoppingListItem.amount,
-          unit: this.shoppingListItem.unit,
+          name: selectedItem.ingredient.name,
+          amount: selectedItem.amount,
+          unit: selectedItem.unit,
         }
       : DEFAULT_FORM_VALUES;
 
-    return model;
+    setTimeout(() => {
+      this.formMode = selectedItem ? 'update' : 'new';
+      this.updateItemOrdinal = selectedItem?.ordinal || -1;
+      this.addItemForm?.form.setValue(model);
+    }, 0);
+  }
+
+  private resetToDefault() {
+    this.store.dispatch(
+      shoppingListActions.setSelectedItem({
+        item: null,
+      })
+    );
   }
 
   private getItemData(form: NgForm): ItemData {

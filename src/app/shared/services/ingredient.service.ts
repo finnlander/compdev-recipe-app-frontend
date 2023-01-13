@@ -4,6 +4,9 @@ import { map, tap } from 'rxjs/operators';
 import { IngredientsApi } from '../../api/services/ingredients-api.service';
 import { Ingredient } from '../models/ingredient.model';
 
+/**
+ * Service for accessing ingredients data that includes some caching mechanism on top of the underlying API.
+ */
 @Injectable({
   providedIn: 'root',
 })

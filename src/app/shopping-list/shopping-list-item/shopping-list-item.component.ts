@@ -1,12 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Store } from '@ngrx/store';
 import {
   ConfirmationResult,
   ConfirmationType,
 } from '../../shared/models/confirmation.types';
 import { ModalService } from '../../shared/services/modal.service';
+import { RootState } from '../../store/app.store';
 import { ShoppingListItem } from '../models/shopping-list-item-model';
-import { ShoppingListService } from '../services/shopping-list.service';
+import { shoppingListActions } from '../store';
 
 @Component({
   selector: 'app-shopping-list-item',
@@ -21,8 +23,8 @@ export class ShoppingListItemComponent implements OnInit {
   iconTrash = faTrash;
 
   constructor(
-    private shoppingListService: ShoppingListService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private store: Store<RootState>
   ) {}
 
   ngOnInit(): void {
@@ -41,7 +43,10 @@ export class ShoppingListItemComponent implements OnInit {
       itemDescription: item.ingredient.name,
       onConfirmationResult: (res) => {
         if (res == ConfirmationResult.YES) {
-          this.shoppingListService.deleteItem(item.ordinal);
+          this.store.dispatch(
+            shoppingListActions.removeItem({ ordinal: item.ordinal })
+          );
+
           console.debug(
             'deletion completed for "' + item.ingredient.name + '"'
           );
@@ -64,12 +69,14 @@ export class ShoppingListItemComponent implements OnInit {
       return;
     }
 
-    //this.item!!.amount = this.newAmount;
-    this.shoppingListService.updateItem(item.ordinal, {
-      ingredientName: item.ingredient.name,
-      amount: this.newAmount,
-      unit: item.unit,
-    });
+    this.store.dispatch(
+      shoppingListActions.updateItemRequest({
+        ordinal: item.ordinal,
+        ingredientName: item.ingredient.name,
+        amount: this.newAmount,
+        unit: item.unit,
+      })
+    );
   }
 
   onAmountClick(event: Event) {

@@ -2,16 +2,14 @@
 <hr />
 <div class="row">
   <div class="col-xs-10">
-    <app-shopping-edit
-      [shoppingListItem]="selectedItem"
-      (onCompleted)="onEditCompleted()"
-    ></app-shopping-edit>
-    <hr *ngIf="items.length > 0" />
+    <app-shopping-edit></app-shopping-edit>
+    <hr *ngIf="!isEmpty" />
+
     <ul class="list-group">
       <a
         class="list-group-item"
         style="cursor: pointer"
-        *ngFor="let item of items"
+        *ngFor="let item of items | async"
         [ngClass]="selectedItem?.ordinal === item.ordinal ? 'selected' : ''"
       >
         <app-shopping-list-item
@@ -25,7 +23,7 @@
       class="btn btn-danger"
       type="button"
       (click)="onClearAll()"
-      [disabled]="items.length === 0"
+      [disabled]="isEmpty"
     >
       <fa-icon [icon]="iconClearAll"></fa-icon> Clear all
     </button>

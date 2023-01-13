@@ -1,5 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable, of } from 'rxjs';
 import { AuthService } from '../auth/services/auth.service';
 import { RoutePath } from '../config/routes.config';
 import { RecipeService } from '../recipes/services/recipe.service';
@@ -8,7 +10,7 @@ import { ConfirmationType } from '../shared/models/confirmation.types';
 import { DataStorageService } from '../shared/services/data-storage.service';
 import { ModalService } from '../shared/services/modal.service';
 import { ToastService } from '../shared/services/toast.service';
-import { ShoppingListService } from '../shopping-list/services/shopping-list.service';
+import { shoppingListSelectors } from '../shopping-list/store';
 
 @Component({
   selector: 'app-header',
@@ -17,29 +19,25 @@ import { ShoppingListService } from '../shopping-list/services/shopping-list.ser
 export class HeaderComponent extends SubscribingComponent implements OnInit {
   collapsed: boolean = false;
   isLoggedIn: boolean = false;
-  shoppingListCount: number = 0;
+  shoppingListCount: Observable<number> = of(0);
   Routes = RoutePath;
 
   constructor(
     private authService: AuthService,
-    private shoppingListService: ShoppingListService,
     private recipeService: RecipeService,
     private dataStorageService: DataStorageService,
     private modalService: ModalService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private store: Store
   ) {
     super();
   }
 
   ngOnInit(): void {
-    this.shoppingListCount = this.shoppingListService.getCount();
-    this.isLoggedIn = this.authService.isLoggedIn();
-
-    this.addSubscription(
-      this.shoppingListService.shoppingListChanged.subscribe(
-        (items) => (this.shoppingListCount = items.length)
-      )
+    this.shoppingListCount = this.store.select(
+      shoppingListSelectors.getShoppingListCount
     );
+    this.isLoggedIn = this.authService.isLoggedIn();
 
     this.addSubscription(
       this.authService.loginChange.subscribe(

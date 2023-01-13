@@ -1,17 +1,23 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faPen, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { Store } from '@ngrx/store';
 import { RoutePath } from '../../config/routes.config';
 import { IdPathTrackingComponent } from '../../shared/classes/id-path-tracking-component';
 import { ConfirmationType } from '../../shared/models/confirmation.types';
+import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { ModalService } from '../../shared/services/modal.service';
 import { ToastService } from '../../shared/services/toast.service';
-import {
-  ItemData,
-  ShoppingListService,
-} from '../../shopping-list/services/shopping-list.service';
+import { shoppingListActions } from '../../shopping-list/store';
+import { RootState } from '../../store/app.store';
 import { Recipe } from '../models/recipe.model';
 import { RecipeService } from '../services/recipe.service';
+
+interface ShoppingListItemData {
+  ingredientName: string;
+  amount: number;
+  unit: RecipeUnit;
+}
 
 @Component({
   selector: 'app-recipe-detail',
@@ -30,10 +36,10 @@ export class RecipeDetailComponent extends IdPathTrackingComponent {
   constructor(
     route: ActivatedRoute,
     private router: Router,
-    private shoppingListService: ShoppingListService,
     private recipeService: RecipeService,
     private modalService: ModalService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private store: Store<RootState>
   ) {
     super(route);
   }
@@ -60,22 +66,26 @@ export class RecipeDetailComponent extends IdPathTrackingComponent {
   }
 
   addToShoppingList() {
-    const shoppingItemData: ItemData[] = this.selectedRecipe!!.items.map(
-      (item) => {
+    const shoppingItemData: ShoppingListItemData[] =
+      this.selectedRecipe!!.items.map((item) => {
         return {
           ingredientName: item.ingredient.name,
           amount: item.amount,
           unit: item.unit,
         };
-      }
-    );
+      });
 
     this.modalService.handleConfirmation({
       confirmationType: ConfirmationType.PROCEED_CONFIRMATION,
       itemDescription: `add ${shoppingItemData.length} ingredient(s) to the shopping list`,
       removeQuotes: true,
       onConfirmYes: () => {
-        this.shoppingListService.addNewItems(shoppingItemData);
+        this.store.dispatch(
+          shoppingListActions.addItemsRequest({
+            items: shoppingItemData,
+          })
+        );
+
         this.toastService.success({
           title: 'Shopping list updated',
           message: `${shoppingItemData.length} item(s) added to the shopping list`,

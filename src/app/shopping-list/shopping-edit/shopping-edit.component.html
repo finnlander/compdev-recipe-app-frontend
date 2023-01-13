@@ -44,13 +44,15 @@
             type="submit"
             [disabled]="!form.valid"
           >
-            <fa-icon [icon]="shoppingListItem ? iconUpdate : iconAdd"></fa-icon>
-            {{ shoppingListItem ? "Update" : "Add" }}
+            <fa-icon
+              [icon]="formMode === 'update' ? iconUpdate : iconAdd"
+            ></fa-icon>
+            {{ formMode === "update" ? "Update" : "Add" }}
           </button>
           <button
             class="btn btn-danger action-row-btn"
             type="button"
-            *ngIf="shoppingListItem"
+            *ngIf="formMode === 'update'"
             (click)="onDelete()"
           >
             <fa-icon [icon]="iconDelete"></fa-icon>
@@ -60,12 +62,12 @@
             class="btn btn-primary action-row-btn"
             type="reset"
             (click)="onClear()"
-            [disabled]="!shoppingListItem && !form.touched"
+            [disabled]="formMode === 'new' && !form.touched"
           >
             <fa-icon
-              [icon]="shoppingListItem ? iconCancel : iconClear"
+              [icon]="formMode === 'update' ? iconCancel : iconClear"
             ></fa-icon>
-            {{ shoppingListItem ? "Cancel" : "Clear" }}
+            {{ formMode === "update" ? "Cancel" : "Clear" }}
           </button>
         </div>
       </div>
