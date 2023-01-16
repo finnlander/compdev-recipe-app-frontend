@@ -23,8 +23,8 @@ export class ShoppingListComponent
   iconClearAll = faTrashCanArrowUp;
   items$: Observable<ShoppingListItem[]> = of([]);
   error$: Observable<string | null> = of(null);
+  isUpdating$: Observable<boolean> = of(false);
   isEmpty: boolean = true;
-  isUpdating: boolean = false;
   selectedItem: ShoppingListItem | null = null;
 
   constructor(
@@ -50,14 +50,8 @@ export class ShoppingListComponent
       shoppingListSelectors.getShoppingListUpdateError
     );
 
-    this.addSubscription(
-      this.store
-        .select(shoppingListSelectors.isShoppingListUpdating)
-        .subscribe((isUpdating) => {
-          setTimeout(() => {
-            this.isUpdating = isUpdating;
-          }, 0);
-        })
+    this.isUpdating$ = this.store.select(
+      shoppingListSelectors.isShoppingListUpdating
     );
 
     this.addSubscription(

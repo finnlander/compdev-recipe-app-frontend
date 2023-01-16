@@ -29,7 +29,7 @@
     </button>
   </div>
 </div>
-<ngx-spinner [showSpinner]="isUpdating"></ngx-spinner>
+<ngx-spinner [showSpinner]="(isUpdating$ | async) || false"></ngx-spinner>
 <app-alert
   *ngIf="error$ | async"
   type="error"

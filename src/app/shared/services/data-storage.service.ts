@@ -31,6 +31,8 @@ export class DataStorageService {
   }
 
   loadRecipes(forceReload: boolean = false) {
+    console.debug('load stored recipes');
+
     if (this.loadSubscription$ && !forceReload) {
       return this.loadSubscription$;
     }

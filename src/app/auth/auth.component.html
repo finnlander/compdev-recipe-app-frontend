@@ -71,7 +71,7 @@
               type="submit"
               class="btn btn-lg btn-primary"
               [ngClass]="formMode === 'login' ? 'btn-primary' : 'btn-success'"
-              [disabled]="!form.valid || loading"
+              [disabled]="!form.valid || (loading$ | async)"
             >
               {{ formMode === "login" ? "Login" : "Sign Up" }}
             </button>
@@ -80,7 +80,7 @@
               type="button"
               class="btn btn-secondary ml-1"
               (click)="this.switchFormMode()"
-              [disabled]="loading"
+              [disabled]="loading$ | async"
             >
               Switch to {{ formMode === "login" ? "sign up" : "login" }}
             </button>
@@ -89,12 +89,12 @@
       </div>
     </div>
     <app-alert
-      *ngIf="error"
+      *ngIf="error$ | async"
       type="error"
       [action]="formMode === 'login' ? 'Login' : 'Sign Up'"
-      [message]="error"
+      [message]="error$ | async"
       (dismiss)="onDismissError()"
     ></app-alert>
   </div>
-  <ngx-spinner></ngx-spinner>
+  <ngx-spinner [showSpinner]="(loading$ | async) || false"></ngx-spinner>
 </div>

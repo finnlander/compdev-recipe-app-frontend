@@ -10,6 +10,8 @@ import {
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { ShoppingListItem } from '../models/shopping-list-item-model';
 
+/* Types */
+
 export enum ShoppingListActionTypes {
   ADD_ITEM_REQUEST = '[Shopping List] Add Item request',
   ADD_ITEM_SUCCESS = '[Shopping List] Add Item success',
@@ -45,6 +47,8 @@ type UpdateShoppingListItemRequestPayload = PayloadWithOrdinal &
 
 type UpdateShoppingListItemSuccessPayload = PayloadWithOrdinal &
   ShoppingListItemSuccessPayload;
+
+/* Actions */
 
 /**
  * Ngrx action to request adding new item into the shopping list.

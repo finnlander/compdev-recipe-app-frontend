@@ -1,3 +1,4 @@
+import { AuthEffects, authReducer, AuthState } from '../auth/store';
 import {
   ShoppingListEffects,
   shoppingListReducer,
@@ -8,6 +9,7 @@ import {
  * Root ngrx state for the app.
  */
 export interface RootState {
+  auth: AuthState;
   shoppingList: ShoppingListState;
 }
 
@@ -15,10 +17,11 @@ export interface RootState {
  * App's root reducer statement.
  */
 export const reducers = {
+  auth: authReducer,
   shoppingList: shoppingListReducer,
 };
 
 /**
  * App's ngrx effects.
  */
-export const effects = [ShoppingListEffects];
+export const effects = [AuthEffects, ShoppingListEffects];

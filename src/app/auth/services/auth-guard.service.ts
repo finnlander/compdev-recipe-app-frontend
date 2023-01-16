@@ -6,14 +6,27 @@ import {
   RouterStateSnapshot,
   UrlTree,
 } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, skipWhile, switchMap } from 'rxjs/operators';
 import { RoutePath } from '../../config/routes.config';
+import { RootState } from '../../store/app.store';
+import { authSelectors } from '../store';
 import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
-  constructor(private router: Router, private authService: AuthService) {}
+  isAuthenticated = false;
+
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private store: Store<RootState>
+  ) {
+    store
+      .select(authSelectors.isAuthenticated)
+      .subscribe((isAuthenticated) => (this.isAuthenticated = isAuthenticated));
+  }
 
   canActivate(
     route: ActivatedRouteSnapshot,
@@ -24,15 +37,21 @@ export class AuthGuard implements CanActivate {
     | Observable<boolean | UrlTree>
     | Promise<boolean | UrlTree> {
     return this.authService.afterInitialized().pipe(
-      map(() => {
-        if (this.authService.isLoggedIn()) {
-          return true;
-        }
+      switchMap(() => {
+        // make sure to wait until there is no pending authentication operations ongoing
+        return this.store.select(authSelectors.isPendingAuthentication).pipe(
+          skipWhile((isPending) => isPending),
+          map(() => {
+            if (this.isAuthenticated) {
+              return true;
+            }
 
-        // redirect to login
-        return this.router.createUrlTree([RoutePath.Auth], {
-          queryParams: { returnUrl: state.url },
-        });
+            // redirect to login
+            return this.router.createUrlTree([RoutePath.Auth], {
+              queryParams: { returnUrl: state.url },
+            });
+          })
+        );
       })
     );
   }

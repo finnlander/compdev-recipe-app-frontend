@@ -2,10 +2,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
-import { AuthService } from '../auth/services/auth.service';
+import { authActions, authSelectors } from '../auth/store';
 import { RoutePath } from '../config/routes.config';
 import { RecipeService } from '../recipes/services/recipe.service';
-import { SubscribingComponent } from '../shared/classes/subscribing-component';
 import { ConfirmationType } from '../shared/models/confirmation.types';
 import { DataStorageService } from '../shared/services/data-storage.service';
 import { ModalService } from '../shared/services/modal.service';
@@ -16,38 +15,29 @@ import { shoppingListSelectors } from '../shopping-list/store';
   selector: 'app-header',
   templateUrl: './header.component.html',
 })
-export class HeaderComponent extends SubscribingComponent implements OnInit {
+export class HeaderComponent implements OnInit {
   collapsed: boolean = false;
-  isLoggedIn: boolean = false;
+  isLoggedIn$: Observable<boolean> = of(false);
   shoppingListCount$: Observable<number> = of(0);
   Routes = RoutePath;
 
   constructor(
-    private authService: AuthService,
     private recipeService: RecipeService,
     private dataStorageService: DataStorageService,
     private modalService: ModalService,
     private toastService: ToastService,
     private store: Store
-  ) {
-    super();
-  }
+  ) {}
 
   ngOnInit(): void {
     this.shoppingListCount$ = this.store.select(
       shoppingListSelectors.getShoppingListCount
     );
-    this.isLoggedIn = this.authService.isLoggedIn();
-
-    this.addSubscription(
-      this.authService.loginChange.subscribe(
-        (isLoggedIn) => (this.isLoggedIn = isLoggedIn)
-      )
-    );
+    this.isLoggedIn$ = this.store.select(authSelectors.isAuthenticated);
   }
 
   onLogout() {
-    this.authService.logout();
+    this.store.dispatch(authActions.logout());
   }
 
   onSaveData() {

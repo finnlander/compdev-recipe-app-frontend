@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, timer } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { Observable, of } from 'rxjs';
 import { SubscribingComponent } from '../shared/classes/subscribing-component';
-import { User } from '../shared/models/user.model';
-import { LoadingService } from '../shared/services/loading.service';
 import { ToastService } from '../shared/services/toast.service';
-import { AuthService } from './services/auth.service';
+import { RootState } from '../store/app.store';
+import { authActions, authSelectors as selectors } from './store';
 
 /* Type Definitions */
 type FormMode = 'login' | 'signup';
@@ -45,19 +45,21 @@ const LOGIN_DETAILS: AuthOperationDetails = {
 })
 export class AuthComponent extends SubscribingComponent implements OnInit {
   formMode: FormMode = 'login';
+  submitted = false;
+
   loggedOut = false;
-  loading: boolean = false;
   returnUrl?: string;
-  error?: string;
+
+  loading$: Observable<boolean> = of(false);
+  error$: Observable<string | null> = of(null);
 
   @ViewChild('form') form?: NgForm;
 
   constructor(
-    private authService: AuthService,
     private toastService: ToastService,
+    private store: Store<RootState>,
     private route: ActivatedRoute,
-    private router: Router,
-    private loadingService: LoadingService
+    private router: Router
   ) {
     super();
   }
@@ -71,35 +73,35 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
     );
 
     this.addSubscription(
-      timer(100).subscribe(() => {
-        if (this.authService.isLoggedIn()) {
-          // navigate to home
-          this.router.navigate(['/'], { relativeTo: this.route });
+      this.store.select(selectors.isAuthenticated).subscribe((isLoggedIn) => {
+        if (isLoggedIn) {
+          setTimeout(() => this.onLoggedIn(), 0);
         }
       })
     );
+
+    this.error$ = this.store.select(selectors.getAuthError);
+    this.loading$ = this.store.select(selectors.isPendingAuthentication);
   }
 
   onSubmit() {
     const model = this.form!!.value as FormModel;
-    this.error = undefined;
+
+    this.submitted = true;
     this.loggedOut = false;
-    this.loading = true;
-    this.loadingService.showSpinner();
 
-    const subscription =
+    const action =
       this.formMode === 'login'
-        ? this.authService.login(model)
-        : this.authService.signup(model);
+        ? authActions.loginRequest(model)
+        : authActions.signupRequest(model);
 
-    const details = this.formMode === 'login' ? LOGIN_DETAILS : SIGN_UP_DETAILS;
-    this.handleAuthentication(subscription, details);
+    this.store.dispatch(action);
 
     this.form!!.reset();
   }
 
   onDismissError() {
-    this.error = undefined;
+    this.store.dispatch(authActions.clearError());
   }
 
   switchFormMode() {
@@ -111,55 +113,25 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
   }
   /* Helper Methods */
 
-  private handleAuthentication(
-    subscription$: Observable<User | undefined>,
-    details: AuthOperationDetails
-  ) {
-    subscription$.subscribe(
-      (user) => {
-        if (!user) {
-          this.onAuthenticationAttemptEndedWithError(
-            'authentication failed',
-            details
-          );
-          return;
-        }
-
-        this.onAuthenticationAttemptEnded();
-
-        this.toastService.success({
-          title: details.title,
-          message: details.successMessage,
-        });
-
-        this.onLoggedIn();
-      },
-      (error: string) => {
-        this.onAuthenticationAttemptEndedWithError(error, details);
-      }
-    );
+  private showSuccessFeedback() {
+    const details = this.formMode === 'login' ? LOGIN_DETAILS : SIGN_UP_DETAILS;
+    this.toastService.success({
+      title: details.title,
+      message: details.successMessage,
+    });
   }
 
-  private onAuthenticationAttemptEndedWithError(
-    error: string,
-    details: AuthOperationDetails
-  ) {
-    this.onAuthenticationAttemptEnded();
-
-    this.error = error;
-
+  private onLoggedIn() {
     if (this.loggedOut) {
       // hide logged out message.
       this.loggedOut = false;
     }
-  }
 
-  private onAuthenticationAttemptEnded() {
-    this.loading = false;
-    this.loadingService.hideSpinner();
-  }
+    if (this.submitted) {
+      this.showSuccessFeedback();
+      this.submitted = false;
+    }
 
-  private onLoggedIn() {
     if (this.returnUrl) {
       this.router.navigate([this.returnUrl], { relativeTo: this.route });
     } else {

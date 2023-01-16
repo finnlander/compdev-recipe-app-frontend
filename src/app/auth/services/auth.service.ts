@@ -1,122 +1,76 @@
 import { Injectable } from '@angular/core';
-import jwtDecode from 'jwt-decode';
-import { Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { catchError, map, take, tap } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
-import {
-  AccessToken,
-  AuthRequest,
-  AuthResponse,
-} from '../../api/model/authentication.model';
+import { Store } from '@ngrx/store';
+import { Observable, ReplaySubject } from 'rxjs';
+import { map, skipWhile, switchMap, take } from 'rxjs/operators';
 import { AuthApi } from '../../api/services/auth-api.service';
-import { decodeMockAuthToken } from '../../api/services/backend-mock.service';
-import { User } from '../../shared/models/user.model';
+import { RootState } from '../../store/app.store';
+import {
+  getDecodedAccessToken,
+  getExpirationTimeAsMilliseconds,
+} from '../auth-util';
+import { authActions, authSelectors } from '../store';
 
 const STORAGE_KEY_AUTH_TOKEN = 'token';
 
 /* Types */
 
 /**
- * Service that handles authentication.
+ * Service that handles authentication related functionality extending the ngrx store's auth state.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private currentUser?: User;
-  private authToken?: string;
   private expirationAlarm?: ReturnType<typeof setTimeout>;
 
-  loginChange = new Subject<boolean>();
-  private initialized = new ReplaySubject<boolean>(1);
+  private pendingInitialization = true;
+  private afterInitializationCompleted = new ReplaySubject<boolean>();
 
-  constructor(private authApi: AuthApi) {}
+  constructor(private store: Store<RootState>, private authApi: AuthApi) {
+    store.select(authSelectors.getAuthToken).subscribe((authToken) => {
+      this.applyLoginStateChange(authToken);
+    });
+
+    this.store
+      .select(authSelectors.isPendingInitialization)
+      .pipe(
+        skipWhile((isInitialized) => !isInitialized),
+        take(1)
+      )
+      .subscribe(() => this.afterInitializationCompleted.next(true));
+  }
 
   /**
    * Gate observable to allow waiting until auth service has been initialized.
    */
   afterInitialized(): Observable<void> {
-    return this.initialized.pipe(
-      take(1),
-      map((any) => undefined)
+    return this.afterInitializationCompleted.pipe(map(() => undefined));
+  }
+
+  /**
+   * Get authentication token safely guaranteeing the authentication state has been resumed since page reload and
+   * to not requiring unsubscribing for later changes.
+   * @returns
+   */
+  getAuthTokenOnce() {
+    return this.afterInitialized().pipe(
+      switchMap(() =>
+        this.store.select(authSelectors.getAuthToken).pipe(take(1))
+      )
     );
-  }
-
-  /**
-   * Sign up with a new user.
-   */
-  signup(data: AuthRequest) {
-    return this.authApi.signup(data).pipe(map((res) => this.applyLogin(res)));
-  }
-
-  /**
-   * Login user.
-   */
-  login(data: AuthRequest) {
-    return this.authApi.login(data).pipe(map((res) => this.applyLogin(res)));
-  }
-
-  /**
-   * Logout current user.
-   */
-  logout() {
-    this.currentUser = undefined;
-    this.authToken = undefined;
-    localStorage.removeItem(STORAGE_KEY_AUTH_TOKEN);
-
-    if (this.expirationAlarm) {
-      clearTimeout(this.expirationAlarm);
-      this.expirationAlarm = undefined;
-    }
-
-    this.onLoginChange();
-  }
-
-  /**
-   * Check if user is logged in.
-   */
-  isLoggedIn(): boolean {
-    return !!this.currentUser;
-  }
-
-  /**
-   * Get Authentication token for backend API.
-   */
-  getAuthToken(): string | undefined {
-    return this.authToken;
-  }
-
-  /**
-   * Get currently authenticated user.
-   */
-  getCurrentUser(): Observable<User | undefined> {
-    if (this.currentUser) {
-      return of<User>({ ...this.currentUser!! } as User);
-    }
-
-    if (!this.authToken) {
-      // not logged in
-      return of<undefined>(undefined);
-    }
-
-    return this.authApi
-      .getAuthenticatedUser()
-      .pipe(tap((user) => (this.currentUser = { ...user })));
   }
 
   /**
    * Resume authenticated session from local storage data.
    */
   resume() {
-    this.authToken = undefined;
     const authToken = localStorage.getItem(STORAGE_KEY_AUTH_TOKEN) || undefined;
     if (!authToken) {
-      this.initialized.next(true);
+      this.onResumeFailed();
       return;
     }
 
     const decodedToken = getDecodedAccessToken(authToken);
-    console.log(decodedToken);
     if (!decodedToken) {
-      this.initialized.next(true);
+      this.onResumeFailed();
       return;
     }
 
@@ -125,8 +79,7 @@ export class AuthService {
       const expTimeMs = getExpirationTimeAsMilliseconds(decodedToken.exp);
       if (expTimeMs <= 0) {
         console.debug('Access token is expired -> initializing logout');
-        this.initialized.next(true);
-        return this.logout();
+        this.onResumeFailed();
       } else {
         console.debug(
           ` Session expires in ${new Date(new Date().getTime() + expTimeMs)}`
@@ -134,85 +87,59 @@ export class AuthService {
       }
     }
 
-    this.authToken = authToken;
-
-    this.getCurrentUser()
-      .pipe(
-        catchError(() => of(false)),
-        map((user) => !!user),
-        tap(() => {
-          this.initialized.next(true);
-          this.onLoginChange();
-        })
-      )
-      .subscribe();
+    this.store.dispatch(authActions.loginSuccess({ token: authToken }));
+    this.store.dispatch(authActions.setInitialized());
+    this.pendingInitialization = false;
   }
 
   /* Helper Functions */
 
-  private applyLogin(res: AuthResponse): User | undefined {
-    const accessToken = getDecodedAccessToken(res.token);
-    if (!accessToken) {
-      console.debug('failed to decode access token from: ', res.token);
-      this.logout();
-      return undefined;
+  private applyLoginStateChange(authToken: string | null) {
+    console.debug('login state change - authenticated: ', !!authToken);
+    if (!authToken) {
+      this.handleLogout();
+      return;
     }
 
-    this.currentUser = {
-      id: accessToken.id,
-      username: accessToken.username,
-    };
+    const accessToken = getDecodedAccessToken(authToken);
+    if (!accessToken) {
+      console.debug('failed to decode access token from: ', authToken);
+      this.handleLogout();
+      return;
+    }
 
-    this.authToken = res.token;
-    localStorage.setItem(STORAGE_KEY_AUTH_TOKEN, this.authToken);
-
-    const exp = accessToken.exp;
-
+    localStorage.setItem(STORAGE_KEY_AUTH_TOKEN, authToken);
     if (this.expirationAlarm) {
       clearTimeout(this.expirationAlarm);
       this.expirationAlarm = undefined;
     }
 
-    if (exp) {
-      const expirationTime = getExpirationTimeAsMilliseconds(exp);
-      this.expirationAlarm = setTimeout(() => {
-        console.info('Session expired -> logging out');
-        this.logout();
-      }, expirationTime);
+    const exp = accessToken.exp;
+    if (!exp) {
+      return;
     }
 
-    this.onLoginChange();
-
-    return this.currentUser;
+    const expirationTime = getExpirationTimeAsMilliseconds(exp);
+    this.expirationAlarm = setTimeout(() => {
+      console.info('Session expired -> logging out');
+      this.handleLogout();
+    }, expirationTime);
   }
 
-  private onLoginChange() {
-    this.loginChange.next(this.isLoggedIn());
-  }
-}
-
-/* Helper Functions */
-
-function getDecodedAccessToken(token?: string): AccessToken | undefined {
-  if (!token) {
-    return undefined;
+  private onResumeFailed() {
+    this.store.dispatch(authActions.logout());
+    this.store.dispatch(authActions.setInitialized());
+    this.pendingInitialization = false;
   }
 
-  if (environment.enableBackendMock) {
-    return decodeMockAuthToken(token);
+  private handleLogout() {
+    if (!this.pendingInitialization) {
+      localStorage.removeItem(STORAGE_KEY_AUTH_TOKEN);
+    }
+
+    if (this.expirationAlarm) {
+      clearTimeout(this.expirationAlarm);
+      this.expirationAlarm = undefined;
+    }
   }
-
-  try {
-    return jwtDecode<AccessToken>(token);
-  } catch (error) {
-    console.warn('Failed to decode access token');
-    return undefined;
-  }
-}
-
-function getExpirationTimeAsMilliseconds(exp: number) {
-  const expMs = exp * 1000;
-  const currentTimeMs = new Date().getTime();
-
-  return expMs - currentTimeMs;
 }

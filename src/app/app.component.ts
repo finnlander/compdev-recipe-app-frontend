@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { environment } from '../environments/environment';
 import { AuthService } from './auth/services/auth.service';
+import { authSelectors } from './auth/store';
 import { RoutePath } from './config/routes.config';
 import { RecipeService } from './recipes/services/recipe.service';
 import { SubscribingComponent } from './shared/classes/subscribing-component';
@@ -31,18 +32,20 @@ export class AppComponent extends SubscribingComponent implements OnInit {
     console.debug('Env: ', environment);
 
     this.addSubscription(
-      this.authService.loginChange.subscribe((isLoggedIn) => {
-        if (isLoggedIn === this.loggedIn) {
-          return;
-        }
+      this.store
+        .select(authSelectors.isAuthenticated)
+        .subscribe((isLoggedIn) => {
+          if (isLoggedIn === this.loggedIn) {
+            return;
+          }
 
-        this.loggedIn = isLoggedIn;
-        if (isLoggedIn) {
-          this.onLogin();
-        } else {
-          this.onLogout();
-        }
-      })
+          this.loggedIn = isLoggedIn;
+          if (isLoggedIn) {
+            this.onLogin();
+          } else {
+            this.onLogout();
+          }
+        })
     );
 
     // resume session, if available
@@ -60,9 +63,6 @@ export class AppComponent extends SubscribingComponent implements OnInit {
     console.debug('onLogout initiated');
 
     this.store.dispatch(shoppingListActions.clearItems());
-
-    this.recipeService.setRecipes([]);
-    this.recipeService.setSelectedRecipe();
 
     this.router.navigate([RoutePath.Auth], {
       queryParams: { logout: true },
