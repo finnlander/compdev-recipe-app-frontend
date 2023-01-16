@@ -11,7 +11,7 @@ export class AlertComponent {
   @Input('type') type: AlertType = 'error';
   @Input('action')
   action?: string;
-  @Input('message') message?: string;
+  @Input('message') message?: string | null;
   @Output() dismiss = new EventEmitter<void>();
 
   onDismissClick() {

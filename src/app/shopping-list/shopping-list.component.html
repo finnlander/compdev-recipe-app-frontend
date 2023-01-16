@@ -29,3 +29,11 @@
     </button>
   </div>
 </div>
+<ngx-spinner [showSpinner]="isUpdating"></ngx-spinner>
+<app-alert
+  *ngIf="error$ | async"
+  type="error"
+  action="Update shopping list"
+  [message]="error$ | async"
+  (dismiss)="onDismissError()"
+></app-alert>

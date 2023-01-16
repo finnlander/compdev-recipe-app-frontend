@@ -20,6 +20,7 @@ export enum ShoppingListActionTypes {
   REMOVE_ITEM = '[Shopping List] Remove Item',
   UPDATE_FAILED = '[Shopping List] Update failed',
   CLEAR_ITEMS = '[Shopping List] Clear items',
+  CLEAR_UPDATE_ERROR = '[Shopping List] Clear update error',
   SET_SELECTED_ITEM = '[Shopping List] Set selected item',
 }
 
@@ -125,6 +126,13 @@ const clearShoppingListAction = createAction(
 );
 
 /**
+ * Ngrx action to clear update error.
+ */
+const clearUpdateErrorAction = createAction(
+  ShoppingListActionTypes.CLEAR_UPDATE_ERROR
+);
+
+/**
  * Rxjs store actions for shopping list feature.
  */
 export const shoppingListActions = {
@@ -133,6 +141,7 @@ export const shoppingListActions = {
   addItemsRequest: addMultipleShoppingListItemsRequestAction,
   addItemsSuccess: addMultipleShoppingListItemsSuccessAction,
   clearItems: clearShoppingListAction,
+  clearUpdateError: clearUpdateErrorAction,
   removeItem: removeShoppingListItemAction,
   setSelectedItem: setSelectedItemAction,
   updateFailed: shoppingListUpdateErrorAction,

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { faTrashCanArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { select, Store } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
@@ -18,11 +18,13 @@ import { shoppingListActions, shoppingListSelectors } from './store';
 })
 export class ShoppingListComponent
   extends SubscribingComponent
-  implements OnInit
+  implements OnInit, OnDestroy
 {
   iconClearAll = faTrashCanArrowUp;
-  items$: Observable<ShoppingListItem[]> = of();
+  items$: Observable<ShoppingListItem[]> = of([]);
+  error$: Observable<string | null> = of(null);
   isEmpty: boolean = true;
+  isUpdating: boolean = false;
   selectedItem: ShoppingListItem | null = null;
 
   constructor(
@@ -44,21 +46,29 @@ export class ShoppingListComponent
       })
     );
 
+    this.error$ = this.store.select(
+      shoppingListSelectors.getShoppingListUpdateError
+    );
+
+    this.addSubscription(
+      this.store
+        .select(shoppingListSelectors.isShoppingListUpdating)
+        .subscribe((isUpdating) => {
+          setTimeout(() => {
+            this.isUpdating = isUpdating;
+          }, 0);
+        })
+    );
+
     this.addSubscription(
       this.store
         .select(shoppingListSelectors.getSelectedItem)
         .subscribe((selectedItem) => (this.selectedItem = selectedItem))
     );
+  }
 
-    /*
-    if (
-      environment.generateSampleData &&
-      this.shoppingListService.getCount() == 0
-      ) {
-      // Add some samples
-      this.shoppingListService.generateSampleData();
-    }
-    */
+  override ngOnDestroy(): void {
+    this.store.dispatch(shoppingListActions.clearUpdateError());
   }
 
   onSelectItem(item: ShoppingListItem) {
@@ -86,5 +96,9 @@ export class ShoppingListComponent
         });
       },
     });
+  }
+
+  onDismissError() {
+    this.store.dispatch(shoppingListActions.clearUpdateError());
   }
 }

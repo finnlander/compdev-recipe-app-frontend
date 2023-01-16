@@ -29,7 +29,7 @@ export interface ShoppingListState {
   error: string | null;
 }
 
-const initialState: ShoppingListState = {
+const initialState: Readonly<ShoppingListState> = {
   items: [],
   selectedItem: null,
   pendingChanges: 0,
@@ -92,7 +92,6 @@ export const shoppingListReducer = createReducer(
       }
     });
 
-    console.log('updatedItems: ', updatedItems);
     return {
       ...state,
       pendingChanges: state.pendingChanges - 1,
@@ -143,6 +142,14 @@ export const shoppingListReducer = createReducer(
     ...state,
     error,
   })),
+  on(actions.clearUpdateError, (state, _) =>
+    state.error
+      ? {
+          ...state,
+          error: null,
+        }
+      : state
+  ),
   on(actions.setSelectedItem, (state, { item }) => ({
     ...state,
     selectedItem: item,
