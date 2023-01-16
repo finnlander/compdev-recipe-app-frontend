@@ -4,7 +4,10 @@ import {
   createSelector,
   on,
 } from '@ngrx/store';
-import { shoppingListActions as actions } from '.';
+import {
+  shoppingListActions as actions,
+  ShoppingListItemSuccessPayload,
+} from '.';
 import { ShoppingListItem } from '../models/shopping-list-item-model';
 
 /**
@@ -69,28 +72,10 @@ export const shoppingListReducer = createReducer(
     ],
   })),
   on(actions.addItemsSuccess, (state, { items }) => {
-    const updatedItems: ShoppingListItem[] = [...state.items];
-    items.forEach((newItem) => {
-      const existingRowIndex = updatedItems.findIndex(
-        (it) =>
-          it.ingredient.name === newItem.ingredient.name &&
-          it.unit === newItem.unit
-      );
-      if (existingRowIndex >= 0) {
-        const existingItem = updatedItems[existingRowIndex];
-        updatedItems[existingRowIndex] = {
-          ...existingItem,
-          amount: existingItem.amount + newItem.amount,
-        };
-      } else {
-        updatedItems.push({
-          ordinal: updatedItems.length + 1,
-          ingredient: newItem.ingredient,
-          amount: newItem.amount,
-          unit: newItem.unit,
-        });
-      }
-    });
+    const updatedItems: ShoppingListItem[] = mergeShoppingListItems(
+      state.items,
+      items
+    );
 
     return {
       ...state,
@@ -196,3 +181,36 @@ export const shoppingListSelectors = {
   getShoppingListUpdateError: getShoppingListUpdateErrorSelector,
   getSelectedItem: getSelectedItemSelector,
 };
+
+/* Helper Functions */
+
+function mergeShoppingListItems(
+  existingItems: ShoppingListItem[],
+  newItems: ShoppingListItemSuccessPayload[]
+) {
+  const mergedItems: ShoppingListItem[] = [...existingItems];
+
+  newItems.forEach((newItem) => {
+    const existingRowIndex = mergedItems.findIndex(
+      (it) =>
+        it.ingredient.name === newItem.ingredient.name &&
+        it.unit === newItem.unit
+    );
+    if (existingRowIndex >= 0) {
+      const existingItem = mergedItems[existingRowIndex];
+      mergedItems[existingRowIndex] = {
+        ...existingItem,
+        amount: existingItem.amount + newItem.amount,
+      };
+    } else {
+      mergedItems.push({
+        ordinal: mergedItems.length + 1,
+        ingredient: newItem.ingredient,
+        amount: newItem.amount,
+        unit: newItem.unit,
+      });
+    }
+  });
+
+  return mergedItems;
+}

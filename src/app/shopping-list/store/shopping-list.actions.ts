@@ -34,7 +34,7 @@ interface ShoppingListItemRequestPayload {
   readonly unit: RecipeUnit;
 }
 
-interface ShoppingListItemSuccessPayload {
+export interface ShoppingListItemSuccessPayload {
   readonly ingredient: Ingredient;
   readonly amount: number;
   readonly unit: RecipeUnit;
