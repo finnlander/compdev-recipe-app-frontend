@@ -23,7 +23,6 @@ export interface ShoppingListState {
    * Pending shopping list change operations.
    */
   pendingChanges: number;
-
   /**
    * Error occurred with latest update operation.
    */

@@ -14,7 +14,7 @@ interface PutResponse {
   providedIn: 'root',
 })
 export class DataStorageService {
-  private loadSubscription?: Observable<Recipe[]>;
+  private loadSubscription$?: Observable<Recipe[]>;
 
   constructor(
     private recipesApi: RecipesApi,
@@ -31,17 +31,17 @@ export class DataStorageService {
   }
 
   loadRecipes(forceReload: boolean = false) {
-    if (this.loadSubscription && !forceReload) {
-      return this.loadSubscription;
+    if (this.loadSubscription$ && !forceReload) {
+      return this.loadSubscription$;
     }
 
-    this.loadSubscription = this.ingredientService.loadIngredients().pipe(
+    this.loadSubscription$ = this.ingredientService.loadIngredients().pipe(
       // note: same http call is shared between subscribers, unless reload is forced
       shareReplay(),
       switchMap((_) => this.createLoadRecipesObservable())
     );
 
-    return this.loadSubscription;
+    return this.loadSubscription$;
   }
 
   private createLoadRecipesObservable() {

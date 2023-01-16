@@ -112,10 +112,10 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
   /* Helper Methods */
 
   private handleAuthentication(
-    subscription: Observable<User | undefined>,
+    subscription$: Observable<User | undefined>,
     details: AuthOperationDetails
   ) {
-    subscription.subscribe(
+    subscription$.subscribe(
       (user) => {
         if (!user) {
           this.onAuthenticationAttemptEndedWithError(

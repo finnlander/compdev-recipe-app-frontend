@@ -21,7 +21,7 @@ export class ShoppingListComponent
   implements OnInit
 {
   iconClearAll = faTrashCanArrowUp;
-  items: Observable<ShoppingListItem[]> = of();
+  items$: Observable<ShoppingListItem[]> = of();
   isEmpty: boolean = true;
   selectedItem: ShoppingListItem | null = null;
 
@@ -34,7 +34,7 @@ export class ShoppingListComponent
   }
 
   ngOnInit(): void {
-    this.items = this.store.pipe(
+    this.items$ = this.store.pipe(
       select(shoppingListSelectors.getShoppingListItems),
       tap((items) => {
         const isEmpty = items.length === 0;

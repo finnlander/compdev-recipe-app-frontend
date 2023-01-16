@@ -19,7 +19,7 @@ import { shoppingListSelectors } from '../shopping-list/store';
 export class HeaderComponent extends SubscribingComponent implements OnInit {
   collapsed: boolean = false;
   isLoggedIn: boolean = false;
-  shoppingListCount: Observable<number> = of(0);
+  shoppingListCount$: Observable<number> = of(0);
   Routes = RoutePath;
 
   constructor(
@@ -34,7 +34,7 @@ export class HeaderComponent extends SubscribingComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.shoppingListCount = this.store.select(
+    this.shoppingListCount$ = this.store.select(
       shoppingListSelectors.getShoppingListCount
     );
     this.isLoggedIn = this.authService.isLoggedIn();

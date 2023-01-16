@@ -9,7 +9,7 @@
       <a
         class="list-group-item"
         style="cursor: pointer"
-        *ngFor="let item of items | async"
+        *ngFor="let item of items$ | async"
         [ngClass]="selectedItem?.ordinal === item.ordinal ? 'selected' : ''"
       >
         <app-shopping-list-item

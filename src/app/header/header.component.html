@@ -29,7 +29,7 @@
           <li *ngIf="isLoggedIn" routerLinkActive="active">
             <a [routerLink]="[Routes.ShoppingList]"
               >Shopping List (<span
-                [innerText]="shoppingListCount | async"
+                [innerText]="shoppingListCount$ | async"
               ></span
               >)</a
             >
