@@ -14,58 +14,100 @@
       </div>
       <div class="panel-body">
         <form (ngSubmit)="onSubmit()" #form="ngForm">
-          <div class="form-group form-group-lg">
-            <label for="username">Username</label>
-            <input
-              class="form-control"
-              type="email"
-              id="username"
-              name="username"
-              placeholder="username@example.com"
-              ngModel
-              required
-              [email]="formMode === 'signup'"
-            />
-          </div>
-          <div class="form-group form-group-lg">
-            <label for="password">Password</label>
-            <input
-              class="form-control"
-              type="password"
-              id="password"
-              name="password"
-              placeholder="password"
-              ngModel
-              required
-              [minlength]="formMode === 'signup' ? 12 : 1"
-              #passwordInput="ngModel"
-            />
-            <span
-              *ngIf="!passwordInput.valid && passwordInput.touched"
-              class="help-block"
-              >Password with minimum length of 12 is required</span
-            >
-          </div>
-          <div *ngIf="formMode === 'signup'" class="form-group form-group-lg">
-            <label for="repeatPassword">Repeat password</label>
-            <input
-              class="form-control"
-              type="password"
-              id="repeatPassword"
-              name="repeatPassword"
-              placeholder="password"
-              ngModel
-              required
-              appRequireEquality
-              [requireEqualityTo]="passwordInput.value"
-              #repeatPasswordInput="ngModel"
-            />
-            <span
-              *ngIf="!repeatPasswordInput.valid && repeatPasswordInput.touched"
-              class="help-block"
-              >Password values must match!</span
-            >
-          </div>
+          <!-- Signup form -->
+          <ng-container *ngIf="formMode === 'signup'">
+            <div class="form-group form-group-lg">
+              <label for="username">Username</label>
+              <input
+                class="form-control"
+                type="text"
+                id="username"
+                name="username"
+                placeholder="username@example.com"
+                autocomplete="username"
+                ngModel
+                required
+                email
+              />
+            </div>
+            <div class="form-group form-group-lg">
+              <label for="password">Password</label>
+              <input
+                class="form-control"
+                type="password"
+                id="password"
+                name="password"
+                placeholder="password"
+                autocomplete="new-password"
+                ngModel
+                required
+                minlength="12"
+                #passwordInput="ngModel"
+              />
+              <span
+                *ngIf="!passwordInput.valid && passwordInput.touched"
+                class="help-block"
+                >Password with minimum length of 12 is required</span
+              >
+            </div>
+            <div class="form-group form-group-lg">
+              <label for="repeatPassword">Repeat password</label>
+              <input
+                class="form-control"
+                type="password"
+                id="repeatPassword"
+                name="repeatPassword"
+                placeholder="password"
+                autocomplete="new-password"
+                ngModel
+                required
+                appRequireEquality
+                [requireEqualityTo]="passwordInput.value"
+                #repeatPasswordInput="ngModel"
+              />
+              <span
+                *ngIf="
+                  !repeatPasswordInput.valid && repeatPasswordInput.touched
+                "
+                class="help-block"
+                >Password values must match!</span
+              >
+            </div>
+          </ng-container>
+
+          <!-- Login form -->
+          <ng-container *ngIf="formMode === 'login'">
+            <div class="form-group form-group-lg">
+              <label for="username">Username</label>
+              <input
+                class="form-control"
+                type="text"
+                id="username"
+                name="username"
+                placeholder="username@example.com"
+                autocomplete="username"
+                ngModel
+                required
+              />
+            </div>
+            <div class="form-group form-group-lg">
+              <label for="password">Password</label>
+              <input
+                class="form-control"
+                type="password"
+                id="password"
+                name="password"
+                placeholder="password"
+                autocomplete="current-password"
+                ngModel
+                required
+                minlength="1"
+                #passwordInput="ngModel"
+              />
+            </div>
+          </ng-container>
+
+          <!-- Buttons -->
           <div>
             <button
               type="submit"
