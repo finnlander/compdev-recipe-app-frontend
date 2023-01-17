@@ -2,10 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { environment } from '../environments/environment';
-import { AuthService } from './auth/services/auth.service';
-import { authSelectors } from './auth/store';
+import { authActions, authSelectors } from './auth/store';
 import { RoutePath } from './config/routes.config';
-import { RecipeService } from './recipes/services/recipe.service';
 import { SubscribingComponent } from './shared/classes/subscribing-component';
 import { DataStorageService } from './shared/services/data-storage.service';
 import { shoppingListActions } from './shopping-list/store';
@@ -19,9 +17,7 @@ export class AppComponent extends SubscribingComponent implements OnInit {
   private loggedIn = false;
 
   constructor(
-    private authService: AuthService,
     private dataStorageService: DataStorageService,
-    private recipeService: RecipeService,
     private router: Router,
     private store: Store<RootState>
   ) {
@@ -49,7 +45,7 @@ export class AppComponent extends SubscribingComponent implements OnInit {
     );
 
     // resume session, if available
-    this.authService.resume();
+    this.store.dispatch(authActions.restoreSession());
   }
 
   /* Lifecycle methods */

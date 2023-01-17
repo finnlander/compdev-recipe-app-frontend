@@ -31,7 +31,7 @@ export class ErrorInterceptor implements HttpInterceptor {
             'Auth header:',
             req.headers.get('Authorization')
           );
-          this.store.dispatch(authActions.logout());
+          this.store.dispatch(authActions.logout({}));
         }
 
         return throwError(err);

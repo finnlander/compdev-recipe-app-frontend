@@ -16,6 +16,10 @@ export interface AuthState {
    */
   authToken: string | null;
   /**
+   * Expiration timestamp for authentication token.
+   */
+  authTokenExpiresAt: Date | null;
+  /**
    * Pending on authentication action.
    */
   pendingAuthentication: boolean;
@@ -31,6 +35,7 @@ export interface AuthState {
 
 const initialState: Readonly<AuthState> = {
   authToken: null,
+  authTokenExpiresAt: null,
   pendingAuthentication: false,
   pendingInitialization: true,
   error: null,
@@ -46,16 +51,19 @@ export const authReducer = createReducer(
     pendingAuthentication: true,
     error: null,
   })),
-  on(actions.loginSuccess, (state, { token }) => ({
+  on(actions.loginSuccess, (state, { token, tokenExpiresAt }) => ({
     ...state,
     authToken: token,
+    authTokenExpiresAt: tokenExpiresAt,
     pendingAuthentication: false,
+    pendingInitialization: false,
     error: null,
   })),
   on(actions.signupError, actions.loginError, (state, { error }) => ({
     ...state,
     pendingAuthentication: false,
     authToken: null,
+    authTokenExpiresAt: null,
     error,
   })),
   on(actions.clearError, (state, _) =>
@@ -66,9 +74,9 @@ export const authReducer = createReducer(
         }
       : state
   ),
-  on(actions.logout, (state, _) => ({
+  on(actions.logout, (state, { setInitialized }) => ({
     ...initialState,
-    pendingInitialization: state.pendingInitialization,
+    pendingInitialization: setInitialized ? false : state.pendingInitialization,
   }))
 );
 
@@ -76,14 +84,19 @@ export const authReducer = createReducer(
 
 const getAuthStateSelector = createFeatureSelector<AuthState>('auth');
 
+const getAuthErrorSelector = createSelector(
+  getAuthStateSelector,
+  (state) => state.error
+);
+
 const getAuthTokenSelector = createSelector(
   getAuthStateSelector,
   (state) => state.authToken
 );
 
-const getAuthErrorSelector = createSelector(
+const getAuthTokenExpiresAtSelector = createSelector(
   getAuthStateSelector,
-  (state) => state.error
+  (state) => state.authTokenExpiresAt
 );
 
 const isAuthenticatedSelector = createSelector(
@@ -101,13 +114,20 @@ const isPendingInitializationSelector = createSelector(
   (state) => state.pendingInitialization
 );
 
+const isPendingStateChangeSelector = createSelector(
+  getAuthStateSelector,
+  (state) => state.pendingInitialization || state.pendingAuthentication
+);
+
 /**
  * Prepared ngrx selectors for authentication state values.
  */
 export const authSelectors = {
-  getAuthToken: getAuthTokenSelector,
   getAuthError: getAuthErrorSelector,
+  getAuthToken: getAuthTokenSelector,
+  getAuthTokenExpiresAt: getAuthTokenExpiresAtSelector,
   isAuthenticated: isAuthenticatedSelector,
   isPendingAuthentication: isPendingAuthenticationSelector,
   isPendingInitialization: isPendingInitializationSelector,
+  isPendingStateChange: isPendingStateChangeSelector,
 };

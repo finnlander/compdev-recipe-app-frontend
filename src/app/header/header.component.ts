@@ -37,7 +37,7 @@ export class HeaderComponent implements OnInit {
   }
 
   onLogout() {
-    this.store.dispatch(authActions.logout());
+    this.store.dispatch(authActions.logout({}));
   }
 
   onSaveData() {

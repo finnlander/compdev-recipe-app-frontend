@@ -5,14 +5,15 @@ import { ErrorContainer } from '../../shared/models/payloads.model';
 /* Types */
 
 export enum AuthActionTypes {
-  SIGNUP_REQUEST = '[Auth] Signup request',
-  SIGNUP_FAILED = '[Auth] Signup failed',
+  CLEAR_ERROR = '[Auth] Clear error',
   LOGIN_REQUEST = '[Auth] Login request',
   LOGIN_SUCCEED = '[Auth] Login succeed',
   LOGIN_FAILED = '[Auth] Login failed',
   LOGOUT = '[Auth] Logout',
-  CLEAR_ERROR = '[Auth] Clear error',
+  RESTORE_SESSION = '[Auth] Restore session',
   SET_INITIALIZED = '[Auth] Set initialized',
+  SIGNUP_FAILED = '[Auth] Signup failed',
+  SIGNUP_REQUEST = '[Auth] Signup request',
 }
 
 interface AuthRequestPayload {
@@ -22,6 +23,12 @@ interface AuthRequestPayload {
 
 interface AuthSuccessPayload {
   token: string;
+  tokenExpiresAt: Date | null;
+}
+
+interface LogoutPayload {
+  setInitialized?: boolean;
+  redirectUrl?: string;
 }
 
 /* Actions */
@@ -69,7 +76,10 @@ const loginErrorAction = createAction(
 /**
  * Ngrx action to initiate logout.
  */
-const logoutAction = createAction(AuthActionTypes.LOGOUT);
+const logoutAction = createAction(
+  AuthActionTypes.LOGOUT,
+  props<LogoutPayload>()
+);
 
 /**
  * Ngrx action to clear any error occurred on login/signup action.
@@ -81,13 +91,22 @@ const clearErrorAction = createAction(AuthActionTypes.CLEAR_ERROR);
  */
 const setInitializedAction = createAction(AuthActionTypes.SET_INITIALIZED);
 
+/**
+ * Ngrx action to initiate previous authentication session restoration from local storage based token.
+ */
+const restoreSessionAction = createAction(AuthActionTypes.RESTORE_SESSION);
+
+/**
+ * Authentication related actions.
+ */
 export const authActions = {
-  signupRequest: signupRequestAction,
-  signupError: signupErrorAction,
+  clearError: clearErrorAction,
+  loginError: loginErrorAction,
   loginRequest: loginRequestAction,
   loginSuccess: loginSuccessAction,
-  loginError: loginErrorAction,
-  clearError: clearErrorAction,
   logout: logoutAction,
+  restoreSession: restoreSessionAction,
   setInitialized: setInitializedAction,
+  signupError: signupErrorAction,
+  signupRequest: signupRequestAction,
 };

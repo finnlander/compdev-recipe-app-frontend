@@ -28,10 +28,17 @@ export function getDecodedAccessToken(token?: string): AccessToken | undefined {
 /**
  * Convert (token) expiration time value into milliseconds value from now.
  */
-export function getExpirationTimeAsMilliseconds(exp: number) {
+export function getExpirationTimeLeftAsMilliseconds(exp: number) {
   const expMs = exp * 1000;
   const currentTimeMs = new Date().getTime();
 
   const diff = expMs - currentTimeMs;
-  return diff > 0 ? diff : 0;
+  return Math.max(diff, 0);
+}
+
+export function getExpirationTimeFromExpDateLeftAsMilliseconds(exp: Date) {
+  const currentTimeMs = new Date().getTime();
+  const diff = exp.getTime() - currentTimeMs;
+
+  return Math.max(diff, 0);
 }
