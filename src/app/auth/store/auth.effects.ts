@@ -5,6 +5,11 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { authActions } from '.';
 import { AuthApi } from '../../api/services/auth-api.service';
 
+/**
+ * Authentication related effects.
+ * Note: Angular effects should never throw errors as they will kill the observables that should be re-used on every
+ *       dispatched action.
+ */
 @Injectable()
 export class AuthEffects {
   constructor(private readonly actions$: Actions, private authApi: AuthApi) {}
@@ -18,16 +23,16 @@ export class AuthEffects {
             return authActions.loginSuccess({
               token,
             });
-          })
+          }),
+          catchError((error: string) =>
+            of(
+              authActions.signupError({
+                error: `Sign up failed on error: ${error}`,
+              })
+            )
+          )
         );
-      }),
-      catchError((error: string) =>
-        of(
-          authActions.signupError({
-            error: `Sign up failed on error: ${error}`,
-          })
-        )
-      )
+      })
     )
   );
 
@@ -40,16 +45,16 @@ export class AuthEffects {
             return authActions.loginSuccess({
               token,
             });
-          })
+          }),
+          catchError((error: string) =>
+            of(
+              authActions.loginError({
+                error: `Login failed on error: ${error}`,
+              })
+            )
+          )
         );
-      }),
-      catchError((error: string) =>
-        of(
-          authActions.loginError({
-            error: `Login failed on error: ${error}`,
-          })
-        )
-      )
+      })
     )
   );
 }

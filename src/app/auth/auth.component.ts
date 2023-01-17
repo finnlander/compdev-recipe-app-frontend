@@ -96,8 +96,6 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
         : authActions.signupRequest(model);
 
     this.store.dispatch(action);
-
-    this.form!!.reset();
   }
 
   onDismissError() {
