@@ -84,14 +84,17 @@ export class RecipeEffects {
       switchMap(() =>
         this.recipesApi.getAllRecipes().pipe(
           map(
-            (recipes) => recipeActions.fetchRecipesSuccess({ items: recipes }),
-            catchError((err) =>
-              of(
+            (res) =>
+              res.ok
+                ? recipeActions.fetchRecipesSuccess({ items: res.data })
+                : recipeActions.recipesError({ error: res.error }),
+            catchError((err) => {
+              return of(
                 recipeActions.recipesError({
                   error: `Fetching recipes failed on error: ${err}`,
                 })
-              )
-            )
+              );
+            })
           )
         )
       )
@@ -106,7 +109,10 @@ export class RecipeEffects {
       switchMap((recipes) =>
         this.recipesApi.replaceAllRecipes(recipes).pipe(
           map(
-            () => recipeActions.storeRecipesSuccess(),
+            (res) =>
+              res.ok
+                ? recipeActions.storeRecipesSuccess()
+                : recipeActions.recipesError({ error: res.error }),
             catchError((err) =>
               of(
                 recipeActions.recipesError({

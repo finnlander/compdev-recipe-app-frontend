@@ -1,8 +1,14 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { Ingredient } from '../../shared/models/ingredient.model';
-import { getApiUrl, logAndUnwrapErrorMessage } from '../api-utils';
+import {
+  ApiResponse,
+  getApiUrl,
+  logAndWrapErrorMessage,
+  wrapToSuccessResponse,
+} from '../api-utils';
 
 /**
  * A service to connect into ingredients API.
@@ -14,30 +20,30 @@ export class IngredientsApi {
   /**
    * Get or add (if missing) batch of ingredients from the backend.
    */
-  getOrAddIngredients(ingredientNames: string[]) {
+  getOrAddIngredients(
+    ingredientNames: string[]
+  ): Observable<ApiResponse<Ingredient[]>> {
     const url = getApiUrl('ingredients');
     const body = { ingredientNames };
 
-    return this.http
-      .post<Ingredient[]>(url, body)
-      .pipe(
-        catchError((error: HttpErrorResponse) =>
-          logAndUnwrapErrorMessage('adding ingredients', error)
-        )
-      );
+    return this.http.post<Ingredient[]>(url, body).pipe(
+      map((res) => wrapToSuccessResponse(res)),
+      catchError((error: HttpErrorResponse) =>
+        logAndWrapErrorMessage('adding ingredients', error)
+      )
+    );
   }
 
   /**
    * Get all ingredients from the backend.
    */
-  getAllIngredients() {
+  getAllIngredients(): Observable<ApiResponse<Ingredient[]>> {
     const url = getApiUrl('ingredients');
-    return this.http
-      .get<Ingredient[]>(url)
-      .pipe(
-        catchError((error: HttpErrorResponse) =>
-          logAndUnwrapErrorMessage('loading ingredients', error)
-        )
-      );
+    return this.http.get<Ingredient[]>(url).pipe(
+      map((res) => wrapToSuccessResponse(res)),
+      catchError((error: HttpErrorResponse) =>
+        logAndWrapErrorMessage('loading ingredients', error)
+      )
+    );
   }
 }

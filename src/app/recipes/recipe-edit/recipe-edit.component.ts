@@ -9,6 +9,7 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { first } from 'lodash';
 import { Observable, of } from 'rxjs';
@@ -19,6 +20,7 @@ import { ModalService } from '../../shared/services/modal.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { RootState } from '../../store/app.store';
 import { Recipe, RecipeItem } from '../models/recipe.model';
+import { reactOnRecipesActionResult } from '../recipes-util';
 import {
   AddRecipePayload,
   recipeActions,
@@ -84,7 +86,8 @@ export class RecipeEditComponent
     private toastService: ToastService,
     private router: Router,
     private store: Store<RootState>,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private actions$: Actions
   ) {
     super(route);
     this.form = RecipeEditComponent.createForm(fb);
@@ -155,16 +158,32 @@ export class RecipeEditComponent
       ? recipeActions.addRecipeRequest(data)
       : recipeActions.updateRecipeRequest({ ...data, id: recipe!!.id });
 
+    const successAction = isNew
+      ? recipeActions.addRecipeSuccess
+      : recipeActions.updateRecipeSuccess;
+
     this.store.dispatch(action);
+    reactOnRecipesActionResult(this.actions$, {
+      successAction,
+      onSuccess: () => {
+        this.toastService.success({
+          title: 'Saved successfully',
+          message: `Recipe "${data.name}" ${
+            isNew ? 'created' : 'saved'
+          } successfully`,
+        });
 
-    this.toastService.success({
-      title: 'Saved successfully',
-      message: `Recipe "${data.name}" ${
-        isNew ? 'created' : 'saved'
-      } successfully`,
+        this.router.navigate(['../'], { relativeTo: this.route });
+      },
+      onFailure: (error) => {
+        this.toastService.error({
+          title: 'Saving failed',
+          message: `Recipe "${data.name}" ${
+            isNew ? 'creation' : 'saving'
+          } failed on error: ${error}`,
+        });
+      },
     });
-
-    this.router.navigate(['../'], { relativeTo: this.route });
   }
 
   onCancel() {

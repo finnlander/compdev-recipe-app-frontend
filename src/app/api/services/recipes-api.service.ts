@@ -3,7 +3,12 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { Recipe } from '../../recipes/models/recipe.model';
-import { getApiUrl, logAndUnwrapErrorMessage } from '../api-utils';
+import {
+  ApiResponse,
+  getApiUrl,
+  logAndWrapErrorMessage,
+  wrapToSuccessResponse,
+} from '../api-utils';
 import { GenericResponse } from '../model/generic-response.model';
 
 /**
@@ -13,23 +18,22 @@ import { GenericResponse } from '../model/generic-response.model';
 export class RecipesApi {
   constructor(private http: HttpClient) {}
 
-  getAllRecipes(): Observable<Recipe[]> {
+  getAllRecipes(): Observable<ApiResponse<Recipe[]>> {
     const url = getApiUrl('recipes');
-    return this.http
-      .get<Recipe[]>(url)
-      .pipe(
-        catchError((error: HttpErrorResponse) =>
-          logAndUnwrapErrorMessage('loading recipes', error)
-        )
-      );
+    return this.http.get<Recipe[]>(url).pipe(
+      map((recipes) => wrapToSuccessResponse(recipes)),
+      catchError((error: HttpErrorResponse) =>
+        logAndWrapErrorMessage('loading recipes', error)
+      )
+    );
   }
 
-  replaceAllRecipes(recipes: Recipe[]): Observable<void> {
+  replaceAllRecipes(recipes: Recipe[]): Observable<ApiResponse<void>> {
     const url = getApiUrl('recipes');
     return this.http.put<GenericResponse>(url, recipes).pipe(
-      map((_) => undefined),
+      map((_) => wrapToSuccessResponse(undefined)),
       catchError((error: HttpErrorResponse) => {
-        return logAndUnwrapErrorMessage('storing recipes', error);
+        return logAndWrapErrorMessage('storing recipes', error);
       })
     );
   }

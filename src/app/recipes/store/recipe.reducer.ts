@@ -71,15 +71,10 @@ export const recipeReducer = createReducer(
     loading: false,
     error,
   })),
-  on(actions.setSelectedRecipe, (state, { id }) => {
-    const newState = {
-      ...state,
-      selectedItem: id ? state.items.find((it) => it.id === id) || null : null,
-    };
-
-    console.log('newState: ', newState, 'id: ', id);
-    return newState;
-  }),
+  on(actions.setSelectedRecipe, (state, { id }) => ({
+    ...state,
+    selectedItem: id ? state.items.find((it) => it.id === id) || null : null,
+  })),
   on(actions.deleteRecipe, (state, { id }) => ({
     ...state,
     items: state.items.filter((it) => it.id !== id),

@@ -1,14 +1,29 @@
 import { Component, OnInit } from '@angular/core';
+import { Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
-import { map, skipWhile, take } from 'rxjs/operators';
 import { authActions, authSelectors } from '../auth/store';
 import { RoutePath } from '../config/routes.config';
-import { recipeActions, recipeSelectors } from '../recipes/store';
+import { reactOnRecipesActionResult } from '../recipes/recipes-util';
+import { recipeActions } from '../recipes/store';
 import { ConfirmationType } from '../shared/models/confirmation.types';
 import { ModalService } from '../shared/services/modal.service';
-import { ToastService } from '../shared/services/toast.service';
+import { ToastProps, ToastService } from '../shared/services/toast.service';
 import { shoppingListSelectors } from '../shopping-list/store';
+
+/* Constants */
+
+const ON_RECIPES_LOADED_SUCCESS_PROPS: ToastProps = {
+  title: 'Loaded successfully',
+  message: 'Recipes loaded successfully.',
+};
+
+const ON_RECIPES_STORED_SUCCESS_PROPS: ToastProps = {
+  title: 'Stored successfully',
+  message: 'Recipes stored successfully.',
+};
+
+/* Class component */
 
 @Component({
   selector: 'app-header',
@@ -23,7 +38,8 @@ export class HeaderComponent implements OnInit {
   constructor(
     private modalService: ModalService,
     private toastService: ToastService,
-    private store: Store
+    private store: Store,
+    private actions$: Actions
   ) {}
 
   ngOnInit(): void {
@@ -44,26 +60,14 @@ export class HeaderComponent implements OnInit {
       removeQuotes: true,
       onConfirmYes: () => {
         this.store.dispatch(recipeActions.storeRecipesRequest());
-        this.store
-          .select(recipeSelectors.getLoadingAndError)
-          .pipe(
-            skipWhile((it) => it.loading),
-            map((it) => it.error),
-            take(1)
-          )
-          .subscribe((error) => {
-            if (error) {
-              this.toastService.error({
-                title: 'Storing failed',
-                message: 'Storing recipes failed on error: ' + error,
-              });
-            } else {
-              this.toastService.success({
-                title: 'Stored successfully',
-                message: 'Recipes stored successfully.',
-              });
-            }
-          });
+
+        reactOnRecipesActionResult(this.actions$, {
+          successAction: recipeActions.storeRecipesSuccess,
+          onSuccess: () =>
+            this.toastService.success(ON_RECIPES_STORED_SUCCESS_PROPS),
+          onFailure: (error) =>
+            this.toastService.error(getStoringRecipesFailedToastProps(error)),
+        });
       },
     });
   }
@@ -75,27 +79,30 @@ export class HeaderComponent implements OnInit {
       removeQuotes: true,
       onConfirmYes: () => {
         this.store.dispatch(recipeActions.fetchRecipesRequest());
-        this.store
-          .select(recipeSelectors.getLoadingAndError)
-          .pipe(
-            skipWhile((it) => it.loading),
-            map((it) => it.error),
-            take(1)
-          )
-          .subscribe((error) => {
-            if (error) {
-              this.toastService.error({
-                title: 'Loading failed',
-                message: 'Loading recipes failed on error: ' + error,
-              });
-            } else {
-              this.toastService.success({
-                title: 'Loaded successfully',
-                message: 'Recipes loaded successfully.',
-              });
-            }
-          });
+        reactOnRecipesActionResult(this.actions$, {
+          successAction: recipeActions.fetchRecipesSuccess,
+          onSuccess: () =>
+            this.toastService.success(ON_RECIPES_LOADED_SUCCESS_PROPS),
+          onFailure: (error) =>
+            this.toastService.error(getLoadingRecipesFailedToastProps(error)),
+        });
       },
     });
   }
+}
+
+/* Helper Methods */
+
+function getLoadingRecipesFailedToastProps(error: string): ToastProps {
+  return {
+    title: 'Loading failed',
+    message: 'Loading recipes failed on error: ' + error,
+  };
+}
+
+function getStoringRecipesFailedToastProps(error: string): ToastProps {
+  return {
+    title: 'Storing failed',
+    message: 'Storing recipes failed on error: ' + error,
+  };
 }

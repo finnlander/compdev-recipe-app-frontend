@@ -59,26 +59,36 @@ export class IngredientService {
     this.ingredientsById.clear();
 
     return this.ingredientsApi.getAllIngredients().pipe(
-      tap((ingredients) => {
-        ingredients.forEach((ingredient) => this.setToCache(ingredient));
+      tap((res) => {
+        if (res.ok) {
+          res.data.forEach((ingredient) => this.setToCache(ingredient));
+        }
       })
     );
   }
 
-  private requestNewIngredient(ingredientName: string) {
+  private requestNewIngredient(ingredientName: string): Observable<Ingredient> {
     return this.requestNewIngredients([ingredientName]).pipe(
       map((ingredients) => ingredients[0])
     );
   }
 
-  private requestNewIngredients(ingredientNames: string[]) {
-    return this.ingredientsApi
-      .getOrAddIngredients(ingredientNames)
-      .pipe(
-        tap((ingredients) =>
-          ingredients.forEach((ingredient) => this.setToCache(ingredient))
-        )
-      );
+  private requestNewIngredients(
+    ingredientNames: string[]
+  ): Observable<Ingredient[]> {
+    return this.ingredientsApi.getOrAddIngredients(ingredientNames).pipe(
+      tap((res) => {
+        if (res.ok) {
+          res.data.forEach((ingredient) => this.setToCache(ingredient));
+        }
+      }),
+      map((res) => {
+        if (res.ok) {
+          return res.data;
+        }
+        throw Error(res.error);
+      })
+    );
   }
 
   private setToCache(ingredient: Ingredient) {
