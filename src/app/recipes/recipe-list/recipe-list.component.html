@@ -9,13 +9,12 @@
     </button>
   </div>
 </div>
-<hr *ngIf="recipes.length !== 0" />
+<hr *ngIf="((recipes$ | async) || []).length !== 0" />
 <div class="row">
   <div class="col-xs-12">
     <app-recipe-item
-      *ngFor="let recipe of recipes"
+      *ngFor="let recipe of recipes$ | async"
       [recipe]="recipe"
-      [isSelected]="recipe.id === selectedRecipe?.id"
       [routerLink]="[RecipeRootPath, recipe.id]"
     ></app-recipe-item>
   </div>

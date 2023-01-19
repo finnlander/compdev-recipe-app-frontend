@@ -20,3 +20,10 @@ export interface ItemContainer<T> {
 export interface ErrorContainer {
   error: string;
 }
+
+/**
+ * Payload with 'id' field.
+ */
+export interface PayloadWithId<T> {
+  id: T;
+}

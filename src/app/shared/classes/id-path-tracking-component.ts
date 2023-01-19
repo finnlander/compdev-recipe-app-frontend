@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { getIdFromPathParams } from '../utils/common.util';
+import { ActivatedRoute, Params } from '@angular/router';
 import { SubscribingComponent } from './subscribing-component';
 
 /**
@@ -14,7 +13,7 @@ export abstract class IdPathTrackingComponent
   extends SubscribingComponent
   implements OnInit
 {
-  private id: number | undefined;
+  private id: string | undefined;
 
   constructor(protected route: ActivatedRoute) {
     super();
@@ -40,9 +39,21 @@ export abstract class IdPathTrackingComponent
   /**
    * Get current 'id' extracted from the current path; returns 'undefined' if the id value is not numeric.
    */
-  getCurrentId(): number | undefined {
+  getCurrentId(): string | undefined {
     return this.id;
   }
 
-  abstract onCurrentIdChanged(currentId: number | undefined): void;
+  abstract onCurrentIdChanged(currentId: string | undefined): void;
+}
+
+/**
+ * Extract 'id' from router path params.
+ */
+function getIdFromPathParams(params: Params): string | undefined {
+  const id = params['id'];
+  if (!id) {
+    return undefined;
+  }
+
+  return id;
 }

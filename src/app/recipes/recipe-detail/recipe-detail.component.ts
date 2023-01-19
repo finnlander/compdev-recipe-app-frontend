@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faPen, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
@@ -10,8 +10,8 @@ import { ModalService } from '../../shared/services/modal.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { shoppingListActions } from '../../shopping-list/store';
 import { RootState } from '../../store/app.store';
-import { Recipe } from '../models/recipe.model';
-import { RecipeService } from '../services/recipe.service';
+import { Recipe, RecipeAdapter } from '../models/recipe.model';
+import { recipeActions, recipeSelectors } from '../store';
 
 interface ShoppingListItemData {
   ingredientName: string;
@@ -24,19 +24,21 @@ interface ShoppingListItemData {
   templateUrl: './recipe-detail.component.html',
   styleUrls: ['./recipe-detail.component.css'],
 })
-export class RecipeDetailComponent extends IdPathTrackingComponent {
+export class RecipeDetailComponent
+  extends IdPathTrackingComponent
+  implements OnInit
+{
   iconEdit = faPen;
   iconDelete = faTrashCan;
   iconShop = faPlus;
 
-  selectedRecipe?: Recipe;
+  selectedRecipe: Recipe | null = null;
   dropdownOpen: boolean = false;
   RecipeRootView = RoutePath.Recipes;
 
   constructor(
     route: ActivatedRoute,
     private router: Router,
-    private recipeService: RecipeService,
     private modalService: ModalService,
     private toastService: ToastService,
     private store: Store<RootState>
@@ -44,36 +46,42 @@ export class RecipeDetailComponent extends IdPathTrackingComponent {
     super(route);
   }
 
-  onCurrentIdChanged(currentId: number | undefined): void {
+  override ngOnInit(): void {
+    super.ngOnInit();
+    this.addSubscription(
+      this.store
+        .select(recipeSelectors.getSelectedRecipe)
+        .subscribe((selectedRecipe) => {
+          this.selectedRecipe = selectedRecipe;
+        })
+    );
+  }
+
+  onCurrentIdChanged(currentId: Recipe['id'] | undefined): void {
     if (currentId === this.selectedRecipe?.id) {
       return;
     }
 
-    const selectedRecipe = currentId
-      ? this.recipeService.getRecipeById(currentId)
-      : undefined;
-
-    if (!selectedRecipe) {
-      console.warn(
-        'Selected non-existing recipe #' +
-          currentId +
-          ' -> navigating to parent path'
+    if (currentId) {
+      this.store.dispatch(recipeActions.setSelectedRecipe({ id: currentId }));
+    } else {
+      console.debug(
+        'non-existing id value in recipe details view -> navigating away'
       );
       this.router.navigate(['../'], { relativeTo: this.route });
     }
-
-    this.selectedRecipe = selectedRecipe;
   }
 
   addToShoppingList() {
-    const shoppingItemData: ShoppingListItemData[] =
-      this.selectedRecipe!!.items.map((item) => {
-        return {
-          ingredientName: item.ingredient.name,
-          amount: item.amount,
-          unit: item.unit,
-        };
-      });
+    const shoppingItemData: ShoppingListItemData[] = new RecipeAdapter(
+      this.selectedRecipe!!
+    ).items.map((item) => {
+      return {
+        ingredientName: item.ingredient.name,
+        amount: item.amount,
+        unit: item.unit,
+      };
+    });
 
     this.modalService.handleConfirmation({
       confirmationType: ConfirmationType.PROCEED_CONFIRMATION,
@@ -95,23 +103,23 @@ export class RecipeDetailComponent extends IdPathTrackingComponent {
   }
 
   deleteRecipe() {
-    if (!this.selectedRecipe) {
+    const selectedRecipe = this.selectedRecipe;
+    if (!selectedRecipe) {
       return;
     }
 
-    const recipe = this.selectedRecipe;
     this.modalService.handleConfirmation({
       confirmationType: ConfirmationType.DELETE,
-      itemDescription: `"${recipe.name}" recipe`,
+      itemDescription: `"${selectedRecipe.name}" recipe`,
       removeQuotes: true,
       onConfirmYes: () => {
-        this.recipeService.delete(recipe.id);
+        this.store.dispatch(
+          recipeActions.deleteRecipe({ id: selectedRecipe.id })
+        );
         this.toastService.success({
           title: 'Deleted successfully',
-          message: `Recipe "${recipe.name}" deleted successfully`,
+          message: `Recipe "${selectedRecipe.name}" deleted successfully`,
         });
-
-        this.router.navigate(['../'], { relativeTo: this.route });
       },
     });
   }

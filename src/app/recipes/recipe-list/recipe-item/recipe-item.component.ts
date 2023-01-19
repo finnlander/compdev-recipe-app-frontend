@@ -1,6 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { RootState } from '../../../store/app.store';
 import { Recipe } from '../../models/recipe.model';
-import { RecipeService } from '../../services/recipe.service';
+import { recipeActions, recipeSelectors } from '../../store';
 
 @Component({
   selector: 'app-recipe-item',
@@ -9,13 +13,21 @@ import { RecipeService } from '../../services/recipe.service';
 })
 export class RecipeItemComponent implements OnInit {
   @Input() recipe?: Recipe;
-  @Input() isSelected: boolean = false;
+  isSelected$: Observable<boolean> = of(false);
 
-  constructor(private recipeService: RecipeService) {}
+  constructor(private store: Store<RootState>) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.isSelected$ = this.store
+      .select(recipeSelectors.getSelectedRecipe)
+      .pipe(map((selected) => selected?.id === this.recipe?.id));
+  }
 
   onSelect() {
-    this.recipeService.setSelectedRecipe(this.recipe);
+    this.store.dispatch(
+      recipeActions.setSelectedRecipe({
+        id: this.recipe?.id || null,
+      })
+    );
   }
 }

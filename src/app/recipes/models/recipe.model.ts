@@ -1,46 +1,76 @@
+import { flatMap, sumBy } from 'lodash';
 import { Ingredient } from '../../shared/models/ingredient.model';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
-import { RecipeItem } from './recipe-item.model';
-import { RecipePhase } from './recipe-phase.model';
 
-export class Recipe {
-  public phases: RecipePhase[] = [];
-  public items: RecipeItem[] = [];
+export interface Recipe {
+  id: string;
+  name: string;
+  description: string;
+  imageUrl: string;
+  phases: RecipePhase[];
+}
 
-  constructor(
-    public id: number,
-    public name: string,
-    public description: string,
-    public imageUrl: string
-  ) {}
+/**
+ * A single preparation phase on recipe.
+ */
+export interface RecipePhase {
+  name: string;
+  items: RecipeItem[];
+}
+
+/**
+ * Single item of a recipe.
+ */
+export interface RecipeItem {
+  ordinal: number;
+  ingredient: Ingredient;
+  amount: number;
+  unit: RecipeUnit;
+}
+
+/**
+ * Adapter for easier recipe management.
+ */
+export class RecipeAdapter {
+  constructor(private recipe: Recipe) {}
+
+  get items() {
+    return flatMap(this.recipe.phases, (phase) => phase.items);
+  }
+
+  get size() {
+    return sumBy(this.recipe.phases, (it) => it.items.length);
+  }
 
   addIngredient(
     ingredient: Ingredient,
     amount: number,
     unit: RecipeUnit = RecipeUnit.PCS,
     phaseName: string = ''
-  ): Recipe {
+  ): RecipeAdapter {
     const phase = this.getOrAddPhase(phaseName);
-    const ordinal = this.items.length + 1;
-    const item = new RecipeItem(ordinal, ingredient, amount, unit);
-    this.items.push(item);
+    const ordinal = this.size + 1;
+    const item: RecipeItem = { ordinal, ingredient, amount, unit };
+
     phase.items.push(item);
 
     return this;
   }
 
   clearItems() {
-    this.items = [];
-    this.phases = [];
+    this.recipe.phases = [];
   }
 
   /* Helper Methods */
   private getOrAddPhase(name: string) {
-    const existingPhase = this.phases.find((it) => it.name === name);
+    const existingPhase = this.recipe.phases.find((it) => it.name === name);
     if (existingPhase) return existingPhase;
 
-    const phase = new RecipePhase(name);
-    this.phases.push(phase);
+    const phase: RecipePhase = {
+      name: name,
+      items: [],
+    };
+    this.recipe.phases.push(phase);
     return phase;
   }
 }

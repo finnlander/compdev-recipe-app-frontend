@@ -2,7 +2,7 @@
   style="cursor: pointer"
   class="list-group-item clearfix"
   (click)="onSelect()"
-  [ngClass]="isSelected ? 'selected' : ''"
+  [ngClass]="(isSelected$ | async) ? 'selected' : ''"
 >
   <div class="pull-left">
     <h4 class="list-group-item-heading">{{ recipe?.name }}</h4>

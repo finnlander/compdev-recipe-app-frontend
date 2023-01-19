@@ -9,31 +9,36 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { Store } from '@ngrx/store';
 import { first } from 'lodash';
+import { Observable, of } from 'rxjs';
 import { IdPathTrackingComponent } from '../../shared/classes/id-path-tracking-component';
 import { ConfirmationType } from '../../shared/models/confirmation.types';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { ModalService } from '../../shared/services/modal.service';
 import { ToastService } from '../../shared/services/toast.service';
-import { RecipeItem } from '../models/recipe-item.model';
-import { Recipe } from '../models/recipe.model';
+import { RootState } from '../../store/app.store';
+import { Recipe, RecipeItem } from '../models/recipe.model';
 import {
-  DEFAULT_RECIPE_IMG,
-  RecipeData,
-  RecipeIngredientData,
-  RecipeService,
-} from '../services/recipe.service';
+  AddRecipePayload,
+  recipeActions,
+  RecipeIngredientPayloadItem,
+  recipeSelectors,
+} from '../store';
 
 /* Types */
 
 type EditMode = 'new' | 'edit';
-type FormModel = RecipeData & {
+type FormModel = AddRecipePayload & {
   usePhases: boolean;
   newPhaseName: string;
   phases: string[];
 };
 
 /* Default value initializations */
+
+const DEFAULT_RECIPE_IMG =
+  'https://cdn-icons-png.flaticon.com/512/3565/3565418.png';
 
 const DEFAULT_VALUES: FormModel = {
   name: '',
@@ -45,7 +50,7 @@ const DEFAULT_VALUES: FormModel = {
   phases: [],
 };
 
-const DEFAULT_INGREDIENT_VALUES: RecipeIngredientData = {
+const DEFAULT_INGREDIENT_VALUES: RecipeIngredientPayloadItem = {
   ingredientName: '',
   amount: 1,
   unit: RecipeUnit.PCS,
@@ -67,17 +72,18 @@ export class RecipeEditComponent
   iconDelete = faTrashCan;
   iconAdd = faPlus;
   RecipeUnit = RecipeUnit;
-  selectedRecipe?: Recipe;
+  selectedRecipe: Recipe | null = null;
   mode: EditMode = 'new';
-
   form: FormGroup<any>;
+
+  loading$: Observable<boolean> = of(false);
 
   constructor(
     route: ActivatedRoute,
-    private recipeService: RecipeService,
     private modalService: ModalService,
     private toastService: ToastService,
     private router: Router,
+    private store: Store<RootState>,
     private fb: FormBuilder
   ) {
     super(route);
@@ -103,6 +109,16 @@ export class RecipeEditComponent
     if (this.mode === 'new') {
       this.form.setValue(DEFAULT_VALUES);
     }
+
+    this.loading$ = this.store.select(recipeSelectors.isLoading);
+
+    this.addSubscription(
+      this.store
+        .select(recipeSelectors.getSelectedRecipe)
+        .subscribe((selectedRecipe) => {
+          this.onSelectedRecipeChanged(selectedRecipe?.id, selectedRecipe);
+        })
+    );
   }
 
   canSave(): boolean {
@@ -135,20 +151,20 @@ export class RecipeEditComponent
     const model = this.getData()!!;
     const data = { ...model, imageUrl: model.imageUrl || DEFAULT_RECIPE_IMG };
 
-    const observable = isNew
-      ? this.recipeService.addRecipe(data)
-      : this.recipeService.update(recipe!!.id, data);
+    const action = isNew
+      ? recipeActions.addRecipeRequest(data)
+      : recipeActions.updateRecipeRequest({ ...data, id: recipe!!.id });
 
-    observable.subscribe((_) => {
-      this.toastService.success({
-        title: 'Saved successfully',
-        message: `Recipe "${data.name}" ${
-          isNew ? 'created' : 'saved'
-        } successfully`,
-      });
+    this.store.dispatch(action);
 
-      this.router.navigate(['../'], { relativeTo: this.route });
+    this.toastService.success({
+      title: 'Saved successfully',
+      message: `Recipe "${data.name}" ${
+        isNew ? 'created' : 'saved'
+      } successfully`,
     });
+
+    this.router.navigate(['../'], { relativeTo: this.route });
   }
 
   onCancel() {
@@ -192,13 +208,13 @@ export class RecipeEditComponent
     this.phases.removeAt(index);
   }
 
-  onAddIngredient(initialValue?: RecipeIngredientData) {
+  onAddIngredient(initialValue?: RecipeIngredientPayloadItem) {
     const input = initialValue || DEFAULT_INGREDIENT_VALUES;
     const { phases } = this.getData();
 
     const prevIngredient = this.ingredientItems.value
       .slice(-1)
-      .pop() as RecipeIngredientData;
+      .pop() as RecipeIngredientPayloadItem;
 
     const phase = !this.usePhases
       ? ''
@@ -222,7 +238,7 @@ export class RecipeEditComponent
 
   onDeleteIngredient(index: number) {
     const item = this.ingredientItems.controls[index];
-    const value: RecipeIngredientData = item.value;
+    const value: RecipeIngredientPayloadItem = item.value;
 
     if (!value.ingredientName) {
       this.handleDeleteIngredient(index);
@@ -237,17 +253,24 @@ export class RecipeEditComponent
     });
   }
 
-  onCurrentIdChanged(currentId: number | undefined): void {
+  onCurrentIdChanged(currentId: Recipe['id'] | undefined): void {
     this.mode = this.getMode();
     if (currentId === this.selectedRecipe?.id) {
       return;
     }
 
-    const selectedRecipe = currentId
-      ? this.recipeService.getRecipeById(currentId)
-      : undefined;
-
-    this.onSelectedRecipeChanged(currentId, selectedRecipe);
+    if (this.mode === 'new') {
+      this.selectedRecipe = null;
+    } else {
+      if (currentId) {
+        this.store.dispatch(recipeActions.setSelectedRecipe({ id: currentId }));
+      } else {
+        console.debug(
+          'non-existing id value in recipe edit mode -> navigating away'
+        );
+        this.router.navigate(['../'], { relativeTo: this.route });
+      }
+    }
   }
 
   /* Helper Methods */
@@ -281,7 +304,10 @@ export class RecipeEditComponent
     this.form.markAsTouched();
   }
 
-  private onSelectedRecipeChanged(id: number | undefined, recipe?: Recipe) {
+  private onSelectedRecipeChanged(
+    id: Recipe['id'] | undefined,
+    recipe: Recipe | null
+  ) {
     if (this.mode === 'edit' && !recipe) {
       console.warn(
         'Selected non-existing recipe #' + id + ' -> navigating to parent path'
@@ -293,7 +319,7 @@ export class RecipeEditComponent
     this.syncFieldsFrom(recipe);
   }
 
-  private syncFieldsFrom(recipe?: Recipe) {
+  private syncFieldsFrom(recipe: Recipe | null) {
     this.ingredientItems.clear();
     this.phases.clear();
 
@@ -305,7 +331,7 @@ export class RecipeEditComponent
     const phaseNames = recipe.phases.map((it) => it.name).filter((it) => !!it);
 
     const ingredientItems = recipe.phases.flatMap((phase) =>
-      phase.items.map((item) => toRecipeIngredientData(item, phase.name))
+      phase.items.map((item) => toRecipeIngredientPayload(item, phase.name))
     );
 
     const formData: FormModel = {
@@ -341,10 +367,10 @@ export class RecipeEditComponent
 
 /* Helper Functions */
 
-function toRecipeIngredientData(
+function toRecipeIngredientPayload(
   item: RecipeItem,
   phase: string = ''
-): RecipeIngredientData {
+): RecipeIngredientPayloadItem {
   return {
     ingredientName: item.ingredient.name,
     amount: item.amount,

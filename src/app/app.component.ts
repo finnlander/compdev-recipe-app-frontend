@@ -4,8 +4,8 @@ import { Store } from '@ngrx/store';
 import { environment } from '../environments/environment';
 import { authActions, authSelectors } from './auth/store';
 import { RoutePath } from './config/routes.config';
+import { recipeActions } from './recipes/store';
 import { SubscribingComponent } from './shared/classes/subscribing-component';
-import { DataStorageService } from './shared/services/data-storage.service';
 import { shoppingListActions } from './shopping-list/store';
 import { RootState } from './store/app.store';
 
@@ -16,11 +16,7 @@ import { RootState } from './store/app.store';
 export class AppComponent extends SubscribingComponent implements OnInit {
   private loggedIn = false;
 
-  constructor(
-    private dataStorageService: DataStorageService,
-    private router: Router,
-    private store: Store<RootState>
-  ) {
+  constructor(private router: Router, private store: Store<RootState>) {
     super();
   }
 
@@ -52,7 +48,7 @@ export class AppComponent extends SubscribingComponent implements OnInit {
 
   private onLogin() {
     console.debug('onLogin initiated');
-    this.dataStorageService.loadRecipes().subscribe();
+    this.store.dispatch(recipeActions.fetchRecipesRequest());
   }
 
   private onLogout() {

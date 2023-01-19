@@ -1,14 +1,15 @@
 import { HttpRequest, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { Recipe } from '../../recipes/models/recipe.model';
+import { Recipe, RecipeAdapter } from '../../recipes/models/recipe.model';
 import {
-  RecipeData,
-  RecipeIngredientData,
-} from '../../recipes/services/recipe.service';
+  AddRecipePayload,
+  RecipeIngredientPayloadItem,
+} from '../../recipes/store';
 import { Ingredient } from '../../shared/models/ingredient.model';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { User } from '../../shared/models/user.model';
+import { createUniqueIdString } from '../../shared/utils/common.util';
 import {
   AccessToken,
   AuthRequest,
@@ -214,7 +215,10 @@ export class BackendMockService {
     }
 
     const ingredientId = this.state.ingredients.length + 1;
-    const newIngredient = new Ingredient(ingredientId, ingredientName);
+    const newIngredient: Ingredient = {
+      id: ingredientId,
+      name: ingredientName,
+    };
     this.state.ingredients.push(newIngredient);
     this.storeState();
 
@@ -293,16 +297,19 @@ function createUnauthorizedResponse(): HttpResponse<GenericResponse> {
 function initSampleData(recipes: Recipe[], ingredients: Ingredient[]) {
   const recipesData = generateSampleSourceData();
 
-  recipesData.forEach((recipeData) => {
-    const id = recipes.length + 1;
-    const recipe = new Recipe(
+  recipesData.forEach(({ name, description, imageUrl, ingredientItems }) => {
+    const id = createUniqueIdString();
+    const recipe: Recipe = {
       id,
-      recipeData.name,
-      recipeData.description,
-      recipeData.imageUrl
-    );
+      name,
+      description,
+      imageUrl,
+      phases: [],
+    };
 
-    recipeData.ingredientItems.forEach((item) => {
+    const recipeAdapter = new RecipeAdapter(recipe);
+
+    ingredientItems.forEach((item) => {
       const { ingredientName, amount, unit, phase } = item;
 
       let existingIngredient = ingredients.find(
@@ -310,12 +317,14 @@ function initSampleData(recipes: Recipe[], ingredients: Ingredient[]) {
       );
 
       if (!existingIngredient) {
-        const ingredientId = ingredients.length + 1;
-        existingIngredient = new Ingredient(ingredientId, ingredientName);
+        existingIngredient = {
+          id: ingredients.length + 1,
+          name: ingredientName,
+        };
         ingredients.push(existingIngredient);
       }
 
-      recipe.addIngredient(existingIngredient, amount, unit, phase);
+      recipeAdapter.addIngredient(existingIngredient, amount, unit, phase);
     });
 
     recipes.push(recipe);
@@ -327,7 +336,7 @@ function initSampleData(recipes: Recipe[], ingredients: Ingredient[]) {
   };
 }
 
-function generateSampleSourceData(): RecipeData[] {
+function generateSampleSourceData(): AddRecipePayload[] {
   return [
     // Sample burger recipe
     {
@@ -336,12 +345,12 @@ function generateSampleSourceData(): RecipeData[] {
       imageUrl:
         'https://upload.wikimedia.org/wikipedia/commons/f/fb/Burger-King-Bacon-Cheeseburger.jpg',
       ingredientItems: [
-        toIngredientData('bun', 1),
-        toIngredientData('cheese slice', 1),
-        toIngredientData('beef steak', 1),
-        toIngredientData('pickles', 2),
-        toIngredientData('tomato slices', 2),
-        toIngredientData('green salad slice', 1),
+        toIngredientPayload('bun', 1),
+        toIngredientPayload('cheese slice', 1),
+        toIngredientPayload('beef steak', 1),
+        toIngredientPayload('pickles', 2),
+        toIngredientPayload('tomato slices', 2),
+        toIngredientPayload('green salad slice', 1),
       ],
     },
     // Sample Snitchel recipe
@@ -351,8 +360,8 @@ function generateSampleSourceData(): RecipeData[] {
       imageUrl:
         'https://upload.wikimedia.org/wikipedia/commons/7/72/Schnitzel.JPG',
       ingredientItems: [
-        toIngredientData('Premium wieners', 4, RecipeUnit.PCS),
-        toIngredientData('French fries', 0.5, RecipeUnit.KG),
+        toIngredientPayload('Premium wieners', 4, RecipeUnit.PCS),
+        toIngredientPayload('French fries', 0.5, RecipeUnit.KG),
       ],
     },
     // Sample mac & cheese recipe
@@ -363,43 +372,53 @@ function generateSampleSourceData(): RecipeData[] {
         'https://upload.wikimedia.org/wikipedia/commons/4/44/Original_Mac_n_Cheese_.jpg',
       ingredientItems: [
         // macaroni
-        toIngredientData(
+        toIngredientPayload(
           'macaroni (elbow pasta)',
           250,
           RecipeUnit.GRAMS,
           'macaroni'
         ),
-        toIngredientData('unsalted butter', 15, RecipeUnit.GRAMS, 'macaroni'),
+        toIngredientPayload(
+          'unsalted butter',
+          15,
+          RecipeUnit.GRAMS,
+          'macaroni'
+        ),
         // topping
-        toIngredientData('panko breadcrumbs', 11, RecipeUnit.CUP, 'topping'),
-        toIngredientData('unsalted butter', 30, RecipeUnit.GRAMS, 'topping'),
-        toIngredientData('salt', 0.25, RecipeUnit.TEA_SPOON, 'topping'),
+        toIngredientPayload('panko breadcrumbs', 11, RecipeUnit.CUP, 'topping'),
+        toIngredientPayload('unsalted butter', 30, RecipeUnit.GRAMS, 'topping'),
+        toIngredientPayload('salt', 0.25, RecipeUnit.TEA_SPOON, 'topping'),
         // sauce
-        toIngredientData('unsalted butter', 60, RecipeUnit.GRAMS, 'sauce'),
-        toIngredientData('flour', 0.33, RecipeUnit.CUP, 'sauce'),
-        toIngredientData('milk', 3, RecipeUnit.CUP, 'sauce'),
-        toIngredientData('freshly shredded cheese', 2, RecipeUnit.CUP, 'sauce'),
-        toIngredientData(
+        toIngredientPayload('unsalted butter', 60, RecipeUnit.GRAMS, 'sauce'),
+        toIngredientPayload('flour', 0.33, RecipeUnit.CUP, 'sauce'),
+        toIngredientPayload('milk', 3, RecipeUnit.CUP, 'sauce'),
+        toIngredientPayload(
+          'freshly shredded cheese',
+          2,
+          RecipeUnit.CUP,
+          'sauce'
+        ),
+        toIngredientPayload(
           'freshly shredded mozzarella cheese',
           1,
           RecipeUnit.CUP,
           'sauce'
         ),
-        toIngredientData('salt', 0.75, RecipeUnit.TEA_SPOON, 'sauce'),
+        toIngredientPayload('salt', 0.75, RecipeUnit.TEA_SPOON, 'sauce'),
         // Seasonings
-        toIngredientData(
+        toIngredientPayload(
           'garlic powder',
           1,
           RecipeUnit.TEA_SPOON,
           'seasonings (optional)'
         ),
-        toIngredientData(
+        toIngredientPayload(
           'onion powder',
           0.5,
           RecipeUnit.TEA_SPOON,
           'seasonings (optional)'
         ),
-        toIngredientData(
+        toIngredientPayload(
           'mustard powder',
           0.5,
           RecipeUnit.TEA_SPOON,
@@ -410,12 +429,12 @@ function generateSampleSourceData(): RecipeData[] {
   ];
 }
 
-function toIngredientData(
+function toIngredientPayload(
   ingredientName: string,
   amount: number,
   unit: RecipeUnit = RecipeUnit.PCS,
   phase?: string
-): RecipeIngredientData {
+): RecipeIngredientPayloadItem {
   return {
     ingredientName,
     amount,
