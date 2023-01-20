@@ -42,7 +42,7 @@
           <button
             class="btn btn-success action-row-btn"
             type="submit"
-            [disabled]="!form.valid"
+            [disabled]="!form.valid || (loading$ | async)"
           >
             <fa-icon
               [icon]="formMode === 'update' ? iconUpdate : iconAdd"

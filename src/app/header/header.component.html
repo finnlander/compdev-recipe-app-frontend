@@ -28,10 +28,11 @@
           </li>
           <li *ngIf="isLoggedIn$ | async" routerLinkActive="active">
             <a [routerLink]="[Routes.ShoppingList]"
-              >Shopping List (<span
-                [innerText]="shoppingListCount$ | async"
-              ></span
-              >)</a
+              >Shopping List (
+              <app-flashing-text
+                [text]="(shoppingListCount$ | async) || 0"
+              ></app-flashing-text>
+              )</a
             >
           </li>
         </ul>

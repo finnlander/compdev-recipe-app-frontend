@@ -1,8 +1,15 @@
+import {
+  animate,
+  state,
+  style,
+  transition,
+  trigger,
+} from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { faTrashCanArrowUp } from '@fortawesome/free-solid-svg-icons';
-import { select, Store } from '@ngrx/store';
+import { Store } from '@ngrx/store';
+import { sortBy } from 'lodash';
 import { Observable, of } from 'rxjs';
-import { tap } from 'rxjs/operators';
 import { SubscribingComponent } from '../shared/classes/subscribing-component';
 import { ConfirmationType } from '../shared/models/confirmation.types';
 import { ModalService } from '../shared/services/modal.service';
@@ -15,13 +22,48 @@ import { shoppingListActions, shoppingListSelectors } from './store';
   selector: 'app-shopping-list',
   templateUrl: './shopping-list.component.html',
   styleUrls: ['./shopping-list.component.css'],
+  animations: [
+    trigger('shoppingList', [
+      state(
+        'added',
+        style({
+          opacity: 1,
+          transform: 'translateX(0)',
+        })
+      ),
+      transition('void => *', [
+        style({
+          opacity: 0,
+          transform: 'translateX(-5rem)',
+        }),
+        animate(
+          300,
+          style({
+            transform: 'translateX(1rem)',
+            opacity: 1,
+          })
+        ),
+        animate(100),
+      ]),
+      transition('* => void', [
+        animate(
+          300,
+          style({
+            opacity: 0,
+            transform: 'translateX(15rem)',
+          })
+        ),
+      ]),
+    ]),
+  ],
 })
 export class ShoppingListComponent
   extends SubscribingComponent
   implements OnInit, OnDestroy
 {
   iconClearAll = faTrashCanArrowUp;
-  items$: Observable<ShoppingListItem[]> = of([]);
+  listInitialization = true;
+  items: ShoppingListItem[] = [];
   error$: Observable<string | null> = of(null);
   isUpdating$: Observable<boolean> = of(false);
   isEmpty: boolean = true;
@@ -36,15 +78,20 @@ export class ShoppingListComponent
   }
 
   ngOnInit(): void {
-    this.items$ = this.store.pipe(
-      select(shoppingListSelectors.getShoppingListItems),
-      tap((items) => {
+    this.store
+      .select(shoppingListSelectors.getShoppingListItems)
+      .subscribe((items) => {
         const isEmpty = items.length === 0;
-        setTimeout(() => {
+
+        this.addTimeout(0, () => {
           this.isEmpty = isEmpty;
-        }, 0);
-      })
-    );
+          this.items = sortBy(items, (it) => it.ingredient.name);
+
+          if (this.listInitialization) {
+            this.addTimeout(0, () => (this.listInitialization = false));
+          }
+        });
+      });
 
     this.error$ = this.store.select(
       shoppingListSelectors.getShoppingListUpdateError
@@ -94,5 +141,9 @@ export class ShoppingListComponent
 
   onDismissError() {
     this.store.dispatch(shoppingListActions.clearUpdateError());
+  }
+
+  getItemKey(index: number, item: ShoppingListItem) {
+    return item.ordinal;
   }
 }

@@ -6,6 +6,7 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { ToastrModule } from 'ngx-toastr';
 import { AlertComponent } from './components/alert/alert.component';
 import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
+import { FlashingTextComponent } from './components/flashing-text/flashing-text.component';
 import { DropdownDirective } from './directives/dropdown.directive';
 import { EqualityValidatorDirective } from './directives/require-equality-validator.directive';
 
@@ -17,6 +18,7 @@ import { EqualityValidatorDirective } from './directives/require-equality-valida
     // Components
     AlertComponent,
     ConfirmationModalComponent,
+    FlashingTextComponent,
   ],
   imports: [
     // Module Imports
@@ -33,6 +35,7 @@ import { EqualityValidatorDirective } from './directives/require-equality-valida
     // Components
     AlertComponent,
     ConfirmationModalComponent,
+    FlashingTextComponent,
     // Shared Modules
     CommonModule,
     FontAwesomeModule,

@@ -9,8 +9,10 @@
       <a
         class="list-group-item"
         style="cursor: pointer"
-        *ngFor="let item of items$ | async"
+        *ngFor="let item of items; trackBy: getItemKey"
         [ngClass]="selectedItem?.ordinal === item.ordinal ? 'selected' : ''"
+        [@shoppingList]
+        [@.disabled]="listInitialization"
       >
         <app-shopping-list-item
           [item]="item"

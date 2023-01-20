@@ -48,8 +48,8 @@ if (environment.enableBackendMock) {
   declarations: [AppComponent, HeaderComponent, ErrorPageComponent],
   imports: [
     // Angular modules
-    BrowserModule,
     HttpClientModule,
+    BrowserModule,
     BrowserAnimationsModule,
     StoreModule.forRoot(reducers),
     StoreDevtoolsModule.instrument({ logOnly: environment.production }),

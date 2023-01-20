@@ -10,13 +10,27 @@ import { Subscription } from 'rxjs';
 })
 export abstract class SubscribingComponent implements OnDestroy {
   private subscriptions: Subscription[] = [];
+  private timeouts: ReturnType<typeof setTimeout>[] = [];
 
   protected addSubscription(subscription: Subscription) {
     this.subscriptions.push(subscription);
   }
 
+  protected addTimeout(timeMs: number, callback: () => void) {
+    const index = this.timeouts.length;
+    this.timeouts.push(
+      setTimeout(() => {
+        callback();
+        this.timeouts.splice(index, 1);
+      }, timeMs)
+    );
+  }
+
   ngOnDestroy(): void {
     this.subscriptions.forEach((it) => it.unsubscribe());
     this.subscriptions = [];
+
+    this.timeouts.forEach((timeoutId) => clearTimeout(timeoutId));
+    this.timeouts = [];
   }
 }

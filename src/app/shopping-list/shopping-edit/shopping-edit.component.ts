@@ -8,6 +8,7 @@ import {
   faX,
 } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
+import { Observable, of } from 'rxjs';
 import { SubscribingComponent } from '../../shared/classes/subscribing-component';
 import { ConfirmationType } from '../../shared/models/confirmation.types';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
@@ -52,6 +53,7 @@ export class ShoppingEditComponent
 
   formMode: 'new' | 'update' = 'new';
   updateItemOrdinal: number = -1;
+  loading$: Observable<boolean> = of(false);
 
   @ViewChild('form', { static: true }) addItemForm?: NgForm;
 
@@ -67,6 +69,10 @@ export class ShoppingEditComponent
       this.store
         .select(shoppingListSelectors.getSelectedItem)
         .subscribe((selectedItem) => this.applySelectedItemChange(selectedItem))
+    );
+
+    this.loading$ = this.store.select(
+      shoppingListSelectors.isShoppingListUpdating
     );
   }
 
@@ -119,7 +125,10 @@ export class ShoppingEditComponent
 
   /* Helper Methods */
 
-  private applySelectedItemChange(selectedItem: ShoppingListItem | null) {
+  private applySelectedItemChange(
+    selectedItem: ShoppingListItem | null,
+    immediate: boolean = false
+  ) {
     const model: FormModel = selectedItem
       ? {
           name: selectedItem.ingredient.name,
@@ -128,11 +137,14 @@ export class ShoppingEditComponent
         }
       : DEFAULT_FORM_VALUES;
 
-    setTimeout(() => {
+    const action = () => {
       this.formMode = selectedItem ? 'update' : 'new';
       this.updateItemOrdinal = selectedItem?.ordinal || -1;
       this.addItemForm?.form.setValue(model);
-    }, 0);
+    };
+
+    if (immediate) action();
+    else this.addTimeout(0, action);
   }
 
   private resetToDefault() {
@@ -141,6 +153,7 @@ export class ShoppingEditComponent
         item: null,
       })
     );
+    this.applySelectedItemChange(null, true);
   }
 
   private getItemData(form: NgForm): ItemData {
