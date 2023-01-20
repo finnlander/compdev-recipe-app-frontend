@@ -1,4 +1,4 @@
-# ReceipeApp (frontend)
+# RecipeApp (frontend)
 
 This is an example frontend application made with Angular (15.x), Typescript, Bootstrap (v3) and some additional libraries.
 
