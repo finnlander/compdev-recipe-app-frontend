@@ -2,7 +2,7 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   EnvironmentProviders,
   NgModule,
-  Provider,
+  Provider, isDevMode,
 } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -21,6 +21,7 @@ import { ErrorPageComponent } from './error-page/error-page.component';
 import { HeaderComponent } from './header/header.component';
 import { SharedModule } from './shared/shared.module';
 import { effects, reducers } from './store/app.store';
+import { ServiceWorkerModule } from '@angular/service-worker';
 
 const providers: (Provider | EnvironmentProviders)[] = [
   {
@@ -58,6 +59,12 @@ if (environment.enableBackendMock) {
     SharedModule,
     // note: AppRoutingModule needs to be the last import to keep the wildcard (default) route as the last evaluated route
     AppRoutingModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      // Register the ServiceWorker as soon as the application is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000'
+    }),
   ],
   providers: providers,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
