@@ -2,7 +2,8 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   EnvironmentProviders,
   NgModule,
-  Provider, isDevMode,
+  Provider,
+  isDevMode,
 } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -63,7 +64,7 @@ if (environment.enableBackendMock) {
       enabled: !isDevMode(),
       // Register the ServiceWorker as soon as the application is stable
       // or after 30 seconds (whichever comes first).
-      registrationStrategy: 'registerWhenStable:30000'
+      registrationStrategy: 'registerWhenStable:30000',
     }),
   ],
   providers: providers,
