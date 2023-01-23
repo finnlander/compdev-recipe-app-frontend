@@ -66,7 +66,7 @@ export class ShoppingListComponent
   items: ShoppingListItem[] = [];
   error$: Observable<string | null> = of(null);
   isUpdating$: Observable<boolean> = of(false);
-  isEmpty: boolean = true;
+  isEmpty = true;
   selectedItem: ShoppingListItem | null = null;
 
   constructor(

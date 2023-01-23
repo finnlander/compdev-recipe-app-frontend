@@ -93,7 +93,9 @@ export class AuthEffects {
         withLatestFrom(
           this.store.select(authSelectors.isPendingInitialization)
         ),
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         filter(([_, isPendingInitialization]) => !isPendingInitialization),
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         map(([action, _]) => action),
         tap(({ setInitialized, redirectUrl }) => {
           localStorage.removeItem(STORAGE_KEY_AUTH_TOKEN);
@@ -113,7 +115,7 @@ export class AuthEffects {
   restoreSession = createEffect(() =>
     this.actions$.pipe(
       ofType(authActions.restoreSession),
-      map((_) => {
+      map(() => {
         const authToken = localStorage.getItem(STORAGE_KEY_AUTH_TOKEN);
         if (!authToken) {
           return authActions.logout({ setInitialized: true });
@@ -143,8 +145,15 @@ export class AuthEffects {
           }
         }
 
-        const payload = createLoginPayload(authToken)!!;
-        return authActions.loginSuccess(payload);
+        const payload = createLoginPayload(authToken);
+        if (payload) {
+          return authActions.loginSuccess(payload);
+        }
+
+        console.debug(
+          'Failed to create login payload out of authentication token -> logging out'
+        );
+        return authActions.logout({ setInitialized: true });
       })
     )
   );
@@ -152,7 +161,7 @@ export class AuthEffects {
 
 /* Helper Functions */
 
-function handleAuthentication(token: string, isSignup: boolean = false) {
+function handleAuthentication(token: string, isSignup = false) {
   const payload = createLoginPayload(token);
   if (!payload) {
     const errPayload = { error: 'unexpected access token received' };

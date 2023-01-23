@@ -24,15 +24,21 @@ const debounceTimeMs = 500;
   ],
 })
 export class EqualityValidatorDirective implements AsyncValidator {
-  @Input('requireEqualityTo') requireEqualityTo: string = '';
+  @Input() requireEqualityTo = '';
 
-  constructor() {}
   validate(
-    control: AbstractControl<any, any>
+    control: AbstractControl<unknown, unknown>
   ): Promise<ValidationErrors | null> | Observable<ValidationErrors | null> {
     return timer(debounceTimeMs).pipe(
       map(() => {
-        const equalityMatch = this.matchesEqualityRequirement(control.value);
+        const currentValue = control.value;
+        if (typeof currentValue !== 'string') {
+          return {
+            notEqual: true,
+          };
+        }
+
+        const equalityMatch = this.matchesEqualityRequirement(currentValue);
 
         const validationResult = equalityMatch
           ? null

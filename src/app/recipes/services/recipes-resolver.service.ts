@@ -23,8 +23,10 @@ export class RecipesResolverService implements Resolve<Recipe[]> {
   constructor(private store: Store<RootState>, private actions$: Actions) {}
 
   resolve(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _route: ActivatedRouteSnapshot,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _state: RouterStateSnapshot
   ): Recipe[] | Observable<Recipe[]> | Promise<Recipe[]> {
     return this.getRecipesAfterLoadingFinished().pipe(
       switchMap((recipes) => {
@@ -47,7 +49,9 @@ export class RecipesResolverService implements Resolve<Recipe[]> {
     // delay response if recipes are currently loaded
     return this.store.select(recipeSelectors.getRecipes).pipe(
       withLatestFrom(this.store.select(recipeSelectors.isLoading)),
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       skipWhile(([_, isLoading]) => isLoading),
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       map(([recipes, _]) => recipes)
     );
   }

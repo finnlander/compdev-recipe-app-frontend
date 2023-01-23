@@ -42,7 +42,7 @@ const initialState: Readonly<RecipeState> = {
  */
 export const recipeReducer = createReducer(
   initialState,
-  on(actions.clearError, (state, _) => ({
+  on(actions.clearError, (state) => ({
     ...state,
     error: null,
   })),
@@ -51,7 +51,7 @@ export const recipeReducer = createReducer(
     actions.storeRecipesRequest,
     actions.addRecipeRequest,
     actions.updateRecipeRequest,
-    (state, _) => ({
+    (state) => ({
       ...state,
       loading: true,
       error: null,
@@ -80,7 +80,7 @@ export const recipeReducer = createReducer(
     items: state.items.filter((it) => it.id !== id),
     selectedItem: state.selectedItem?.id === id ? null : state.selectedItem,
   })),
-  on(actions.storeRecipesSuccess, (state, _) => ({
+  on(actions.storeRecipesSuccess, (state) => ({
     ...state,
     loading: false,
     error: null,

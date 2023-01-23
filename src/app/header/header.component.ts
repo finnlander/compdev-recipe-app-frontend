@@ -30,7 +30,7 @@ const ON_RECIPES_STORED_SUCCESS_PROPS: ToastProps = {
   templateUrl: './header.component.html',
 })
 export class HeaderComponent implements OnInit {
-  collapsed: boolean = false;
+  collapsed = false;
   isLoggedIn$: Observable<boolean> = of(false);
   shoppingListCount$: Observable<number> = of(0);
   Routes = RoutePath;

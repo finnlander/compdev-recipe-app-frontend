@@ -33,7 +33,7 @@ export class RecipeDetailComponent
   iconShop = faPlus;
 
   selectedRecipe: Recipe | null = null;
-  dropdownOpen: boolean = false;
+  dropdownOpen = false;
   RecipeRootView = RoutePath.Recipes;
 
   constructor(
@@ -73,8 +73,13 @@ export class RecipeDetailComponent
   }
 
   addToShoppingList() {
+    const recipe = this.selectedRecipe;
+    if (!recipe) {
+      return;
+    }
+
     const shoppingItemData: ShoppingListItemData[] = new RecipeAdapter(
-      this.selectedRecipe!!
+      recipe
     ).items.map((item) => {
       return {
         ingredientName: item.ingredient.name,

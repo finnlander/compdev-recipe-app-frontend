@@ -63,7 +63,7 @@ export class BackendMockService {
   }
 
   getCurrentUser = (
-    req: HttpRequest<any>
+    req: HttpRequest<unknown>
   ): HttpResponse<User | GenericResponse> => {
     if (!this.isAuthorized(req)) {
       return createUnauthorizedResponse();
@@ -104,7 +104,6 @@ export class BackendMockService {
     }
 
     const token = encodeMockAuthToken(match);
-    const { password, ...resp } = match;
     return new HttpResponse({
       status: 200,
       body: {
@@ -116,7 +115,8 @@ export class BackendMockService {
   signup = (
     req: HttpRequest<AuthRequest>
   ): HttpResponse<AuthResponse | GenericResponse> => {
-    const { username, password } = req.body!!;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const { username, password } = req.body!;
     const match = this.state.users.find((it) => it.username === username);
 
     if (match) {
@@ -148,7 +148,7 @@ export class BackendMockService {
   };
 
   getRecipes = (
-    req: HttpRequest<any>
+    req: HttpRequest<unknown>
   ): HttpResponse<Recipe[] | GenericResponse> => {
     if (!this.isAuthorized(req)) {
       return createUnauthorizedResponse();
@@ -168,7 +168,7 @@ export class BackendMockService {
   };
 
   getIngredients = (
-    req: HttpRequest<any>
+    req: HttpRequest<unknown>
   ): HttpResponse<Ingredient[] | GenericResponse> => {
     if (!this.isAuthorized(req)) {
       return createUnauthorizedResponse();
@@ -184,7 +184,11 @@ export class BackendMockService {
       return createUnauthorizedResponse();
     }
 
-    const ingredients = req.body!!.ingredientNames.map((ingredientName) =>
+    if (!req.body) {
+      return new HttpResponse({ status: 200, body: [] });
+    }
+
+    const ingredients = req.body.ingredientNames.map((ingredientName) =>
       this.getOrAddIngredient(ingredientName)
     );
 
@@ -193,7 +197,7 @@ export class BackendMockService {
 
   /* Helper Methods */
 
-  private isAuthorized(req: HttpRequest<any>): boolean {
+  private isAuthorized(req: HttpRequest<unknown>): boolean {
     const authHeader = req.headers.get('Authorization');
     const token = decodeMockAuthToken(authHeader);
 
@@ -240,7 +244,9 @@ export class BackendMockService {
       try {
         const state = JSON.parse(existingState);
         this.state = state;
-      } catch (error) {}
+      } catch (error) {
+        // fail silently
+      }
     }
   }
 }
@@ -353,7 +359,7 @@ function generateSampleSourceData(): AddRecipePayload[] {
         toIngredientPayload('green salad slice', 1),
       ],
     },
-    // Sample Snitchel recipe
+    // Sample Schnitzel recipe
     {
       name: 'Wiener Schnitzel',
       description: 'A traditional german schnitzel recipe',

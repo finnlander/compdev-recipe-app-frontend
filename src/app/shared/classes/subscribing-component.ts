@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
  * Base class for components that subscribe any subscriptions from rxjs.
  */
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: '',
   template: '',
 })

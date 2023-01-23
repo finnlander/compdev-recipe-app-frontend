@@ -25,8 +25,10 @@ export class IngredientService {
     ) {
       // use local cache
       const ingredients = ingredientNames.map((ingredientName) => {
-        const id = this.ingredientIdsByName.get(ingredientName)!!;
-        return this.ingredientsById.get(id)!!;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const id = this.ingredientIdsByName.get(ingredientName)!;
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return this.ingredientsById.get(id)!;
       });
 
       return of(ingredients);
@@ -39,7 +41,8 @@ export class IngredientService {
   getOrAddIngredient(ingredientName: string): Observable<Ingredient> {
     const existingId = this.ingredientIdsByName.get(ingredientName);
     if (existingId) {
-      return of(this.ingredientsById.get(existingId)!!);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return of(this.ingredientsById.get(existingId)!);
     }
 
     return this.requestNewIngredient(ingredientName).pipe(

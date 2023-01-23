@@ -23,9 +23,9 @@ export class AuthInterceptor implements HttpInterceptor {
   ) {}
 
   intercept(
-    req: HttpRequest<any>,
+    req: HttpRequest<unknown>,
     next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  ): Observable<HttpEvent<unknown>> {
     if (!requiresAuthenticationHeader(req)) {
       return next.handle(req);
     }
@@ -53,7 +53,7 @@ function generateAuthHeader(token: string): string {
   return `Bearer ${token}`;
 }
 
-function requiresAuthenticationHeader(req: HttpRequest<any>) {
+function requiresAuthenticationHeader(req: HttpRequest<unknown>) {
   const apiPath = req.url.replace(environment.backendServerBaseUrl, '');
   return !apiPath.startsWith('/auth');
 }

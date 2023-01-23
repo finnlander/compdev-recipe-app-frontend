@@ -6,6 +6,7 @@ import { SubscribingComponent } from './subscribing-component';
  * Base class for components that tracks numeric id value in url path (e.g. record/model based details component).
  */
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: '',
   template: '',
 })

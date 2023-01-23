@@ -31,7 +31,7 @@ export class RecipesApi {
   replaceAllRecipes(recipes: Recipe[]): Observable<ApiResponse<void>> {
     const url = getApiUrl('recipes');
     return this.http.put<GenericResponse>(url, recipes).pipe(
-      map((_) => wrapToSuccessResponse(undefined)),
+      map(() => wrapToSuccessResponse(undefined)),
       catchError((error: HttpErrorResponse) => {
         return logAndWrapErrorMessage('storing recipes', error);
       })

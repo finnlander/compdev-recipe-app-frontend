@@ -6,7 +6,7 @@ import {
   transition,
   trigger,
 } from '@angular/animations';
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 
 /**
  * Component that flashes the text when it is changed.
@@ -61,7 +61,7 @@ export class FlashingTextComponent implements OnChanges {
 
   state: 'state1' | 'state2' = 'state1';
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(): void {
     this.state = this.state === 'state1' ? 'state2' : 'state1';
   }
 }

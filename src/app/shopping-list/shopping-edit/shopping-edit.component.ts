@@ -52,7 +52,7 @@ export class ShoppingEditComponent
   iconUpdate = faCheck;
 
   formMode: 'new' | 'update' = 'new';
-  updateItemOrdinal: number = -1;
+  updateItemOrdinal = -1;
   loading$: Observable<boolean> = of(false);
 
   @ViewChild('form', { static: true }) addItemForm?: NgForm;
@@ -104,11 +104,11 @@ export class ShoppingEditComponent
   }
 
   onDelete() {
-    if (this.formMode !== 'update') {
+    if (this.formMode !== 'update' || !this.addItemForm) {
       return;
     }
 
-    const data = this.getItemData(this.addItemForm!!);
+    const data = this.getItemData(this.addItemForm);
     const itemOrdinal = this.updateItemOrdinal;
 
     this.modalService.handleConfirmation({
@@ -127,7 +127,7 @@ export class ShoppingEditComponent
 
   private applySelectedItemChange(
     selectedItem: ShoppingListItem | null,
-    immediate: boolean = false
+    immediate = false
   ) {
     const model: FormModel = selectedItem
       ? {

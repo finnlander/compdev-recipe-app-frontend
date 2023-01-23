@@ -21,11 +21,12 @@ export interface ConfirmationModalContent {
  * Confirmation modal.
  */
 @Component({
+  // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'modal-content',
   templateUrl: './confirmation-modal.component.html',
 })
 export class ConfirmationModalComponent {
-  itemDescription: string = '';
+  itemDescription = '';
   confirmationType?: ConfirmationType;
   removeQuotes?: boolean;
 

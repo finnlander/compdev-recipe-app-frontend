@@ -68,21 +68,24 @@ export function getApiUrl(path: string) {
 
 /* Helper Functions */
 
-function tryGetGenericResponse(resBody: any): GenericResponse | undefined {
-  if (!resBody) {
+function tryGetGenericResponse(resBody: unknown): GenericResponse | undefined {
+  if (typeof resBody !== 'object' || resBody === null) {
     return undefined;
   }
 
-  if (typeof resBody['status'] === 'string') {
-    const status = resBody['status'];
-    const error =
-      typeof resBody['error'] === 'string' ? resBody['error'] : undefined;
-    const res: GenericResponse = {
-      status: 'ERROR' === status ? 'ERROR' : 'OK',
-      error,
-    };
-    return res;
+  if (!('status' in resBody) || typeof resBody.status !== 'string') {
+    return undefined;
   }
 
-  return undefined;
+  const status = resBody['status'];
+  const error =
+    'error' in resBody && typeof resBody.error === 'string'
+      ? resBody.error
+      : undefined;
+
+  const res: GenericResponse = {
+    status: 'ERROR' === status ? 'ERROR' : 'OK',
+    error,
+  };
+  return res;
 }

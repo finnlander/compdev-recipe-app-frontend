@@ -40,9 +40,10 @@ export class BackendMockInterceptor implements HttpInterceptor {
   constructor(private backendMockService: BackendMockService) {}
 
   intercept(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     req: HttpRequest<any>,
     next: HttpHandler
-  ): Observable<HttpEvent<any>> {
+  ): Observable<HttpEvent<unknown>> {
     const { url } = req;
     const path = url.substring(environment.backendServerBaseUrl.length);
 

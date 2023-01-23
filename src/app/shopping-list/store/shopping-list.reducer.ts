@@ -44,14 +44,14 @@ const initialState: Readonly<ShoppingListState> = {
  */
 export const shoppingListReducer = createReducer(
   initialState,
-  on(actions.clearItems, (_, __) => ({
+  on(actions.clearItems, () => ({
     ...initialState,
   })),
   on(
     actions.addItemRequest,
     actions.addItemsRequest,
     actions.updateItemRequest,
-    (state, _) => ({
+    (state) => ({
       ...state,
       pendingChanges: state.pendingChanges + 1,
       error: null,
@@ -127,7 +127,7 @@ export const shoppingListReducer = createReducer(
     ...state,
     error,
   })),
-  on(actions.clearUpdateError, (state, _) =>
+  on(actions.clearUpdateError, (state) =>
     state.error
       ? {
           ...state,

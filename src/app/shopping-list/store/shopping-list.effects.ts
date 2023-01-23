@@ -57,9 +57,10 @@ export class ShoppingListEffects {
         return this.ingredientService.getOrAddIngredients(ingredientNames).pipe(
           map((ingredients) => {
             const successItems = items.map((it) => ({
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               ingredient: ingredients.find(
                 (ingredient) => ingredient.name === it.ingredientName
-              )!!,
+              )!,
               amount: it.amount,
               unit: it.unit,
             }));

@@ -46,7 +46,7 @@ export class RecipeAdapter {
     ingredient: Ingredient,
     amount: number,
     unit: RecipeUnit = RecipeUnit.PCS,
-    phaseName: string = ''
+    phaseName = ''
   ): RecipeAdapter {
     const phase = this.getOrAddPhase(phaseName);
     const ordinal = this.size + 1;

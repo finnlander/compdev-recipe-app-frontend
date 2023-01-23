@@ -46,7 +46,7 @@ const initialState: Readonly<AuthState> = {
  */
 export const authReducer = createReducer(
   initialState,
-  on(actions.loginRequest, actions.signupRequest, (state, _) => ({
+  on(actions.loginRequest, actions.signupRequest, (state) => ({
     ...state,
     pendingAuthentication: true,
     error: null,
@@ -66,7 +66,7 @@ export const authReducer = createReducer(
     authTokenExpiresAt: null,
     error,
   })),
-  on(actions.clearError, (state, _) =>
+  on(actions.clearError, (state) =>
     state.error
       ? {
           ...state,

@@ -85,7 +85,12 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
   }
 
   onSubmit() {
-    const model = this.form!!.value as FormModel;
+    if (!this.form) {
+      console.error('Unexpected error: authentication form not initialized');
+      return;
+    }
+
+    const model = this.form.value as FormModel;
 
     this.submitted = true;
     this.loggedOut = false;

@@ -8,10 +8,10 @@ export type AlertType = 'error' | 'info' | 'warning';
   styleUrls: ['./alert.component.css'],
 })
 export class AlertComponent {
-  @Input('type') type: AlertType = 'error';
-  @Input('action')
+  @Input() type: AlertType = 'error';
+  @Input()
   action?: string;
-  @Input('message') message?: string | null;
+  @Input() message?: string | null;
   @Output() dismiss = new EventEmitter<void>();
 
   onDismissClick() {

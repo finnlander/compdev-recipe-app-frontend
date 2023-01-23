@@ -76,7 +76,7 @@ export class RecipeEditComponent
   RecipeUnit = RecipeUnit;
   selectedRecipe: Recipe | null = null;
   mode: EditMode = 'new';
-  form: FormGroup<any>;
+  form: ReturnType<typeof RecipeEditComponent.createForm>;
 
   loading$: Observable<boolean> = of(false);
 
@@ -94,11 +94,13 @@ export class RecipeEditComponent
   }
 
   get ingredientItems() {
-    return this.form.controls['ingredientItems'] as FormArray<FormGroup>;
+    return this.form.controls[
+      'ingredientItems'
+    ] as unknown as FormArray<FormGroup>;
   }
 
   get usePhases(): boolean {
-    return this.form.controls['usePhases'].value;
+    return this.form.controls['usePhases'].value || false;
   }
 
   get phases() {
@@ -151,12 +153,13 @@ export class RecipeEditComponent
       return;
     }
 
-    const model = this.getData()!!;
+    const model = this.getData();
     const data = { ...model, imageUrl: model.imageUrl || DEFAULT_RECIPE_IMG };
 
     const action = isNew
       ? recipeActions.addRecipeRequest(data)
-      : recipeActions.updateRecipeRequest({ ...data, id: recipe!!.id });
+      : // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        recipeActions.updateRecipeRequest({ ...data, id: recipe!.id });
 
     const successAction = isNew
       ? recipeActions.addRecipeSuccess
@@ -293,7 +296,7 @@ export class RecipeEditComponent
   }
 
   /* Helper Methods */
-  private static createForm(fb: FormBuilder): FormGroup<any> {
+  private static createForm(fb: FormBuilder) {
     const defaultFieldOptions: AbstractControlOptions = {
       updateOn: 'change',
     };
@@ -388,7 +391,7 @@ export class RecipeEditComponent
 
 function toRecipeIngredientPayload(
   item: RecipeItem,
-  phase: string = ''
+  phase = ''
 ): RecipeIngredientPayloadItem {
   return {
     ingredientName: item.ingredient.name,

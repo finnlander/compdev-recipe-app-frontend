@@ -18,7 +18,7 @@ import { shoppingListActions } from '../store';
 export class ShoppingListItemComponent implements OnInit {
   @Input() item?: ShoppingListItem;
 
-  newAmount: number = 0;
+  newAmount = 0;
 
   iconTrash = faTrash;
 

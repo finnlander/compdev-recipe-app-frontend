@@ -23,6 +23,7 @@ export class AuthService {
     return this.store.select(authSelectors.isPendingStateChange).pipe(
       skipWhile((isPendingStateChange) => isPendingStateChange),
       withLatestFrom(this.store.select(authSelectors.getAuthToken)),
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       map(([_, authToken]) => authToken),
       take(1)
     );

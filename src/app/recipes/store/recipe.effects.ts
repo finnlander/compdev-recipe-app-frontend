@@ -105,6 +105,7 @@ export class RecipeEffects {
     this.actions$.pipe(
       ofType(recipeActions.storeRecipesRequest),
       withLatestFrom(this.store.select(recipeSelectors.getRecipes)),
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       map(([_, recipes]) => recipes),
       switchMap((recipes) =>
         this.recipesApi.replaceAllRecipes(recipes).pipe(
@@ -145,9 +146,10 @@ function mapToRecipe(
   const recipeAdapter = new RecipeAdapter(recipe);
 
   payload.ingredientItems.forEach((it) => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const ingredient = ingredients.find(
       (ingredient) => ingredient.name === it.ingredientName
-    )!!;
+    )!;
     recipeAdapter.addIngredient(ingredient, it.amount, it.unit, it.phase);
   });
   return recipe;
