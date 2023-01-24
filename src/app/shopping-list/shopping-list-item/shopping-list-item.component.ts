@@ -1,4 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
 import {
@@ -15,9 +21,10 @@ import { shoppingListActions } from '../store';
   templateUrl: './shopping-list-item.component.html',
   styleUrls: ['./shopping-list-item.component.css'],
 })
-export class ShoppingListItemComponent implements OnInit {
-  @Input() item?: ShoppingListItem;
+export class ShoppingListItemComponent implements OnInit, OnChanges {
+  @Input() item!: ShoppingListItem;
 
+  origAmount = 0;
   newAmount = 0;
 
   iconTrash = faTrash;
@@ -28,7 +35,20 @@ export class ShoppingListItemComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.newAmount = this.item?.amount || 0;
+    this.origAmount = this.item.amount;
+    this.newAmount = this.origAmount;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const itemChange = changes['item'];
+    if (!itemChange.firstChange) {
+      const prev = itemChange.previousValue as ShoppingListItem | undefined;
+      const current = itemChange.currentValue as ShoppingListItem | undefined;
+      if (prev?.amount != current?.amount) {
+        // reset input value when the list is updated (to make sure the values remains in sync)
+        this.newAmount = current?.amount || 0;
+      }
+    }
   }
 
   deleteItem() {
