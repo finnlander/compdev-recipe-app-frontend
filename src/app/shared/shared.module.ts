@@ -9,12 +9,14 @@ import { ConfirmationModalComponent } from './components/confirmation-modal/conf
 import { FlashingTextComponent } from './components/flashing-text/flashing-text.component';
 import { DropdownDirective } from './directives/dropdown.directive';
 import { EqualityValidatorDirective } from './directives/require-equality-validator.directive';
+import { TrackByFieldDirective } from './directives/track-by-field.directive';
 
 @NgModule({
   declarations: [
     // Directives
     DropdownDirective,
     EqualityValidatorDirective,
+    TrackByFieldDirective,
     // Components
     AlertComponent,
     ConfirmationModalComponent,
@@ -32,6 +34,7 @@ import { EqualityValidatorDirective } from './directives/require-equality-valida
     // Directives
     DropdownDirective,
     EqualityValidatorDirective,
+    TrackByFieldDirective,
     // Components
     AlertComponent,
     ConfirmationModalComponent,

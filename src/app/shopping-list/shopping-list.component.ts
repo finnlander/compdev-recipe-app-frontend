@@ -142,8 +142,4 @@ export class ShoppingListComponent
   onDismissError() {
     this.store.dispatch(shoppingListActions.clearUpdateError());
   }
-
-  getItemKey(index: number, item: ShoppingListItem) {
-    return item.ordinal;
-  }
 }

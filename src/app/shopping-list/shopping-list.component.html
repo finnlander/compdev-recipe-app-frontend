@@ -9,7 +9,7 @@
       <a
         class="list-group-item"
         style="cursor: pointer"
-        *ngFor="let item of items; trackBy: getItemKey"
+        *ngFor="let item of items; trackByField: 'ordinal'"
         [ngClass]="selectedItem?.ordinal === item.ordinal ? 'selected' : ''"
         [@shoppingList]
         [@.disabled]="listInitialization"
