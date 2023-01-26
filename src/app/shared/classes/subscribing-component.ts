@@ -28,10 +28,14 @@ export abstract class SubscribingComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach((it) => it.unsubscribe());
-    this.subscriptions = [];
+    try {
+      this.subscriptions.forEach((it) => it.unsubscribe());
+      this.subscriptions = [];
 
-    this.timeouts.forEach((timeoutId) => clearTimeout(timeoutId));
-    this.timeouts = [];
+      this.timeouts.forEach((timeoutId) => clearTimeout(timeoutId));
+      this.timeouts = [];
+    } catch (error) {
+      console.error('Error on destroy:', error);
+    }
   }
 }

@@ -140,7 +140,9 @@ export class ShoppingEditComponent
     const action = () => {
       this.formMode = selectedItem ? 'update' : 'new';
       this.updateItemOrdinal = selectedItem?.ordinal || -1;
-      this.addItemForm?.form.setValue(model);
+      if (this.addItemForm?.controls['name']) {
+        this.addItemForm?.form.setValue(model);
+      }
     };
 
     if (immediate) action();

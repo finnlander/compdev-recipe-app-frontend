@@ -78,20 +78,22 @@ export class ShoppingListComponent
   }
 
   ngOnInit(): void {
-    this.store
-      .select(shoppingListSelectors.getShoppingListItems)
-      .subscribe((items) => {
-        const isEmpty = items.length === 0;
+    this.addSubscription(
+      this.store
+        .select(shoppingListSelectors.getShoppingListItems)
+        .subscribe((items) => {
+          const isEmpty = items.length === 0;
 
-        this.addTimeout(0, () => {
-          this.isEmpty = isEmpty;
-          this.items = sortBy(items, (it) => it.ingredient.name);
+          this.addTimeout(0, () => {
+            this.isEmpty = isEmpty;
+            this.items = sortBy(items, (it) => it.ingredient.name);
 
-          if (this.listInitialization) {
-            this.addTimeout(0, () => (this.listInitialization = false));
-          }
-        });
-      });
+            if (this.listInitialization) {
+              this.addTimeout(0, () => (this.listInitialization = false));
+            }
+          });
+        })
+    );
 
     this.error$ = this.store.select(
       shoppingListSelectors.getShoppingListUpdateError
@@ -109,6 +111,7 @@ export class ShoppingListComponent
   }
 
   override ngOnDestroy(): void {
+    super.ngOnDestroy();
     this.store.dispatch(shoppingListActions.clearUpdateError());
   }
 

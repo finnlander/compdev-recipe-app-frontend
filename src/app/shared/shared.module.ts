@@ -8,14 +8,14 @@ import { AlertComponent } from './components/alert/alert.component';
 import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
 import { FlashingTextComponent } from './components/flashing-text/flashing-text.component';
 import { DropdownDirective } from './directives/dropdown.directive';
-import { EqualityValidatorDirective } from './directives/require-equality-validator.directive';
+import { RequireEqualityValidatorDirective } from './directives/require-equality-validator.directive';
 import { TrackByFieldDirective } from './directives/track-by-field.directive';
 
 @NgModule({
   declarations: [
     // Directives
     DropdownDirective,
-    EqualityValidatorDirective,
+    RequireEqualityValidatorDirective,
     TrackByFieldDirective,
     // Components
     AlertComponent,
@@ -33,7 +33,7 @@ import { TrackByFieldDirective } from './directives/track-by-field.directive';
   exports: [
     // Directives
     DropdownDirective,
-    EqualityValidatorDirective,
+    RequireEqualityValidatorDirective,
     TrackByFieldDirective,
     // Components
     AlertComponent,

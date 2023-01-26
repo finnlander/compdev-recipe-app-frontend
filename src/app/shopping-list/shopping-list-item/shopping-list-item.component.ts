@@ -24,7 +24,6 @@ import { shoppingListActions } from '../store';
 export class ShoppingListItemComponent implements OnInit, OnChanges {
   @Input() item!: ShoppingListItem;
 
-  origAmount = 0;
   newAmount = 0;
 
   iconTrash = faTrash;
@@ -35,8 +34,7 @@ export class ShoppingListItemComponent implements OnInit, OnChanges {
   ) {}
 
   ngOnInit(): void {
-    this.origAmount = this.item.amount;
-    this.newAmount = this.origAmount;
+    this.newAmount = this.item.amount;
   }
 
   ngOnChanges(changes: SimpleChanges): void {

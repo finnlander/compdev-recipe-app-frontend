@@ -18,12 +18,12 @@ const debounceTimeMs = 500;
   providers: [
     {
       provide: NG_ASYNC_VALIDATORS,
-      useExisting: EqualityValidatorDirective,
+      useExisting: RequireEqualityValidatorDirective,
       multi: true,
     },
   ],
 })
-export class EqualityValidatorDirective implements AsyncValidator {
+export class RequireEqualityValidatorDirective implements AsyncValidator {
   @Input() requireEqualityTo = '';
 
   validate(
