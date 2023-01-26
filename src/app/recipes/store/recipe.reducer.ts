@@ -30,7 +30,7 @@ export interface RecipeState {
   error: string | null;
 }
 
-const initialState: Readonly<RecipeState> = {
+export const initialRecipeState: Readonly<RecipeState> = {
   items: [],
   selectedItem: null,
   loading: false,
@@ -41,7 +41,7 @@ const initialState: Readonly<RecipeState> = {
  * Recipes state reducer.
  */
 export const recipeReducer = createReducer(
-  initialState,
+  initialRecipeState,
   on(actions.clearError, (state) => ({
     ...state,
     error: null,

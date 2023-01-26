@@ -32,7 +32,7 @@ export interface ShoppingListState {
   error: string | null;
 }
 
-const initialState: Readonly<ShoppingListState> = {
+export const initialShoppingListState: Readonly<ShoppingListState> = {
   items: [],
   selectedItem: null,
   pendingChanges: 0,
@@ -43,9 +43,9 @@ const initialState: Readonly<ShoppingListState> = {
  * Shopping list state reducer.
  */
 export const shoppingListReducer = createReducer(
-  initialState,
+  initialShoppingListState,
   on(actions.clearItems, () => ({
-    ...initialState,
+    ...initialShoppingListState,
   })),
   on(
     actions.addItemRequest,

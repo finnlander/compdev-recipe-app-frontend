@@ -33,7 +33,7 @@ export interface AuthState {
   error: string | null;
 }
 
-const initialState: Readonly<AuthState> = {
+export const initialAuthState: Readonly<AuthState> = {
   authToken: null,
   authTokenExpiresAt: null,
   pendingAuthentication: false,
@@ -45,7 +45,7 @@ const initialState: Readonly<AuthState> = {
  * Authentication state reducer.
  */
 export const authReducer = createReducer(
-  initialState,
+  initialAuthState,
   on(actions.loginRequest, actions.signupRequest, (state) => ({
     ...state,
     pendingAuthentication: true,
@@ -75,7 +75,7 @@ export const authReducer = createReducer(
       : state
   ),
   on(actions.logout, (state, { setInitialized }) => ({
-    ...initialState,
+    ...initialAuthState,
     pendingInitialization: setInitialized ? false : state.pendingInitialization,
   }))
 );

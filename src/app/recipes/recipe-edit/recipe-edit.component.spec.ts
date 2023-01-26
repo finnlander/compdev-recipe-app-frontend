@@ -1,4 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ReactiveFormsModule } from '@angular/forms';
+import { RouterTestingModule } from '@angular/router/testing';
+import { StoreModule } from '@ngrx/store';
+import { SharedModule } from '../../shared/shared.module';
+import { reducers } from '../../store/app.store';
 
 import { RecipeEditComponent } from './recipe-edit.component';
 
@@ -8,6 +13,12 @@ describe('RecipeEditComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
+      imports: [
+        RouterTestingModule,
+        ReactiveFormsModule,
+        SharedModule,
+        StoreModule.forRoot(reducers),
+      ],
       declarations: [RecipeEditComponent],
     }).compileComponents();
 
