@@ -138,6 +138,13 @@ export const shoppingListReducer = createReducer(
   on(actions.setSelectedItem, (state, { item }) => ({
     ...state,
     selectedItem: item,
+  })),
+  on(actions.loadStoredItemsSuccess, (state, { items }) => ({
+    ...state,
+    items,
+    selectedItem: state.selectedItem
+      ? items.find((it) => it.ordinal === state.selectedItem?.ordinal) || null
+      : null,
   }))
 );
 

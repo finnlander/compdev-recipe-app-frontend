@@ -12,6 +12,7 @@ import { RootState } from './store/app.store';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent extends SubscribingComponent implements OnInit {
   private loggedIn = false;
@@ -42,6 +43,7 @@ export class AppComponent extends SubscribingComponent implements OnInit {
 
     // resume session, if available
     this.store.dispatch(authActions.restoreSession());
+    this.store.dispatch(shoppingListActions.loadStoredItemsRequest());
   }
 
   /* Lifecycle methods */

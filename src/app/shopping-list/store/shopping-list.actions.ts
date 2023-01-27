@@ -24,6 +24,8 @@ export enum ShoppingListActionTypes {
   CLEAR_ITEMS = '[Shopping List] Clear items',
   CLEAR_UPDATE_ERROR = '[Shopping List] Clear update error',
   SET_SELECTED_ITEM = '[Shopping List] Set selected item',
+  LOAD_STORED_ITEMS_REQUEST = '[Shopping List] Load stored items request',
+  LOAD_STORED_ITEMS_SUCCESS = '[Shopping List] Load stored items success',
 }
 
 interface PayloadWithOrdinal {
@@ -80,6 +82,21 @@ const addMultipleShoppingListItemsRequestAction = createAction(
 const addMultipleShoppingListItemsSuccessAction = createAction(
   ShoppingListActionTypes.ADD_ITEMS_SUCCESS,
   props<ItemsContainer<ShoppingListItemSuccessPayload>>()
+);
+
+/**
+ * Ngrx action to request loading (restore) shopping list from the local storage.
+ */
+const loadStoredItemsRequestAction = createAction(
+  ShoppingListActionTypes.LOAD_STORED_ITEMS_REQUEST
+);
+
+/**
+ * Ngrx action to report loading (restore) shopping list from the local storage as successful.
+ */
+const loadStoredItemsSuccessAction = createAction(
+  ShoppingListActionTypes.LOAD_STORED_ITEMS_SUCCESS,
+  props<ItemsContainer<ShoppingListItem>>()
 );
 
 /**
@@ -146,6 +163,8 @@ export const shoppingListActions = {
   addItemsSuccess: addMultipleShoppingListItemsSuccessAction,
   clearItems: clearShoppingListAction,
   clearUpdateError: clearUpdateErrorAction,
+  loadStoredItemsRequest: loadStoredItemsRequestAction,
+  loadStoredItemsSuccess: loadStoredItemsSuccessAction,
   removeItem: removeShoppingListItemAction,
   setSelectedItem: setSelectedItemAction,
   updateFailed: shoppingListUpdateErrorAction,

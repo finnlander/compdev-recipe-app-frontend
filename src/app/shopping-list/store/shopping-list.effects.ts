@@ -1,14 +1,30 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
 import { of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
-import { shoppingListActions, ShoppingListActionTypes } from '.';
+import {
+  catchError,
+  map,
+  switchMap,
+  tap,
+  withLatestFrom,
+} from 'rxjs/operators';
+import {
+  shoppingListActions,
+  ShoppingListActionTypes,
+  shoppingListSelectors,
+} from '.';
 import { IngredientService } from '../../shared/services/ingredient.service';
+import { RootState } from '../../store/app.store';
+import { ShoppingListItem } from '../models/shopping-list-item-model';
+
+const STORAGE_KEY_SHOPPING_LIST = 'shoppingList';
 
 @Injectable()
 export class ShoppingListEffects {
   constructor(
     private readonly actions$: Actions,
+    private store: Store<RootState>,
     private ingredientService: IngredientService
   ) {}
 
@@ -80,4 +96,74 @@ export class ShoppingListEffects {
       )
     )
   );
+
+  onUpdateItems = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(
+          shoppingListActions.addItemSuccess,
+          shoppingListActions.addItemsSuccess,
+          shoppingListActions.removeItem
+        ),
+        withLatestFrom(
+          this.store.select(shoppingListSelectors.getShoppingListItems)
+        ),
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        map(([_, items]) => items),
+        tap((items) => updateStoredShoppingList(items))
+      ),
+    { dispatch: false }
+  );
+
+  onClearItems = createEffect(
+    () =>
+      this.actions$.pipe(
+        ofType(shoppingListActions.clearItems),
+        tap(() => clearStoredShoppingList())
+      ),
+    { dispatch: false }
+  );
+
+  loadStoredItems = createEffect(() =>
+    this.actions$.pipe(
+      ofType(shoppingListActions.loadStoredItemsRequest),
+      map(() => {
+        const items = getStoredShoppingList();
+        return shoppingListActions.loadStoredItemsSuccess({ items });
+      })
+    )
+  );
+}
+
+/* Helper Functions */
+
+function clearStoredShoppingList() {
+  localStorage.removeItem(STORAGE_KEY_SHOPPING_LIST);
+  console.log('Stored shopping list cleared');
+}
+
+function getStoredShoppingList(): ShoppingListItem[] {
+  const data = localStorage.getItem(STORAGE_KEY_SHOPPING_LIST);
+  if (!data) {
+    return [];
+  }
+
+  try {
+    const obj = JSON.parse(data);
+    if (!Array.isArray(obj)) {
+      return [];
+    }
+
+    console.debug(`Restored shopping list: ${obj.length} item(s)`);
+    return obj as ShoppingListItem[];
+  } catch (error) {
+    console.warn('Failed to parse stored shopping list from local storage');
+    return [];
+  }
+}
+
+function updateStoredShoppingList(items: ShoppingListItem[]) {
+  const data = JSON.stringify(items);
+  localStorage.setItem(STORAGE_KEY_SHOPPING_LIST, data);
+  console.debug(`Stored shopping list updated: ${items.length} item(s)`);
 }
