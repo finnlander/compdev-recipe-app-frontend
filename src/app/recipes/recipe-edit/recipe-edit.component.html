@@ -116,72 +116,80 @@
       </button>
       <hr *ngIf="ingredientItems.length > 0" />
       <ng-container formArrayName="ingredientItems">
-        <div
-          class="flex-container"
+        <ng-container
           *ngFor="
             let ingredientControl of ingredientItems.controls;
             let i = index
           "
           [formGroup]="ingredientControl"
         >
-          <!-- Ingredient -->
-
-          <div class="flex-item-2x">
-            <label>
-              Name
-              <input
-                class="form-control input-item"
-                type="text"
-                formControlName="ingredientName"
-              />
-            </label>
+          <div class="ingredient-row">
+            <div class="ingredient-wrapper">
+              <!-- Ingredient -->
+              <div class="ingredient-name">
+                <label>
+                  Name
+                  <input
+                    class="form-control input-item"
+                    type="text"
+                    formControlName="ingredientName"
+                  />
+                </label>
+              </div>
+              <div class="ingredient-amount">
+                <label>
+                  Amount
+                  <input
+                    class="form-control input-item"
+                    type="number"
+                    formControlName="amount"
+                  />
+                </label>
+              </div>
+              <div class="ingredient-unit">
+                <label>
+                  Unit
+                  <select
+                    class="form-control input-item"
+                    formControlName="unit"
+                  >
+                    <option
+                      [value]="unit.value"
+                      *ngFor="let unit of RecipeUnit | keyvalue"
+                    >
+                      {{ unit.value }}
+                    </option>
+                  </select>
+                </label>
+              </div>
+              <div class="ingredient-phase" *ngIf="usePhases">
+                <label>
+                  Phase
+                  <select
+                    class="form-control input-item"
+                    formControlName="phase"
+                  >
+                    <option
+                      [value]="phase"
+                      *ngFor="let phase of form.value.phases; let i = index"
+                    >
+                      {{ phase }}
+                    </option>
+                  </select>
+                </label>
+              </div>
+            </div>
+            <div class="btn-delete">
+              <button
+                class="btn btn-danger btn-sm"
+                type="button"
+                (click)="onDeleteIngredient(i)"
+              >
+                <fa-icon [icon]="iconDelete"></fa-icon>
+              </button>
+            </div>
           </div>
-          <div class="flex-item numeric-field">
-            <label>
-              Amount
-              <input
-                class="form-control input-item"
-                type="number"
-                formControlName="amount"
-              />
-            </label>
-          </div>
-          <div class="flex-item">
-            <label>
-              Unit
-              <select class="form-control input-item" formControlName="unit">
-                <option
-                  [value]="unit.value"
-                  *ngFor="let unit of RecipeUnit | keyvalue"
-                >
-                  {{ unit.value }}
-                </option>
-              </select>
-            </label>
-          </div>
-          <div *ngIf="usePhases" class="flex-item">
-            <label>
-              Phase
-              <select class="form-control input-item" formControlName="phase">
-                <option
-                  [value]="phase"
-                  *ngFor="let phase of form.value.phases; let i = index"
-                >
-                  {{ phase }}
-                </option>
-              </select>
-            </label>
-          </div>
-          <div class="flex-item btn-delete">
-            <button
-              class="btn btn-danger btn-sm"
-              type="button"
-              (click)="onDeleteIngredient(i)"
-            >
-              <fa-icon [icon]="iconDelete"></fa-icon>
-            </button>
-          </div>
-        </div>
+        </ng-container>
       </ng-container>
     </div>
     <hr />

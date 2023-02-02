@@ -31,32 +31,46 @@ textarea.ng-invalid.ng-touched {
   float: right !important;
 }
 
-.flex-container {
+.ingredient-row {
   display: flex;
-  flex-flow: row wrap;
+}
+
+.ingredient-wrapper {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 3fr 1fr 1fr 2fr;
+  grid-template-areas: 'ing-n ing-a ing-u ing-p';
   gap: 1rem;
-  align-items: center;
-  justify-content: flex-start;
   border: 1px solid rgb(224, 221, 221);
   border-radius: 0.1rem;
   padding: 1rem;
   margin: 1rem;
 }
 
-.flex-item {
-  flex-shrink: 1;
-  flex-basis: 1;
+/* For small screens and side-by-side views, use multi-row grid model */
+@media (max-width: 599.98px), (min-width: 860px) {
+  .ingredient-wrapper {
+    grid-template-columns: 2fr 1fr;
+    grid-template-areas:
+      'ing-n ing-a'
+      'ing-p ing-u';
+  }
 }
 
-.flex-item-2x {
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: content;
-  max-width: 20rem;
+.ingredient-name {
+  grid-area: ing-n;
 }
 
-.flex-item-3x {
-  flex: 3;
+.ingredient-amount {
+  grid-area: ing-a;
+}
+
+.ingredient-unit {
+  grid-area: ing-u;
+}
+
+.ingredient-phase {
+  grid-area: ing-p;
 }
 
 label {
