@@ -8,7 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faX } from '@fortawesome/free-solid-svg-icons';
 import { Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { first } from 'lodash';
@@ -71,7 +71,7 @@ export class RecipeEditComponent
   extends IdPathTrackingComponent
   implements OnInit
 {
-  iconDelete = faTrashCan;
+  iconDelete = faX;
   iconAdd = faPlus;
   RecipeUnit = RecipeUnit;
   selectedRecipe: Recipe | null = null;

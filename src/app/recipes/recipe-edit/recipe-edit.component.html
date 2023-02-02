@@ -26,7 +26,7 @@
     </div>
     <div class="form-group">
       <img
-        class="img-responsive img-rounded"
+        class="img-responsive shadowed"
         [src]="imageUrl.value"
         alt="[recipe image]"
       />
@@ -42,28 +42,26 @@
       </label>
 
       <ng-container *ngIf="usePhases">
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="float-left">
-              <input
-                class="form-control"
-                type="text"
-                formControlName="newPhaseName"
-                placeholder="Phase name"
-              />
-            </div>
-            <div class="float-left ml-1">
-              <button
-                class="btn btn-primary"
-                type="button"
-                (click)="onAddPhase()"
-                [disabled]="!canAddPhase()"
-                title="Add new phase"
-              >
-                <fa-icon [icon]="iconAdd"></fa-icon>
-                Add
-              </button>
-            </div>
+        <div class="flex-wrapper">
+          <div class="">
+            <input
+              class="form-control"
+              type="text"
+              formControlName="newPhaseName"
+              placeholder="Phase name"
+            />
+          </div>
+          <div class="">
+            <button
+              class="btn btn-primary"
+              type="button"
+              (click)="onAddPhase()"
+              [disabled]="!canAddPhase()"
+              title="Add new phase"
+            >
+              <fa-icon [icon]="iconAdd"></fa-icon>
+              Add
+            </button>
           </div>
         </div>
         <div class="gutter"></div>
@@ -74,35 +72,28 @@
               class="list-group-item"
               *ngFor="let phaseControl of phases.controls; let i = index"
             >
-              <div class="row">
-                <div class="col-sm-12">
-                  <div class="float-left">{{ phaseControl.value }}</div>
-                  <div class="float-right">
-                    <button
-                      type="button"
-                      class="btn btn-xs btn-danger"
-                      [disabled]="!canDeletePhase(phaseControl.value)"
-                      [title]="
-                        canDeletePhase(phaseControl.value)
-                          ? 'Delete'
-                          : '(phase is in use)'
-                      "
-                    >
-                      <fa-icon
-                        [icon]="iconDelete"
-                        (click)="onDeletePhase(i)"
-                      ></fa-icon>
-                    </button>
-                  </div>
+              <div class="flex-wrapper">
+                <div class="flex-grow">{{ phaseControl.value }}</div>
+                <div class="">
+                  <button
+                    type="button"
+                    class="btn btn-xs btn-danger"
+                    [disabled]="!canDeletePhase(phaseControl.value)"
+                    [title]="
+                      canDeletePhase(phaseControl.value)
+                        ? 'Delete'
+                        : '(phase is in use)'
+                    "
+                  >
+                    <fa-icon
+                      [icon]="iconDelete"
+                      (click)="onDeletePhase(i)"
+                    ></fa-icon>
+                  </button>
                 </div>
               </div>
             </li>
           </ul>
-          <div class="row">
-            <div class="col-sm-12">
-              <div class="float-left btn-delete"></div>
-            </div>
-          </div>
           <hr />
         </ng-container>
       </ng-container>
@@ -124,7 +115,10 @@
           [formGroup]="ingredientControl"
         >
           <div class="ingredient-row">
-            <div class="ingredient-wrapper">
+            <div class="vertical-label-box">
+              <div class="vertical-label">Ingredient</div>
+            </div>
+            <div class="ingredient-content-wrapper">
               <!-- Ingredient -->
               <div class="ingredient-name">
                 <label>
