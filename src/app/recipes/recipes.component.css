@@ -1,0 +1,25 @@
+/* for smaller screens, align areas from top to bottom */
+.wrapper {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    'lst'
+    'cont';
+}
+
+/* for larger screens, side-by-side view */
+@media (min-width: 860px) {
+  .wrapper {
+    gap: 3rem;
+    grid-template-columns: 5fr 7fr;
+    grid-template-areas: 'lst cont';
+  }
+}
+
+.list-area {
+  grid-area: lst;
+}
+
+.content-area {
+  grid-area: cont;
+}

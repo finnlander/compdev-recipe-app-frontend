@@ -1,76 +1,74 @@
-<div class="row">
-  <div class="col-xs-12">
-    <form (ngSubmit)="onSubmit(form)" #form="ngForm">
-      <div class="row">
-        <div class="col-sm-5 form-group">
-          <label for="name">Name</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            class="form-control"
-            ngModel
-            required
-          />
-        </div>
-        <div class="col-sm-2 form-group">
-          <label for="amount">Amount</label>
-          <input
-            type="number"
-            id="amount"
-            name="amount"
-            class="form-control"
-            ngModel
-            required
-            pattern="^[1-9]+[0-9]*"
-          />
-        </div>
-        <div class="col-sm-2 form-group">
-          <label for="unit">Unit</label>
-          <select id="unit" name="unit" class="form-control" ngModel required>
-            <option
-              [value]="unit.value"
-              *ngFor="let unit of RecipeUnit | keyvalue"
-            >
-              {{ unit.value }}
-            </option>
-          </select>
-        </div>
+<form (ngSubmit)="onSubmit(form)" #form="ngForm">
+  <div class="flex-container">
+    <div class="flex-row">
+      <div class="input-item-3x form-group">
+        <label for="name">Name</label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          class="form-control"
+          ngModel
+          required
+        />
       </div>
-      <div class="row">
-        <div class="col-xs-12">
-          <button
-            class="btn btn-success action-row-btn"
-            type="submit"
-            [disabled]="!form.valid || (loading$ | async)"
-          >
-            <fa-icon
-              [icon]="formMode === 'update' ? iconUpdate : iconAdd"
-            ></fa-icon>
-            {{ formMode === "update" ? "Update" : "Add" }}
-          </button>
-          <button
-            class="btn btn-danger action-row-btn"
-            type="button"
-            *ngIf="formMode === 'update'"
-            (click)="onDelete()"
-          >
-            <fa-icon [icon]="iconDelete"></fa-icon>
-            Delete
-          </button>
-          <button
-            class="btn btn-primary action-row-btn"
-            type="reset"
-            (click)="onClear()"
-            [disabled]="formMode === 'new' && !form.touched"
-          >
-            <fa-icon
-              [icon]="formMode === 'update' ? iconCancel : iconClear"
-            ></fa-icon>
-            {{ formMode === "update" ? "Cancel" : "Clear" }}
-          </button>
-        </div>
+      <div class="input-item form-group">
+        <label for="amount">Amount</label>
+        <input
+          type="number"
+          id="amount"
+          name="amount"
+          class="form-control"
+          ngModel
+          required
+          pattern="^[1-9]+[0-9]*"
+        />
       </div>
-    </form>
+      <div class="input-item form-group">
+        <label for="unit">Unit</label>
+        <select id="unit" name="unit" class="form-control" ngModel required>
+          <option
+            [value]="unit.value"
+            *ngFor="let unit of RecipeUnit | keyvalue"
+          >
+            {{ unit.value }}
+          </option>
+        </select>
+      </div>
+    </div>
+    <div class="flex-row">
+      <div class="input-item">
+        <button
+          class="btn btn-success action-row-btn"
+          type="submit"
+          [disabled]="!form.valid || (loading$ | async)"
+        >
+          <fa-icon
+            [icon]="formMode === 'update' ? iconUpdate : iconAdd"
+          ></fa-icon>
+          {{ formMode === 'update' ? 'Update' : 'Add' }}
+        </button>
+        <button
+          class="btn btn-danger action-row-btn"
+          type="button"
+          *ngIf="formMode === 'update'"
+          (click)="onDelete()"
+        >
+          <fa-icon [icon]="iconDelete"></fa-icon>
+          Delete
+        </button>
+        <button
+          class="btn btn-primary action-row-btn"
+          type="reset"
+          (click)="onClear()"
+          [disabled]="formMode === 'new' && !form.touched"
+        >
+          <fa-icon
+            [icon]="formMode === 'update' ? iconCancel : iconClear"
+          ></fa-icon>
+          {{ formMode === 'update' ? 'Cancel' : 'Clear' }}
+        </button>
+      </div>
+    </div>
   </div>
-</div>
+</form>

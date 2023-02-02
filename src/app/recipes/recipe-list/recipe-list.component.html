@@ -1,5 +1,5 @@
-<div class="row">
-  <div class="col-xs-12">
+<div class="flex-container">
+  <div>
     <button
       class="btn btn-success"
       [routerLink]="[RecipeRootPath, 'new']"
@@ -8,10 +8,8 @@
       New Recipe
     </button>
   </div>
-</div>
-<hr *ngIf="((recipes$ | async) || []).length !== 0" />
-<div class="row">
-  <div class="col-xs-12">
+  <div class="gutter"></div>
+  <div class="flex-list-area">
     <app-recipe-item
       *ngFor="let recipe of recipes$ | async"
       [recipe]="recipe"
@@ -19,4 +17,4 @@
     ></app-recipe-item>
   </div>
 </div>
-<div style="margin-bottom: 3rem"></div>
+<div class="gutter"></div>

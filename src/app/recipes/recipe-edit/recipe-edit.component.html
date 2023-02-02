@@ -35,16 +35,16 @@
     <!-- phases -->
     <div class="form-group">
       <h4>Cooking Phases</h4>
-      <div class="row">
-        <label class="col-sm-12 ml-1" for="usePhases">
-          <input type="checkbox" name="usePhases" formControlName="usePhases" />
-          Divide recipe into phases
-        </label>
-      </div>
+
+      <label class="inline-checkbox float-left" for="usePhases">
+        <input type="checkbox" name="usePhases" formControlName="usePhases" />
+        Divide recipe into phases
+      </label>
+
       <ng-container *ngIf="usePhases">
         <div class="row">
           <div class="col-sm-12">
-            <div class="pull-left">
+            <div class="float-left">
               <input
                 class="form-control"
                 type="text"
@@ -52,7 +52,7 @@
                 placeholder="Phase name"
               />
             </div>
-            <div class="pull-left ml-1">
+            <div class="float-left ml-1">
               <button
                 class="btn btn-primary"
                 type="button"
@@ -66,18 +66,18 @@
             </div>
           </div>
         </div>
-        <hr />
+        <div class="gutter"></div>
         <ng-container *ngIf="phases.length > 0" formArrayName="phases">
           <p>Phases:</p>
-          <ul class="list-group">
+          <ul class="list-group phase-item-size">
             <li
               class="list-group-item"
               *ngFor="let phaseControl of phases.controls; let i = index"
             >
               <div class="row">
                 <div class="col-sm-12">
-                  <div class="pull-left">{{ phaseControl.value }}</div>
-                  <div class="pull-right">
+                  <div class="float-left">{{ phaseControl.value }}</div>
+                  <div class="float-right">
                     <button
                       type="button"
                       class="btn btn-xs btn-danger"
@@ -100,7 +100,7 @@
           </ul>
           <div class="row">
             <div class="col-sm-12">
-              <div class="pull-left btn-delete"></div>
+              <div class="float-left btn-delete"></div>
             </div>
           </div>
           <hr />
@@ -117,69 +117,69 @@
       <hr *ngIf="ingredientItems.length > 0" />
       <ng-container formArrayName="ingredientItems">
         <div
-          class="row"
+          class="flex-container"
           *ngFor="
             let ingredientControl of ingredientItems.controls;
             let i = index
           "
           [formGroup]="ingredientControl"
         >
-          <div class="col-sm-12">
-            <div class="pull-left">
-              <label>
-                Name
-                <input
-                  class="form-control"
-                  type="text"
-                  formControlName="ingredientName"
-                />
-              </label>
-            </div>
-            <div class="pull-left ml-1 numeric-field">
-              <label>
-                Amount
-                <input
-                  class="form-control"
-                  type="number"
-                  formControlName="amount"
-                />
-              </label>
-            </div>
-            <div class="pull-left ml-1">
-              <label>
-                Unit
-                <select class="form-control" formControlName="unit">
-                  <option
-                    [value]="unit.value"
-                    *ngFor="let unit of RecipeUnit | keyvalue"
-                  >
-                    {{ unit.value }}
-                  </option>
-                </select>
-              </label>
-            </div>
-            <div *ngIf="usePhases" class="pull-left ml-1">
-              <label>
-                Phase
-                <select class="form-control" formControlName="phase">
-                  <option
-                    [value]="phase"
-                    *ngFor="let phase of form.value.phases; let i = index"
-                  >
-                    {{ phase }}
-                  </option>
-                </select>
-              </label>
-            </div>
-            <div class="pull-left btn-delete">
-              <button
-                class="btn btn-danger btn-sm"
-                type="button"
-                (click)="onDeleteIngredient(i)"
-              >
-                <fa-icon [icon]="iconDelete"></fa-icon>
-              </button>
-            </div>
+          <!-- Ingredient -->
+
+          <div class="flex-item-2x">
+            <label>
+              Name
+              <input
+                class="form-control input-item"
+                type="text"
+                formControlName="ingredientName"
+              />
+            </label>
+          </div>
+          <div class="flex-item numeric-field">
+            <label>
+              Amount
+              <input
+                class="form-control input-item"
+                type="number"
+                formControlName="amount"
+              />
+            </label>
+          </div>
+          <div class="flex-item">
+            <label>
+              Unit
+              <select class="form-control input-item" formControlName="unit">
+                <option
+                  [value]="unit.value"
+                  *ngFor="let unit of RecipeUnit | keyvalue"
+                >
+                  {{ unit.value }}
+                </option>
+              </select>
+            </label>
+          </div>
+          <div *ngIf="usePhases" class="flex-item">
+            <label>
+              Phase
+              <select class="form-control input-item" formControlName="phase">
+                <option
+                  [value]="phase"
+                  *ngFor="let phase of form.value.phases; let i = index"
+                >
+                  {{ phase }}
+                </option>
+              </select>
+            </label>
+          </div>
+          <div class="flex-item btn-delete">
+            <button
+              class="btn btn-danger btn-sm"
+              type="button"
+              (click)="onDeleteIngredient(i)"
+            >
+              <fa-icon [icon]="iconDelete"></fa-icon>
+            </button>
           </div>
         </div>
       </ng-container>

@@ -1,3 +1,31 @@
+/* Testing implicit content area naming for 'content' with line names 'content-start', 'content-end' */
+.wrapper {
+  display: grid;
+  grid-template-columns: 1fr [content-start] 100% [content-end] 1fr;
+  grid-template-rows: 1fr [content-start] 100% [content-end] 1fr;
+  margin-top: 10%;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+@media (min-width: 768px) {
+  .wrapper {
+    margin-left: 15%;
+    margin-right: 15%;
+  }
+}
+
+@media (min-width: 992px) {
+  .wrapper {
+    margin-left: 25%;
+    margin-right: 25%;
+  }
+}
+
+.content {
+  grid-area: content;
+}
+
 input.ng-invalid.ng-touched {
   border: 1px solid red;
 }

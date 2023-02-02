@@ -1,24 +1,23 @@
-<div *ngIf="item" class="row">
-  <div class="pull-left">
-    {{ item.ingredient.name }} ({{ item.amount }} {{ item.unit }})
+<div *ngIf="item" class="flex-container">
+  <div class="flex-text">
+    {{ item.ingredient.name }}
+    <span class="no-wrap">({{ item.amount }} {{ item.unit }})</span>
   </div>
-  <div class="pull-right">
-    <ul class="list-inline">
-      <li>
-        <input
-          class="form-control input-sm numeric-field"
-          type="number"
-          name="amount"
-          [(ngModel)]="newAmount"
-          (change)="onAmountUpdate()"
-          (click)="onAmountClick($event)"
-        />
-      </li>
-      <li>
-        <button (click)="deleteItem()">
-          <fa-icon [icon]="iconTrash"></fa-icon>
-        </button>
-      </li>
-    </ul>
-  </div>
+  <ul class="list-inline">
+    <li>
+      <input
+        class="form-control input-sm numeric-field"
+        type="number"
+        name="amount"
+        [(ngModel)]="newAmount"
+        (change)="onAmountUpdate()"
+        (click)="onAmountClick($event)"
+      />
+    </li>
+    <li>
+      <button (click)="deleteItem()">
+        <fa-icon [icon]="iconTrash"></fa-icon>
+      </button>
+    </li>
+  </ul>
 </div>

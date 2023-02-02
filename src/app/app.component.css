@@ -1,0 +1,32 @@
+.container-new {
+  padding-right: 2rem;
+  padding-left: 2rem;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (min-width: 768px) {
+  .container-new {
+    width: 750px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container-new {
+    width: 970px;
+  }
+}
+
+.container-new::before {
+  display: table;
+  content: ' ';
+}
+
+.container-new::after {
+  clear: both;
+}
+
+.footer {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}

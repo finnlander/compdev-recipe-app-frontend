@@ -1,3 +1,36 @@
+.flex-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .flex-container {
+    width: 80%;
+  }
+}
+
+@media (min-width: 992px) ) {
+  .flex-container {
+    width: 60%;
+  }
+}
+
+.flex-row {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+}
+
+.input-item {
+  flex: 1;
+}
+
+.input-item-3x {
+  flex: 3;
+}
+
 .action-row-btn {
   margin-right: 1rem;
   margin-top: 1rem;

@@ -24,6 +24,7 @@ export interface ConfirmationModalContent {
   // eslint-disable-next-line @angular-eslint/component-selector
   selector: 'modal-content',
   templateUrl: './confirmation-modal.component.html',
+  styleUrls: ['./confirmation-modal.component.css'],
 })
 export class ConfirmationModalComponent {
   itemDescription = '';

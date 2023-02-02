@@ -16,3 +16,67 @@ input.ng-invalid.ng-touched,
 textarea.ng-invalid.ng-touched {
   border: 1px solid red;
 }
+
+.inline-checkbox {
+  width: 100%;
+  margin-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.float-left {
+  float: left !important;
+}
+
+.float-right {
+  float: right !important;
+}
+
+.flex-container {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-start;
+  border: 1px solid rgb(224, 221, 221);
+  border-radius: 0.1rem;
+  padding: 1rem;
+  margin: 1rem;
+}
+
+.flex-item {
+  flex-shrink: 1;
+  flex-basis: 1;
+}
+
+.flex-item-2x {
+  flex-grow: 1;
+  flex-shrink: 1;
+  flex-basis: content;
+  max-width: 20rem;
+}
+
+.flex-item-3x {
+  flex: 3;
+}
+
+label {
+  display: block !important;
+}
+
+.input-item {
+  display: inline-block !important;
+}
+
+.gutter {
+  margin-bottom: 1rem;
+}
+
+.phase-item-size {
+  width: 50%;
+}
+
+@media (max-width: 767px) {
+  .phase-item-size {
+    width: 100%;
+  }
+}
