@@ -1,75 +1,74 @@
-<div *ngIf="selectedRecipe; else NoRecipeSelected">
-  <div class="row">
-    <div class="col-xs-12">
+<ng-container *ngIf="selectedRecipe; else NoRecipeSelected">
+  <div>
+    <h1>{{ selectedRecipe.name }}</h1>
+  </div>
+  <!-- Actions menu -->
+  <div class="action-menu">
+    <div class="btn-group" appDropdown>
+      <button
+        type="button"
+        class="btn btn-primary dropdown-toggle"
+        (click)="dropdownOpen = !dropdownOpen"
+      >
+        Manage Recipe <span class="caret"></span>
+      </button>
+      <ul class="dropdown-menu">
+        <li>
+          <a class="link" (click)="addToShoppingList()">
+            <fa-icon class="icon" [icon]="iconShop"></fa-icon>
+            To Shopping List
+          </a>
+        </li>
+        <li>
+          <a
+            class="link"
+            [routerLink]="[RecipeRootView, selectedRecipe.id, 'edit']"
+          >
+            <fa-icon class="icon" [icon]="iconEdit"></fa-icon>
+            Edit Recipe
+          </a>
+        </li>
+        <li>
+          <a class="link" (click)="deleteRecipe()">
+            <fa-icon class="icon" [icon]="iconDelete"></fa-icon>
+            Delete Recipe
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- Content -->
+  <h3>Description</h3>
+  <hr />
+  <div class="wrapper">
+    <div class="img-area">
       <img
         [src]="selectedRecipe.imageUrl"
         alt=""
-        class="img-responsive img-rounded"
+        class="img-responsive img-rounded shadowed"
         style="max-height: 300px"
       />
     </div>
-  </div>
-  <div class="row">
-    <div class="col-xs-12">
-      <h1>{{ selectedRecipe.name }}</h1>
+
+    <div class="description-area shadowed">
+      <p class="description-text">{{ selectedRecipe.description }}</p>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-xs-12">
-      <div class="btn-group" appDropdown>
-        <button
-          type="button"
-          class="btn btn-primary dropdown-toggle"
-          (click)="dropdownOpen = !dropdownOpen"
-        >
-          Manage Recipe <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-          <li>
-            <a class="link" (click)="addToShoppingList()">
-              <fa-icon class="icon" [icon]="iconShop"></fa-icon>
-              To Shopping List
-            </a>
-          </li>
-          <li>
-            <a
-              class="link"
-              [routerLink]="[RecipeRootView, selectedRecipe.id, 'edit']"
-            >
-              <fa-icon class="icon" [icon]="iconEdit"></fa-icon>
-              Edit Recipe
-            </a>
-          </li>
-          <li>
-            <a class="link" (click)="deleteRecipe()">
-              <fa-icon class="icon" [icon]="iconDelete"></fa-icon>
-              Delete Recipe
-            </a>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-xs-12">
-      <h3>Description</h3>
-      <p>{{ selectedRecipe.description }}</p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col-xs-12">
+
+    <!-- Ingredients -->
+    <div class="ingredients-area">
       <h3>Ingredients</h3>
-      <div class="row" *ngFor="let phase of selectedRecipe!!.phases">
+      <hr />
+      <div class="" *ngFor="let phase of selectedRecipe.phases">
         <h4 *ngIf="phase.name !== ''">{{ phase.name | uppercase }}</h4>
         <ul>
-          <li class="" *ngFor="let item of phase.items">
+          <li *ngFor="let item of phase.items">
             {{ item.amount }} {{ item.unit }} {{ item.ingredient.name }}
           </li>
         </ul>
       </div>
     </div>
   </div>
-</div>
+</ng-container>
 <ng-template #NoRecipeSelected>
   <h3>Please select a recipe</h3>
 </ng-template>

@@ -1,3 +1,56 @@
+.wrapper {
+  display: grid;
+  width: 100%;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    'img'
+    'desc'
+    'ingr';
+}
+
+@media ((min-width: 599.98px) and (max-width: 860px)), (min-width: 1280px) {
+  .wrapper {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      'img desc'
+      'ingr ingr';
+  }
+}
+
+.img-area {
+  grid-area: img;
+}
+
+.description-area {
+  grid-area: desc;
+
+  width: auto;
+  height: 100%;
+  background: #ffa;
+  overflow: hidden;
+  padding: 2rem;
+
+  line-height: 1.7em;
+  font-size: 14pt;
+}
+
+.ingredients-area {
+  grid-area: ingr;
+}
+
+.description-text {
+  font-family: 'Courier New', Courier, monospace;
+}
+
 .icon {
   margin-right: 0.5em;
+}
+
+.action-menu {
+  margin-bottom: 1rem;
+}
+
+.shadowed {
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
