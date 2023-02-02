@@ -4,22 +4,25 @@
   (click)="onSelect()"
   [ngClass]="(isSelected$ | async) ? 'selected' : ''"
 >
-  <div class="flex-container">
-    <div class="flex-text-area">
-      <div class="flex-item">
+  <div class="component-wrapper">
+    <div class="vertical-label-box">
+      <span class="vertical-label">Recipe</span>
+    </div>
+    <div class="content-wrapper">
+      <div class="title-area">
         <h4 class="list-group-item-heading">{{ recipe?.name }}</h4>
       </div>
-      <div class="flex-item">
+      <div class="description-area">
         <p class="list-group-item-text">{{ recipe?.description }}</p>
       </div>
-    </div>
-    <div class="flex-image-area">
-      <img
-        [src]="recipe?.imageUrl"
-        [alt]="recipe?.name"
-        class="img-responsive img-rounded"
-        style="max-height: 7rem"
-      />
+      <div class="img-area">
+        <img
+          [src]="recipe?.imageUrl"
+          [alt]="recipe?.name"
+          class="img-responsive img-rounded"
+          style="max-height: 7rem"
+        />
+      </div>
     </div>
   </div>
 </a>

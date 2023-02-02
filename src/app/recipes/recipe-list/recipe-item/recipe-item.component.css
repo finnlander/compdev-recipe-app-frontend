@@ -1,27 +1,60 @@
-.flex-container {
+.component-wrapper {
   display: flex;
-  flex-direction: row;
-  gap: 1em;
+  position: relative;
+}
+
+.vertical-label-box {
+  align-self: stretch;
+  width: max-content;
+  height: inherit;
+  background-color: rgb(163, 208, 163);
+  writing-mode: vertical-lr;
+  text-align: center;
+  transform: rotate(180deg);
+  margin-top: -0.9rem;
+  margin-bottom: -0.9rem;
+  margin-left: -1em;
+  margin-right: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.vertical-label {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1pt;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.content-wrapper {
+  width: 100%;
   min-width: 20em;
+  display: grid;
+  column-gap: 1rem;
+  grid-template-columns: 1fr minmax(10rem, max-content);
+  grid-template-areas:
+    'title img'
+    'desc  img';
 }
 
-.flex-image-area {
-  flex-basis: content;
-  flex-shrink: 1;
-  height: 100%;
+.title-area {
+  grid-area: title;
 }
 
-.flex-text-area {
-  justify-self: left;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
+.description-area {
+  grid-area: desc;
 }
 
-.flex-item {
-  flex: 1;
+.img-area {
+  grid-area: img;
+  justify-self: end;
 }
 
 .selected {
-  background-color: rgba(23, 81, 227, 0.408);
+  background-color: rgb(163, 208, 163);
+}
+
+.selected .vertical-label-box {
+  border-left: 1px solid gray;
 }
