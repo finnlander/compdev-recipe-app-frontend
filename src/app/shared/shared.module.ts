@@ -2,8 +2,10 @@ import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ModalModule } from 'ngx-bootstrap/modal';
@@ -39,8 +41,10 @@ import { TrackByFieldDirective } from './directives/track-by-field.directive';
     MatIconModule,
     MatToolbarModule,
     MatButtonModule,
+    MatInputModule,
     MatIconModule,
     MatListModule,
+    MatTableModule,
   ],
   exports: [
     // Directives
@@ -59,7 +63,9 @@ import { TrackByFieldDirective } from './directives/track-by-field.directive';
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
+    MatInputModule,
     MatListModule,
+    MatTableModule,
   ],
 })
 export class SharedModule {}

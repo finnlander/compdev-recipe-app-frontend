@@ -8,6 +8,30 @@
   flex: 1;
 }
 
+.item-row {
+  cursor: pointer;
+  height: 10rem !important;
+  text-decoration: none;
+}
+
 .selected {
   background-color: rgba(242, 242, 242, 0.715);
+}
+
+.danger-button {
+  color: #fff;
+  background-color: #d9534f;
+  border-color: #d43f3a;
+}
+
+.action-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.danger-button:hover {
+  color: #fff;
+  background-color: #c9302c;
+  border-color: #ac2925;
 }

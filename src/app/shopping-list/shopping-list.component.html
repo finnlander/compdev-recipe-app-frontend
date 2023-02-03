@@ -22,12 +22,16 @@
     </ul>
     <hr />
     <button
-      class="btn btn-danger"
+      mat-raised-button
+      color="warn"
       type="button"
       (click)="onClearAll()"
       [disabled]="isEmpty"
     >
-      <fa-icon [icon]="iconClearAll"></fa-icon> Clear all
+      <div class="action-button">
+        <mat-icon>delete</mat-icon>
+        <span>Clear all</span>
+      </div>
     </button>
   </div>
 </div>

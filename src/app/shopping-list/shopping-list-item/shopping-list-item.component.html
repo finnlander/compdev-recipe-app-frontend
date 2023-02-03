@@ -1,23 +1,20 @@
 <div *ngIf="item" class="flex-container">
   <div class="flex-text">
     {{ item.ingredient.name }}
-    <span class="no-wrap">({{ item.amount }} {{ item.unit }})</span>
   </div>
-  <ul class="list-inline">
-    <li>
-      <input
-        class="form-control input-sm numeric-field"
-        type="number"
-        name="amount"
-        [(ngModel)]="newAmount"
-        (change)="onAmountUpdate()"
-        (click)="onAmountClick($event)"
-      />
-    </li>
-    <li>
-      <button (click)="deleteItem()">
-        <fa-icon [icon]="iconTrash"></fa-icon>
-      </button>
-    </li>
-  </ul>
+  <mat-form-field appearance="outline" class="numeric-field">
+    <mat-label>Amount</mat-label>
+    <input
+      matInput
+      type="number"
+      name="amount"
+      [(ngModel)]="newAmount"
+      (change)="onAmountUpdate()"
+      (click)="onAmountClick($event)"
+    />
+  </mat-form-field>
+  <div class="no-wrap unit-text">{{ item.unit }}</div>
+  <button mat-icon-button (click)="deleteItem()">
+    <mat-icon>delete</mat-icon>
+  </button>
 </div>

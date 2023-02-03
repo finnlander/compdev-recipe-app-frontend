@@ -5,36 +5,15 @@
   flex-flow: row wrap;
   gap: 1rem;
   align-items: center;
+  color: #555;
 }
 
 .flex-text {
   flex: 1;
 }
 
-ul {
-  display: flex;
-  height: 100%;
-  justify-content: flex-end;
-  list-style: none;
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-li {
-  display: inline-block;
-  padding-left: 0em;
-  padding-right: 0em;
-}
-
-li + li {
-  margin-left: 1em;
-}
-
-@media (min-width: 768px) {
-  li {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-  }
+.unit-text {
+  width: 4rem;
 }
 
 .no-wrap {
