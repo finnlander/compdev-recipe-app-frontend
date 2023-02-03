@@ -1,14 +1,16 @@
 import {
   CUSTOM_ELEMENTS_SCHEMA,
   EnvironmentProviders,
+  isDevMode,
   NgModule,
   Provider,
-  isDevMode,
 } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
+import { LayoutModule } from '@angular/cdk/layout';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ServiceWorkerModule } from '@angular/service-worker';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule } from '@ngrx/store';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
@@ -22,7 +24,6 @@ import { ErrorPageComponent } from './error-page/error-page.component';
 import { HeaderComponent } from './header/header.component';
 import { SharedModule } from './shared/shared.module';
 import { effects, reducers } from './store/app.store';
-import { ServiceWorkerModule } from '@angular/service-worker';
 
 const providers: (Provider | EnvironmentProviders)[] = [
   {
@@ -66,6 +67,7 @@ if (environment.enableBackendMock) {
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000',
     }),
+    LayoutModule,
   ],
   providers: providers,
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

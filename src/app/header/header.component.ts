@@ -1,7 +1,8 @@
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Component, OnInit } from '@angular/core';
 import { Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { Observable, of } from 'rxjs';
+import { map, Observable, of, shareReplay } from 'rxjs';
 import { authActions, authSelectors } from '../auth/store';
 import { RoutePath } from '../config/routes.config';
 import { reactOnRecipesActionResult } from '../recipes/recipes-util';
@@ -28,18 +29,25 @@ const ON_RECIPES_STORED_SUCCESS_PROPS: ToastProps = {
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
+  styleUrls: ['./header.component.css'],
 })
 export class HeaderComponent implements OnInit {
-  collapsed = false;
   isLoggedIn$: Observable<boolean> = of(false);
   shoppingListCount$: Observable<number> = of(0);
   Routes = RoutePath;
+  isHandset$: Observable<boolean> = this.breakpointObserver
+    .observe(Breakpoints.Handset)
+    .pipe(
+      map((result) => result.matches),
+      shareReplay()
+    );
 
   constructor(
     private modalService: ModalService,
     private toastService: ToastService,
     private store: Store,
-    private actions$: Actions
+    private actions$: Actions,
+    private breakpointObserver: BreakpointObserver
   ) {}
 
   ngOnInit(): void {

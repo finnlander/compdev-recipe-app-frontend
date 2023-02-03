@@ -1,5 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { NgxSpinnerModule } from 'ngx-spinner';
@@ -29,6 +34,13 @@ import { TrackByFieldDirective } from './directives/track-by-field.directive';
     ModalModule.forRoot(),
     ToastrModule.forRoot(),
     NgxSpinnerModule.forRoot({ type: 'ball-newton-cradle' }),
+    // Material UI modules
+    MatMenuModule,
+    MatIconModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatListModule,
   ],
   exports: [
     // Directives
@@ -43,6 +55,11 @@ import { TrackByFieldDirective } from './directives/track-by-field.directive';
     CommonModule,
     FontAwesomeModule,
     NgxSpinnerModule,
+    MatMenuModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatListModule,
   ],
 })
 export class SharedModule {}

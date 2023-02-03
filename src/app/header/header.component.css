@@ -1,0 +1,29 @@
+.wrapper {
+  display: flex;
+  column-gap: 3rem;
+  height: fit-content;
+  min-height: 54px;
+  padding-bottom: 0rem;
+}
+
+.brand-text {
+  font-weight: 300;
+  font-size: 14pt;
+}
+
+.nav-item {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 100;
+  font-size: medium;
+  padding: 1rem 1rem 0 1rem;
+  margin-bottom: 0rem;
+}
+
+.active .nav-item {
+  background-color: rgba(221, 221, 221, 0.75);
+}
+
+.spacer {
+  flex: 1 1 auto;
+}

@@ -1,69 +1,111 @@
-<header>
-  <nav class="navbar navbar-default">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <button
-          type="button"
-          class="navbar-toggle"
-          (click)="collapsed = !collapsed"
-        >
-          <span class="icon-bar" *ngFor="let iconBar of [1, 2, 3]"></span>
-        </button>
-        <a
-          routerLink="/"
-          routerLinkActive="active"
-          class="navbar-brand"
-          style="cursor: pointer"
-          >Recipe Book</a
-        >
-      </div>
-      <div
-        class="navbar-collapse"
-        [class.collapse]="collapsed"
-        (window:resize)="collapsed = true"
+<mat-toolbar class="wrapper">
+  <button
+    mat-button
+    routerLink="/"
+    routerLinkActive="active"
+    style="cursor: pointer"
+  >
+    <span class="brand-text"> Recipe Book </span>
+  </button>
+  <ng-container *ngIf="(isHandset$ | async) === false; else SmallAppMenu">
+    <nav mat-tab-nav-bar>
+      <button
+        mat-button
+        *ngIf="isLoggedIn$ | async"
+        routerLinkActive="active"
+        [routerLink]="[Routes.Recipes]"
       >
-        <ul class="nav navbar-nav">
-          <li *ngIf="isLoggedIn$ | async" routerLinkActive="active">
-            <a [routerLink]="[Routes.Recipes]">Recipes</a>
-          </li>
-          <li *ngIf="isLoggedIn$ | async" routerLinkActive="active">
-            <a [routerLink]="[Routes.ShoppingList]"
-              >Shopping List (
-              <app-flashing-text
-                [text]="(shoppingListCount$ | async) || 0"
-              ></app-flashing-text>
-              )</a
-            >
-          </li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-          <li
-            *ngIf="(isLoggedIn$ | async) === false; else LoggedIn"
-            routerLinkActive="active"
-          >
-            <a [routerLink]="[Routes.Auth]">Sign In</a>
-          </li>
-          <ng-template #LoggedIn>
-            <li>
-              <a (click)="onLogout()" style="cursor: pointer">Logout</a>
-            </li>
-          </ng-template>
+        <div class="nav-item">Recipes</div>
+      </button>
 
-          <li *ngIf="isLoggedIn$ | async" class="dropdown" appDropdown>
-            <a style="cursor: pointer" class="dropdown-toggle" role="button"
-              >Manage <span class="caret"></span
-            ></a>
-            <ul class="dropdown-menu">
-              <li>
-                <a style="cursor: pointer" (click)="onSaveData()">Save Data</a>
-              </li>
-              <li>
-                <a style="cursor: pointer" (click)="onLoadData()">Load Data</a>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </div>
+      <button
+        mat-button
+        *ngIf="isLoggedIn$ | async"
+        routerLinkActive="active"
+        [routerLink]="[Routes.ShoppingList]"
+      >
+        <div class="nav-item">
+          Shopping List (
+          <app-flashing-text
+            [text]="(shoppingListCount$ | async) || 0"
+          ></app-flashing-text>
+          )
+        </div>
+      </button>
+    </nav>
+    <div class="spacer"></div>
+
+    <div
+      class="nav-item"
+      *ngIf="(isLoggedIn$ | async) === false; else LoggedIn"
+    >
+      <button mat-button routerLinkActive="active" [routerLink]="[Routes.Auth]">
+        Sign In
+      </button>
     </div>
-  </nav>
-</header>
+    <ng-template #LoggedIn>
+      <button mat-button (click)="onLogout()">
+        <div class="nav-item">Logout</div>
+      </button>
+    </ng-template>
+
+    <ng-container *ngIf="isLoggedIn$ | async">
+      <button type="menu" mat-button [matMenuTriggerFor]="managementMenu">
+        <div class="nav-item">Manage <mat-icon>expand_more</mat-icon></div>
+      </button>
+      <mat-menu #managementMenu="matMenu">
+        <button mat-menu-item (click)="onSaveData()">Save Data</button>
+        <button mat-menu-item (click)="onLoadData()">Load Data</button>
+      </mat-menu>
+    </ng-container>
+  </ng-container>
+  <!-- Small screen menu -->
+  <ng-template #SmallAppMenu>
+    <div class="spacer"></div>
+    <button type="button" mat-icon-button [matMenuTriggerFor]="appMenu">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <mat-menu #appMenu="matMenu">
+      <!-- Logged in items -->
+      <ng-container *ngIf="isLoggedIn$ | async; else AppMenuLoggedOut">
+        <button
+          mat-menu-item
+          routerLinkActive="active"
+          [routerLink]="[Routes.Recipes]"
+        >
+          Recipes
+        </button>
+
+        <button
+          mat-menu-item
+          routerLinkActive="active"
+          [routerLink]="[Routes.ShoppingList]"
+        >
+          Shopping List (
+          <app-flashing-text
+            [text]="(shoppingListCount$ | async) || 0"
+          ></app-flashing-text>
+          )
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="onSaveData()">Save Data</button>
+        <button mat-menu-item (click)="onLoadData()">Load Data</button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="onLogout()">
+          <div class="nav-item">Logout</div>
+        </button>
+      </ng-container>
+
+      <!-- logged out items-->
+      <ng-template #AppMenuLoggedOut>
+        <button
+          mat-menu-item
+          routerLinkActive="active"
+          [routerLink]="[Routes.Auth]"
+        >
+          Sign In
+        </button>
+      </ng-template>
+    </mat-menu>
+  </ng-template>
+</mat-toolbar>
