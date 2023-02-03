@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   AbstractControlOptions,
   FormArray,
@@ -69,7 +69,7 @@ const DEFAULT_INGREDIENT_VALUES: RecipeIngredientPayloadItem = {
 })
 export class RecipeEditComponent
   extends IdPathTrackingComponent
-  implements OnInit
+  implements OnInit, OnDestroy
 {
   iconDelete = faX;
   iconAdd = faPlus;
@@ -124,6 +124,11 @@ export class RecipeEditComponent
           this.onSelectedRecipeChanged(selectedRecipe?.id, selectedRecipe);
         })
     );
+  }
+
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    this.store.dispatch(recipeActions.setSelectedRecipe({ id: null }));
   }
 
   canSave(): boolean {

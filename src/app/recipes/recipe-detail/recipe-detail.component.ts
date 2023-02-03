@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faPen, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
@@ -26,7 +26,7 @@ interface ShoppingListItemData {
 })
 export class RecipeDetailComponent
   extends IdPathTrackingComponent
-  implements OnInit
+  implements OnInit, OnDestroy
 {
   iconEdit = faPen;
   iconDelete = faTrashCan;
@@ -55,6 +55,11 @@ export class RecipeDetailComponent
           this.selectedRecipe = selectedRecipe;
         })
     );
+  }
+
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    this.store.dispatch(recipeActions.setSelectedRecipe({ id: null }));
   }
 
   onCurrentIdChanged(currentId: Recipe['id'] | undefined): void {

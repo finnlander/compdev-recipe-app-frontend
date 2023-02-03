@@ -21,7 +21,7 @@ export class AuthGuard implements CanActivate {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private store: Store<RootState>
+    store: Store<RootState>
   ) {
     store
       .select(authSelectors.isAuthenticated)
