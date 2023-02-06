@@ -10,10 +10,12 @@
     </div>
     <div class="content-wrapper">
       <div class="title-area">
-        <h4 class="list-group-item-heading">{{ recipe?.name }}</h4>
+        <h4 class="list-group-item-heading">
+          {{ recipe?.name | ellipsis : 30 }}
+        </h4>
       </div>
       <div class="description-area">
-        <p class="list-group-item-text">{{ recipe?.description }}</p>
+        <p>{{ recipe?.description | ellipsis : 42 }}</p>
       </div>
       <div class="img-area">
         <img

@@ -17,9 +17,12 @@ import { FlashingTextComponent } from './components/flashing-text/flashing-text.
 import { DropdownDirective } from './directives/dropdown.directive';
 import { RequireEqualityValidatorDirective } from './directives/require-equality-validator.directive';
 import { TrackByFieldDirective } from './directives/track-by-field.directive';
+import { EllipsisPipe } from './pipes/ellipsis.pipe';
 
 @NgModule({
   declarations: [
+    // Pipes
+    EllipsisPipe,
     // Directives
     DropdownDirective,
     RequireEqualityValidatorDirective,
@@ -47,6 +50,8 @@ import { TrackByFieldDirective } from './directives/track-by-field.directive';
     MatTableModule,
   ],
   exports: [
+    // Pipes
+    EllipsisPipe,
     // Directives
     DropdownDirective,
     RequireEqualityValidatorDirective,

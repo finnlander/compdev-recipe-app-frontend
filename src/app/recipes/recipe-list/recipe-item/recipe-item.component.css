@@ -29,7 +29,7 @@
 
 .content-wrapper {
   width: 100%;
-  min-width: 20em;
+  min-width: 16rem;
   display: grid;
   column-gap: 1rem;
   grid-template-columns: 1fr minmax(10rem, max-content);
@@ -40,10 +40,13 @@
 
 .title-area {
   grid-area: title;
+  line-height: 1.3em;
 }
 
 .description-area {
   grid-area: desc;
+  line-height: 1.3em;
+  word-wrap: break-word;
 }
 
 .img-area {
