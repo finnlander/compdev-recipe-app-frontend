@@ -26,6 +26,11 @@
   grid-area: content;
 }
 
+.flex-row {
+  display: flex;
+  gap: 2rem;
+}
+
 input.ng-invalid.ng-touched {
   border: 1px solid red;
 }

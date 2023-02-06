@@ -43,6 +43,7 @@
                 required
                 minlength="12"
                 #passwordInput="ngModel"
+                (change)="repeatPasswordInput.control.updateValueAndValidity()"
               />
               <span
                 *ngIf="!passwordInput.valid && passwordInput.touched"
@@ -108,11 +109,12 @@
           </ng-container>
 
           <!-- Buttons -->
-          <div>
+          <div class="flex-row">
             <button
               type="submit"
-              class="btn btn-lg btn-primary"
-              [ngClass]="formMode === 'login' ? 'btn-primary' : 'btn-success'"
+              mat-raised-button
+              [color]="formMode === 'login' ? 'primary' : 'accent'"
+              class=""
               [disabled]="!form.valid || (loading$ | async)"
             >
               {{ formMode === 'login' ? 'Login' : 'Sign Up' }}
@@ -120,7 +122,7 @@
 
             <button
               type="button"
-              class="btn btn-secondary ml-1"
+              mat-raised-button
               (click)="this.switchFormMode()"
               [disabled]="loading$ | async"
             >
