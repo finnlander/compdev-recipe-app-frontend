@@ -54,3 +54,12 @@
 .shadowed {
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
+
+.squared {
+  aspect-ratio: 1;
+}
+
+.inline-flex {
+  display: inline-flex;
+  align-items: center;
+}

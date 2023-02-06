@@ -4,37 +4,36 @@
   </div>
   <!-- Actions menu -->
   <div class="action-menu">
-    <div class="btn-group" appDropdown>
+    <div appDropdown>
       <button
+        mat-raised-button
+        color="primary"
         type="button"
-        class="btn btn-primary dropdown-toggle"
-        (click)="dropdownOpen = !dropdownOpen"
+        [mat-menu-trigger-for]="manageRecipeMenu"
       >
-        Manage Recipe <span class="caret"></span>
+        <span class="inline-flex">
+          Manage Recipe
+          <mat-icon>expand_more</mat-icon>
+        </span>
       </button>
-      <ul class="dropdown-menu">
-        <li>
-          <a class="link" (click)="addToShoppingList()">
-            <fa-icon class="icon" [icon]="iconShop"></fa-icon>
-            To Shopping List
-          </a>
-        </li>
-        <li>
-          <a
-            class="link"
-            [routerLink]="[RecipeRootView, selectedRecipe.id, 'edit']"
-          >
-            <fa-icon class="icon" [icon]="iconEdit"></fa-icon>
-            Edit Recipe
-          </a>
-        </li>
-        <li>
-          <a class="link" (click)="deleteRecipe()">
-            <fa-icon class="icon" [icon]="iconDelete"></fa-icon>
-            Delete Recipe
-          </a>
-        </li>
-      </ul>
+      <!-- Manage recipe menu actions -->
+      <mat-menu #manageRecipeMenu="matMenu">
+        <button mat-menu-item (click)="addToShoppingList()">
+          <mat-icon>shopping_cart</mat-icon>
+          To Shopping List
+        </button>
+        <button
+          mat-menu-item
+          [routerLink]="[RecipeRootView, selectedRecipe.id, 'edit']"
+        >
+          <mat-icon>edit</mat-icon>
+          Edit Recipe
+        </button>
+        <button mat-menu-item (click)="deleteRecipe()">
+          <mat-icon>delete</mat-icon>
+          Delete Recipe
+        </button>
+      </mat-menu>
     </div>
   </div>
   <!-- Content -->
@@ -45,8 +44,7 @@
       <img
         [src]="selectedRecipe.imageUrl"
         alt=""
-        class="img-responsive img-rounded shadowed"
-        style="max-height: 300px"
+        class="img-responsive img-rounded shadowed squared"
       />
     </div>
 

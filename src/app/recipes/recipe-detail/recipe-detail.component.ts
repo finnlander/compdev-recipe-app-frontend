@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { faPen, faPlus, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
 import { RoutePath } from '../../config/routes.config';
 import { IdPathTrackingComponent } from '../../shared/classes/id-path-tracking-component';
@@ -28,12 +27,7 @@ export class RecipeDetailComponent
   extends IdPathTrackingComponent
   implements OnInit, OnDestroy
 {
-  iconEdit = faPen;
-  iconDelete = faTrashCan;
-  iconShop = faPlus;
-
   selectedRecipe: Recipe | null = null;
-  dropdownOpen = false;
   RecipeRootView = RoutePath.Recipes;
 
   constructor(
