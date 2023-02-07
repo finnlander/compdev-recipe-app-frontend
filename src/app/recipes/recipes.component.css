@@ -22,4 +22,5 @@
 
 .content-area {
   grid-area: cont;
+  max-width: 98vw;
 }

@@ -1,0 +1,9 @@
+.inline-flex {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.icon {
+  font-weight: 200;
+}

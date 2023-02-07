@@ -35,65 +35,61 @@
     <!-- phases -->
     <div class="form-group">
       <h4>Cooking Phases</h4>
-
-      <label class="inline-checkbox float-left" for="usePhases">
-        <input type="checkbox" name="usePhases" formControlName="usePhases" />
-        Divide recipe into phases
-      </label>
-
+      <mat-slide-toggle
+        class="slide-toggle"
+        name="usePhases"
+        formControlName="usePhases"
+        >Divide recipe into phases</mat-slide-toggle
+      >
       <ng-container *ngIf="usePhases">
         <div class="flex-wrapper">
-          <div class="">
+          <div>
             <input
               class="form-control"
               type="text"
               formControlName="newPhaseName"
-              placeholder="Phase name"
+              placeholder="phase name"
             />
           </div>
-          <div class="">
-            <button
-              class="btn btn-primary"
-              type="button"
-              (click)="onAddPhase()"
+          <div>
+            <app-action-button
+              text="Add"
+              icon="add"
               [disabled]="!canAddPhase()"
-              title="Add new phase"
-            >
-              <fa-icon [icon]="iconAdd"></fa-icon>
-              Add
-            </button>
+              tooltip="Add new phase"
+              (clicked)="onAddPhase()"
+            ></app-action-button>
           </div>
         </div>
         <div class="gutter"></div>
         <ng-container *ngIf="phases.length > 0" formArrayName="phases">
           <p>Phases:</p>
-          <ul class="list-group phase-item-size">
-            <li
-              class="list-group-item"
+          <mat-list class="phase-list">
+            <mat-list-item
               *ngFor="let phaseControl of phases.controls; let i = index"
             >
               <div class="flex-wrapper">
-                <div class="flex-grow">{{ phaseControl.value }}</div>
-                <div class="">
-                  <button
-                    type="button"
-                    class="btn btn-xs btn-danger"
-                    [disabled]="!canDeletePhase(phaseControl.value)"
-                    [title]="
-                      canDeletePhase(phaseControl.value)
-                        ? 'Delete'
-                        : '(phase is in use)'
-                    "
-                  >
-                    <fa-icon
-                      [icon]="iconDelete"
-                      (click)="onDeletePhase(i)"
-                    ></fa-icon>
-                  </button>
+                <div class="flex-grow ellipsis-text">
+                  {{ phaseControl.value }}
                 </div>
+                <button
+                  mat-icon-button
+                  color="warn"
+                  type="button"
+                  [disabled]="!canDeletePhase(phaseControl.value)"
+                  [title]="
+                    canDeletePhase(phaseControl.value)
+                      ? 'Delete'
+                      : '(phase is in use)'
+                  "
+                  (click)="onDeletePhase(i)"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
               </div>
-            </li>
-          </ul>
+            </mat-list-item>
+          </mat-list>
+
           <hr />
         </ng-container>
       </ng-container>
@@ -101,10 +97,11 @@
     <!-- ingredients -->
     <div class="form-group">
       <h4>Ingredients</h4>
-      <button class="btn btn-primary" type="button" (click)="onAddIngredient()">
-        <fa-icon [icon]="iconAdd"></fa-icon>
-        Add ingredient
-      </button>
+      <app-action-button
+        text="Add ingredient"
+        icon="add"
+        (clicked)="onAddIngredient()"
+      ></app-action-button>
       <hr *ngIf="ingredientItems.length > 0" />
       <ng-container formArrayName="ingredientItems">
         <ng-container
@@ -173,13 +170,14 @@
                 </label>
               </div>
             </div>
-            <div class="btn-delete">
+            <div class="ingredient-right">
               <button
-                class="btn btn-danger btn-sm"
+                mat-icon-button
+                color="warn"
                 type="button"
                 (click)="onDeleteIngredient(i)"
               >
-                <fa-icon [icon]="iconDelete"></fa-icon>
+                <mat-icon>close</mat-icon>
               </button>
             </div>
           </div>
@@ -187,12 +185,25 @@
       </ng-container>
     </div>
     <hr />
-
-    <button class="btn btn-success" type="submit" [disabled]="!canSave()">
-      Save
-    </button>
-    <button class="btn btn-secondary" type="button" (click)="onCancel()">
-      Cancel
-    </button>
+    <!-- form buttons -->
+    <div class="form-buttons">
+      <button
+        mat-raised-button
+        class="form-button"
+        color="primary"
+        type="submit"
+        [disabled]="!canSave()"
+      >
+        Save
+      </button>
+      <button
+        mat-raised-button
+        class="form-button"
+        type="button"
+        (click)="onCancel()"
+      >
+        Cancel
+      </button>
+    </div>
   </form>
 </div>

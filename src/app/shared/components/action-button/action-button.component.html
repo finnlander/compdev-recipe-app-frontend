@@ -1,0 +1,14 @@
+<button
+  mat-button
+  [matTooltip]="tooltip"
+  color="primary"
+  [ngClass]="{ 'ml-1': indent }"
+  type="button"
+  [disabled]="disabled"
+  (click)="onClick()"
+>
+  <span class="inline-flex">
+    <mat-icon class="icon">{{ this.icon }}</mat-icon>
+    {{ this.text }}
+  </span>
+</button>

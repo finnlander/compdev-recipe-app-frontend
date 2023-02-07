@@ -5,12 +5,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ToastrModule } from 'ngx-toastr';
+import { ActionButtonComponent } from './components/action-button/action-button.component';
 import { AlertComponent } from './components/alert/alert.component';
 import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
 import { FlashingTextComponent } from './components/flashing-text/flashing-text.component';
@@ -28,6 +31,7 @@ import { EllipsisPipe } from './pipes/ellipsis.pipe';
     RequireEqualityValidatorDirective,
     TrackByFieldDirective,
     // Components
+    ActionButtonComponent,
     AlertComponent,
     ConfirmationModalComponent,
     FlashingTextComponent,
@@ -47,7 +51,9 @@ import { EllipsisPipe } from './pipes/ellipsis.pipe';
     MatInputModule,
     MatIconModule,
     MatListModule,
+    MatSlideToggleModule,
     MatTableModule,
+    MatTooltipModule,
   ],
   exports: [
     // Pipes
@@ -57,6 +63,7 @@ import { EllipsisPipe } from './pipes/ellipsis.pipe';
     RequireEqualityValidatorDirective,
     TrackByFieldDirective,
     // Components
+    ActionButtonComponent,
     AlertComponent,
     ConfirmationModalComponent,
     FlashingTextComponent,
@@ -70,7 +77,9 @@ import { EllipsisPipe } from './pipes/ellipsis.pipe';
     MatIconModule,
     MatInputModule,
     MatListModule,
+    MatSlideToggleModule,
     MatTableModule,
+    MatTooltipModule,
   ],
 })
 export class SharedModule {}

@@ -2,7 +2,7 @@
   margin-left: 1em;
 }
 
-.btn-delete {
+.ingredient-right {
   background-color: rgb(228, 242, 189);
 }
 
@@ -20,24 +20,44 @@ textarea.ng-invalid.ng-touched {
   border: 1px solid red;
 }
 
-.inline-checkbox {
+.slide-toggle {
   width: 100%;
   margin-left: 2rem;
-  margin-bottom: 1rem;
-}
-
-.float-left {
-  float: left !important;
+  margin-bottom: 1.5rem;
 }
 
 .flex-wrapper {
   display: flex;
+  flex-flow: row wrap;
   width: 100%;
   gap: 1rem;
+  align-items: center;
+}
+
+.ellipsis-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: min-content;
+  max-lines: 1;
+  line-clamp: 1;
 }
 
 .flex-grow {
   flex: 1;
+}
+
+.form-buttons {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 1.5rem;
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
+
+@media (max-width: 599.98px) {
+  .form-button {
+    flex: 1;
+  }
 }
 
 .ingredient-row {
@@ -123,12 +143,12 @@ label {
   margin-bottom: 1rem;
 }
 
-.phase-item-size {
-  width: 50%;
+.phase-list {
+  width: 75%;
 }
 
 @media (max-width: 767px) {
-  .phase-item-size {
+  .phase-list {
     width: 100%;
   }
 }

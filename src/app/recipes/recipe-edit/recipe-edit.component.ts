@@ -8,7 +8,6 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { faPlus, faX } from '@fortawesome/free-solid-svg-icons';
 import { Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { first } from 'lodash';
@@ -71,8 +70,6 @@ export class RecipeEditComponent
   extends IdPathTrackingComponent
   implements OnInit, OnDestroy
 {
-  iconDelete = faX;
-  iconAdd = faPlus;
   RecipeUnit = RecipeUnit;
   selectedRecipe: Recipe | null = null;
   mode: EditMode = 'new';
@@ -252,12 +249,18 @@ export class RecipeEditComponent
       phase: phase,
     };
 
-    const ingredientControl = this.fb.group({
-      ingredientName: ['', Validators.required],
-      amount: [1, { validators: [Validators.required, Validators.min(0.001)] }],
-      unit: [RecipeUnit.PCS, Validators.required],
-      phase: '',
-    });
+    const ingredientControl = this.fb.group(
+      {
+        ingredientName: ['', Validators.required],
+        amount: [
+          1,
+          { validators: [Validators.required, Validators.min(0.001)] },
+        ],
+        unit: [RecipeUnit.PCS, Validators.required],
+        phase: '',
+      },
+      { updateOn: 'change' }
+    );
 
     ingredientControl.setValue(model);
     this.ingredientItems.push(ingredientControl);
@@ -315,13 +318,16 @@ export class RecipeEditComponent
       imageUrl: ['', { updateOn: 'blur' }],
       usePhases: [false, defaultFieldOptions],
       newPhaseName: ['', defaultFieldOptions],
-      phases: fb.array([]),
-      ingredientItems: fb.array([]),
+      phases: fb.array([], { ...defaultFieldOptions }),
+      ingredientItems: fb.array([], { ...defaultFieldOptions }),
     });
   }
 
   private addPhase(phaseName: string) {
-    const phaseControl = this.fb.control(phaseName);
+    const defaultFieldOptions: AbstractControlOptions = {
+      updateOn: 'change',
+    };
+    const phaseControl = this.fb.control(phaseName, defaultFieldOptions);
     this.phases.push(phaseControl);
   }
 
