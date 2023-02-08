@@ -1,0 +1,20 @@
+<h1
+  mat-dialog-title
+  class="title"
+  [ngClass]="{
+    'title-error': type === 'error',
+    'title-info': type === 'info',
+    'title-warn': type === 'warning'
+  }"
+>
+  {{ data.type | titlecase }}
+</h1>
+<div mat-dialog-content>
+  {{ data.action ? data.action + ' failed on error' : 'An error occurred' }} :
+  {{ data.message }}
+</div>
+<div mat-dialog-actions>
+  <button mat-button type="button" (click)="onDismissClick()" cdkFocusInitial>
+    Okay
+  </button>
+</div>

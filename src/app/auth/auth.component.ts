@@ -1,9 +1,14 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { AbstractControl, NgForm } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
 import { SubscribingComponent } from '../shared/classes/subscribing-component';
+import {
+  AlertDialogComponent,
+  AlertDialogData,
+} from '../shared/components/alert-dialog/alert-dialog.component';
 import { ToastService } from '../shared/services/toast.service';
 import { RootState } from '../store/app.store';
 import { authActions, authSelectors as selectors } from './store';
@@ -51,7 +56,6 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
   returnUrl?: string;
 
   loading$: Observable<boolean> = of(false);
-  error$: Observable<string | null> = of(null);
 
   @ViewChild('form') form?: NgForm;
 
@@ -59,7 +63,8 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
     private toastService: ToastService,
     private store: Store<RootState>,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog
   ) {
     super();
   }
@@ -80,7 +85,14 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
       })
     );
 
-    this.error$ = this.store.select(selectors.getAuthError);
+    this.addSubscription(
+      this.store.select(selectors.getAuthError).subscribe((error) => {
+        if (error) {
+          this.showError(error);
+        }
+      })
+    );
+
     this.loading$ = this.store.select(selectors.isPendingAuthentication);
   }
 
@@ -103,10 +115,6 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
     this.store.dispatch(action);
   }
 
-  onDismissError() {
-    this.store.dispatch(authActions.clearError());
-  }
-
   switchFormMode() {
     if (this.formMode === 'login') {
       this.formMode = 'signup';
@@ -114,7 +122,52 @@ export class AuthComponent extends SubscribingComponent implements OnInit {
       this.formMode = 'login';
     }
   }
+
+  getErrorMessage(field?: AbstractControl<unknown, unknown>) {
+    if (!field) {
+      return '';
+    }
+
+    if (field.hasError('required')) {
+      return 'Please enter a valid value.';
+    }
+
+    if (field.hasError('email')) {
+      return 'Please enter a valid email.';
+    }
+
+    if (field.hasError('minlength')) {
+      const err = field.getError('minlength');
+      const requiredLength = err.requiredLength as number;
+      return `Please provide a value that is at least ${requiredLength} character(s) long.`;
+    }
+
+    if (field.errors) {
+      console.debug('errors: ', field.errors);
+    }
+
+    return '';
+  }
+
   /* Helper Methods */
+
+  private showError(error: string) {
+    const data: AlertDialogData = {
+      type: 'error',
+      action: this.formMode === 'login' ? 'Login' : 'Sign Up',
+      message: error,
+    };
+
+    const dialogRef = this.dialog.open(AlertDialogComponent, {
+      data,
+    });
+
+    this.addSubscription(
+      dialogRef.afterClosed().subscribe(() => {
+        this.store.dispatch(authActions.clearError());
+      })
+    );
+  }
 
   private showSuccessFeedback() {
     const details = this.formMode === 'login' ? LOGIN_DETAILS : SIGN_UP_DETAILS;

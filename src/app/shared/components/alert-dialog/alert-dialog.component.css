@@ -21,3 +21,19 @@
 .alert-box-actions {
   text-align: right;
 }
+
+.title {
+  font-weight: 500;
+}
+
+.title-error {
+  background-color: #d14e4e;
+}
+
+.title-info {
+  background-color: #337ab7;
+}
+
+.title-warn {
+  background-color: #e1e126;
+}

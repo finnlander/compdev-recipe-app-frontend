@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -17,7 +18,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ToastrModule } from 'ngx-toastr';
 import { ActionButtonComponent } from './components/action-button/action-button.component';
-import { AlertComponent } from './components/alert/alert.component';
+import { AlertDialogComponent } from './components/alert-dialog/alert-dialog.component';
 import { ConfirmationModalComponent } from './components/confirmation-modal/confirmation-modal.component';
 import { FlashingTextComponent } from './components/flashing-text/flashing-text.component';
 import { IngredientInputFieldComponent } from './components/ingredient-input-field/ingredient-input-field.component';
@@ -25,6 +26,8 @@ import { DropdownDirective } from './directives/dropdown.directive';
 import { RequireEqualityValidatorDirective } from './directives/require-equality-validator.directive';
 import { TrackByFieldDirective } from './directives/track-by-field.directive';
 import { EllipsisPipe } from './pipes/ellipsis.pipe';
+
+import { MatCardModule } from '@angular/material/card';
 
 @NgModule({
   declarations: [
@@ -36,7 +39,7 @@ import { EllipsisPipe } from './pipes/ellipsis.pipe';
     TrackByFieldDirective,
     // Components
     ActionButtonComponent,
-    AlertComponent,
+    AlertDialogComponent,
     ConfirmationModalComponent,
     FlashingTextComponent,
     IngredientInputFieldComponent,
@@ -50,11 +53,12 @@ import { EllipsisPipe } from './pipes/ellipsis.pipe';
     NgxSpinnerModule.forRoot({ type: 'ball-newton-cradle' }),
     // Material UI modules
     MatAutocompleteModule,
-    MatIconModule,
     MatButtonModule,
+    MatCardModule,
+    MatDialogModule,
     MatFormFieldModule,
-    MatInputModule,
     MatIconModule,
+    MatInputModule,
     MatListModule,
     MatMenuModule,
     MatSelectModule,
@@ -72,7 +76,7 @@ import { EllipsisPipe } from './pipes/ellipsis.pipe';
     TrackByFieldDirective,
     // Components
     ActionButtonComponent,
-    AlertComponent,
+    AlertDialogComponent,
     ConfirmationModalComponent,
     FlashingTextComponent,
     IngredientInputFieldComponent,
@@ -82,6 +86,8 @@ import { EllipsisPipe } from './pipes/ellipsis.pipe';
     // Material UI modules
     MatAutocompleteModule,
     MatButtonModule,
+    MatCardModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,

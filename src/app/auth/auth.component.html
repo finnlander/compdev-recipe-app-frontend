@@ -3,23 +3,26 @@
     <div *ngIf="loggedOut" class="alert alert-success" role="alert">
       <h1>Logged out!</h1>
     </div>
-    <div
-      class="panel"
-      [ngClass]="formMode === 'login' ? 'panel-primary' : 'panel-success'"
-    >
-      <div class="panel-heading">
-        <h3 class="panel-title">
+    <mat-card>
+      <mat-card-header
+        class="header"
+        [ngClass]="{
+          'header-login': formMode === 'login',
+          'header-sign-up': formMode === 'signup'
+        }"
+      >
+        <h3 class="title">
           {{ formMode === 'login' ? 'Log in' : 'Sign up' }}
         </h3>
-      </div>
-      <div class="panel-body">
+      </mat-card-header>
+      <mat-card-content>
         <form (ngSubmit)="onSubmit()" #form="ngForm">
           <!-- Signup form -->
           <ng-container *ngIf="formMode === 'signup'">
-            <div class="form-group form-group-lg">
-              <label for="username">Username</label>
+            <mat-form-field class="input-field">
+              <mat-label>Username</mat-label>
               <input
-                class="form-control"
+                matInput
                 type="text"
                 id="username"
                 name="username"
@@ -28,12 +31,17 @@
                 ngModel
                 required
                 email
+                #usernameInput="ngModel"
               />
-            </div>
-            <div class="form-group form-group-lg">
-              <label for="password">Password</label>
+              <mat-error *ngIf="usernameInput.invalid">{{
+                getErrorMessage(usernameInput.control)
+              }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="input-field">
+              <mat-label>Password</mat-label>
               <input
-                class="form-control"
+                matInput
                 type="password"
                 id="password"
                 name="password"
@@ -45,16 +53,15 @@
                 #passwordInput="ngModel"
                 (change)="repeatPasswordInput.control.updateValueAndValidity()"
               />
-              <span
+              <mat-error
                 *ngIf="!passwordInput.valid && passwordInput.touched"
-                class="help-block"
-                >Password with minimum length of 12 is required</span
+                >{{ getErrorMessage(passwordInput.control) }}</mat-error
               >
-            </div>
-            <div class="form-group form-group-lg">
-              <label for="repeatPassword">Repeat password</label>
+            </mat-form-field>
+            <mat-form-field class="input-field">
+              <mat-label>Repeat password</mat-label>
               <input
-                class="form-control"
+                matInput
                 type="password"
                 id="repeatPassword"
                 name="repeatPassword"
@@ -66,22 +73,21 @@
                 [requireEqualityTo]="passwordInput.value"
                 #repeatPasswordInput="ngModel"
               />
-              <span
+              <mat-error
                 *ngIf="
                   !repeatPasswordInput.valid && repeatPasswordInput.touched
                 "
-                class="help-block"
-                >Password values must match!</span
+                >Password values must match!</mat-error
               >
-            </div>
+            </mat-form-field>
           </ng-container>
 
           <!-- Login form -->
           <ng-container *ngIf="formMode === 'login'">
-            <div class="form-group form-group-lg">
-              <label for="username">Username</label>
+            <mat-form-field class="input-field">
+              <mat-label>Username</mat-label>
               <input
-                class="form-control"
+                matInput
                 type="text"
                 id="username"
                 name="username"
@@ -89,12 +95,17 @@
                 autocomplete="username"
                 ngModel
                 required
+                #usernameInput="ngModel"
               />
-            </div>
-            <div class="form-group form-group-lg">
-              <label for="password">Password</label>
+              <mat-error *ngIf="usernameInput.invalid">{{
+                getErrorMessage(usernameInput.control)
+              }}</mat-error>
+            </mat-form-field>
+
+            <mat-form-field class="input-field">
+              <mat-label>Password</mat-label>
               <input
-                class="form-control"
+                matInput
                 type="password"
                 id="password"
                 name="password"
@@ -105,40 +116,38 @@
                 minlength="1"
                 #passwordInput="ngModel"
               />
-            </div>
+              <mat-error *ngIf="passwordInput?.invalid">{{
+                getErrorMessage(passwordInput.control)
+              }}</mat-error>
+            </mat-form-field>
           </ng-container>
 
           <!-- Buttons -->
-          <div class="flex-row">
-            <button
-              type="submit"
-              mat-raised-button
-              [color]="formMode === 'login' ? 'primary' : 'accent'"
-              class=""
-              [disabled]="!form.valid || (loading$ | async)"
-            >
-              {{ formMode === 'login' ? 'Login' : 'Sign Up' }}
-            </button>
+          <mat-card-actions>
+            <div class="flex-row">
+              <button
+                type="submit"
+                mat-raised-button
+                [color]="formMode === 'login' ? 'primary' : 'accent'"
+                class=""
+                [disabled]="!form.valid || (loading$ | async)"
+              >
+                {{ formMode === 'login' ? 'Login' : 'Sign Up' }}
+              </button>
 
-            <button
-              type="button"
-              mat-raised-button
-              (click)="this.switchFormMode()"
-              [disabled]="loading$ | async"
-            >
-              Switch to {{ formMode === 'login' ? 'sign up' : 'login' }}
-            </button>
-          </div>
+              <button
+                type="button"
+                mat-button
+                (click)="this.switchFormMode()"
+                [disabled]="loading$ | async"
+              >
+                Switch to {{ formMode === 'login' ? 'sign up' : 'login' }}
+              </button>
+            </div>
+          </mat-card-actions>
         </form>
-      </div>
-    </div>
-    <app-alert
-      *ngIf="error$ | async"
-      type="error"
-      [action]="formMode === 'login' ? 'Login' : 'Sign Up'"
-      [message]="error$ | async"
-      (dismiss)="onDismissError()"
-    ></app-alert>
+      </mat-card-content>
+    </mat-card>
   </div>
   <ngx-spinner [showSpinner]="(loading$ | async) || false"></ngx-spinner>
 </div>

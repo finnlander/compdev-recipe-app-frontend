@@ -6,10 +6,15 @@ import {
   trigger,
 } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Store } from '@ngrx/store';
 import { sortBy } from 'lodash';
 import { Observable, of } from 'rxjs';
 import { SubscribingComponent } from '../shared/classes/subscribing-component';
+import {
+  AlertDialogComponent,
+  AlertDialogData,
+} from '../shared/components/alert-dialog/alert-dialog.component';
 import { ConfirmationType } from '../shared/models/confirmation.types';
 import { ModalService } from '../shared/services/modal.service';
 import { ToastService } from '../shared/services/toast.service';
@@ -62,7 +67,6 @@ export class ShoppingListComponent
 {
   listInitialization = true;
   items: ShoppingListItem[] = [];
-  error$: Observable<string | null> = of(null);
   isUpdating$: Observable<boolean> = of(false);
   isEmpty = true;
   selectedItem: ShoppingListItem | null = null;
@@ -70,7 +74,8 @@ export class ShoppingListComponent
   constructor(
     private modalService: ModalService,
     private toastService: ToastService,
-    private store: Store<RootState>
+    private store: Store<RootState>,
+    private dialog: MatDialog
   ) {
     super();
   }
@@ -93,8 +98,14 @@ export class ShoppingListComponent
         })
     );
 
-    this.error$ = this.store.select(
-      shoppingListSelectors.getShoppingListUpdateError
+    this.addSubscription(
+      this.store
+        .select(shoppingListSelectors.getShoppingListUpdateError)
+        .subscribe((error) => {
+          if (error) {
+            this.showError(error);
+          }
+        })
     );
 
     this.isUpdating$ = this.store.select(
@@ -140,7 +151,23 @@ export class ShoppingListComponent
     });
   }
 
-  onDismissError() {
-    this.store.dispatch(shoppingListActions.clearUpdateError());
+  /* Helper Methods */
+
+  private showError(error: string) {
+    const data: AlertDialogData = {
+      type: 'error',
+      action: 'Update shopping list',
+      message: error,
+    };
+
+    const dialogRef = this.dialog.open(AlertDialogComponent, {
+      data,
+    });
+
+    this.addSubscription(
+      dialogRef.afterClosed().subscribe(() => {
+        this.store.dispatch(shoppingListActions.clearUpdateError());
+      })
+    );
   }
 }

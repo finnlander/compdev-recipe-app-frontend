@@ -35,10 +35,3 @@
   </div>
 </div>
 <ngx-spinner [showSpinner]="(isUpdating$ | async) || false"></ngx-spinner>
-<app-alert
-  *ngIf="error$ | async"
-  type="error"
-  action="Update shopping list"
-  [message]="error$ | async"
-  (dismiss)="onDismissError()"
-></app-alert>
