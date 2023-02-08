@@ -20,3 +20,9 @@ body {
 .numeric-field {
   max-width: 10rem;
 }
+
+h1,
+h2,
+h3 {
+  margin-left: 1rem !important;
+}

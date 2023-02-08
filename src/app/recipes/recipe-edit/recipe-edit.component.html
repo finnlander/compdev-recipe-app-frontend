@@ -2,38 +2,38 @@
   <h2>{{ mode | titlecase }} recipe</h2>
   <form (ngSubmit)="onSubmit()" [formGroup]="form">
     <!-- recipe fields -->
-    <div class="form-group">
-      <label for="name">Name</label>
-      <input class="form-control" type="text" formControlName="name" />
+    <div class="details-wrapper">
+      <mat-form-field class="details-row">
+        <mat-label>Name</mat-label>
+        <input matInput type="text" formControlName="name" />
+      </mat-form-field>
+      <mat-form-field class="details-row">
+        <mat-label>Description</mat-label>
+        <textarea
+          matInput
+          type="text"
+          formControlName="description"
+          rows="3"
+        ></textarea>
+      </mat-form-field>
+      <mat-form-field class="details-row">
+        <mat-label>Image URL</mat-label>
+        <input
+          matInput
+          type="url"
+          placeholder="https://"
+          formControlName="imageUrl"
+          #imageUrl
+        />
+      </mat-form-field>
+      <div class="details-row">
+        <img class="shadowed" [src]="imageUrl.value" alt="[recipe image]" />
+      </div>
     </div>
-    <div class="form-group">
-      <label for="description">Description</label>
-      <textarea
-        class="form-control"
-        type="text"
-        formControlName="description"
-      ></textarea>
-    </div>
-    <div class="form-group">
-      <label for="imageUrl">Image URL</label>
-      <input
-        type="url"
-        class="form-control"
-        placeholder="https://"
-        formControlName="imageUrl"
-        #imageUrl
-      />
-    </div>
-    <div class="form-group">
-      <img
-        class="img-responsive shadowed"
-        [src]="imageUrl.value"
-        alt="[recipe image]"
-      />
-    </div>
+
     <hr />
     <!-- phases -->
-    <div class="form-group">
+    <div>
       <h4>Cooking Phases</h4>
       <mat-slide-toggle
         class="slide-toggle"
@@ -43,14 +43,15 @@
       >
       <ng-container *ngIf="usePhases">
         <div class="flex-wrapper">
-          <div>
+          <mat-form-field>
+            <mat-label>Phase name</mat-label>
             <input
-              class="form-control"
+              matInput
               type="text"
               formControlName="newPhaseName"
               placeholder="phase name"
             />
-          </div>
+          </mat-form-field>
           <div>
             <app-action-button
               text="Add"
@@ -95,7 +96,7 @@
       </ng-container>
     </div>
     <!-- ingredients -->
-    <div class="form-group">
+    <div>
       <h4>Ingredients</h4>
       <app-action-button
         text="Add ingredient"
@@ -117,58 +118,54 @@
             </div>
             <div class="ingredient-content-wrapper">
               <!-- Ingredient -->
-              <div class="ingredient-name">
-                <label>
-                  Name
-                  <input
-                    class="form-control input-item"
-                    type="text"
-                    formControlName="ingredientName"
-                  />
-                </label>
-              </div>
-              <div class="ingredient-amount">
-                <label>
-                  Amount
-                  <input
-                    class="form-control input-item"
-                    type="number"
-                    formControlName="amount"
-                  />
-                </label>
-              </div>
-              <div class="ingredient-unit">
-                <label>
-                  Unit
-                  <select
-                    class="form-control input-item"
-                    formControlName="unit"
+              <app-ingredient-field
+                class="ingredient-input ingredient-name"
+                formControlName="ingredientName"
+              ></app-ingredient-field>
+
+              <mat-form-field
+                class="ingredient-input ingredient-amount"
+                appearance="fill"
+              >
+                <mat-label>Amount</mat-label>
+                <input
+                  matInput
+                  type="number"
+                  id="amount"
+                  name="amount"
+                  formControlName="amount"
+                  pattern="^[0-9]+[0-9]*\.?[0-9]*"
+                />
+              </mat-form-field>
+
+              <mat-form-field
+                class="ingredient-input ingredient-unit"
+                appearance="fill"
+              >
+                <mat-label>Unit</mat-label>
+                <mat-select formControlName="unit">
+                  <mat-option
+                    [value]="unit.value"
+                    *ngFor="let unit of RecipeUnit | keyvalue"
                   >
-                    <option
-                      [value]="unit.value"
-                      *ngFor="let unit of RecipeUnit | keyvalue"
-                    >
-                      {{ unit.value }}
-                    </option>
-                  </select>
-                </label>
-              </div>
-              <div class="ingredient-phase" *ngIf="usePhases">
-                <label>
-                  Phase
-                  <select
-                    class="form-control input-item"
-                    formControlName="phase"
+                    {{ unit.value }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field
+                class="ingredient-input ingredient-phase"
+                *ngIf="usePhases"
+              >
+                <mat-label>Phase</mat-label>
+                <mat-select formControlName="phase">
+                  <mat-option
+                    *ngFor="let phase of form.value.phases"
+                    [value]="phase"
+                    >{{ phase }}</mat-option
                   >
-                    <option
-                      [value]="phase"
-                      *ngFor="let phase of form.value.phases; let i = index"
-                    >
-                      {{ phase }}
-                    </option>
-                  </select>
-                </label>
-              </div>
+                </mat-select>
+              </mat-form-field>
             </div>
             <div class="ingredient-right">
               <button

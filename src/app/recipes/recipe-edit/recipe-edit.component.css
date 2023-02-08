@@ -2,17 +2,19 @@
   margin-left: 1em;
 }
 
-.ingredient-right {
-  background-color: rgb(228, 242, 189);
-}
-
 img {
   max-height: 15rem;
 }
 
-.form-control {
-  border-color: #6f6f6f;
-  font-weight: 300;
+.details-wrapper {
+  display: flex;
+  flex-flow: column nowrap;
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.details-row {
+  flex: 1;
 }
 
 input.ng-invalid.ng-touched,
@@ -67,26 +69,45 @@ textarea.ng-invalid.ng-touched {
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
 
+.ingredient-right {
+  background-color: rgb(237, 234, 234);
+}
+
+.ingredient-input {
+  align-self: flex-start;
+}
+
 .ingredient-content-wrapper {
   flex: 1;
   display: grid;
-  grid-template-columns: 3fr 1fr 1fr 2fr;
-  grid-template-areas: 'ing-n ing-a ing-u ing-p';
-  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    'ing-n ing-n'
+    'ing-a ing-u'
+    'ing-p ing-p';
+
+  column-gap: 1rem;
   border: 1px solid rgb(224, 221, 221);
   border-right: 0px transparent;
   border-radius: 0.1rem;
-  padding: 1rem;
-  background-color: rgb(228, 242, 189);
+  padding: 1rem 1rem 0rem 1rem;
+  background-color: rgb(237, 234, 234);
 }
 
-/* For small screens and side-by-side views, use multi-row grid model */
-@media (max-width: 599.98px), (min-width: 860px) {
+@media (min-width: 600px) {
   .ingredient-content-wrapper {
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 3fr 1fr 1fr 2fr;
+    grid-template-areas: 'ing-n ing-a ing-u ing-p';
+  }
+}
+
+@media (min-width: 860px) {
+  .ingredient-content-wrapper {
+    grid-template-columns: 1fr 1fr;
     grid-template-areas:
-      'ing-n ing-a'
-      'ing-p ing-u';
+      'ing-n ing-n'
+      'ing-a ing-u'
+      'ing-p ing-p';
   }
 }
 
@@ -133,10 +154,6 @@ textarea.ng-invalid.ng-touched {
 
 label {
   display: block !important;
-}
-
-.input-item {
-  display: inline-block !important;
 }
 
 .gutter {
