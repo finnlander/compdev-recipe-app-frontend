@@ -43,8 +43,8 @@
     <div class="img-area">
       <img
         [src]="selectedRecipe.imageUrl"
-        alt=""
-        class="img-responsive img-rounded shadowed squared"
+        [alt]="'image of ' + selectedRecipe.name"
+        class="shadowed"
       />
     </div>
 

@@ -54,6 +54,16 @@
   justify-self: end;
 }
 
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  max-height: 7rem;
+
+  aspect-ratio: 1;
+  border-radius: 0.4rem;
+}
+
 .selected {
   background-color: rgb(163, 208, 163);
 }

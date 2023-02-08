@@ -51,12 +51,16 @@
   margin-bottom: 1rem;
 }
 
-.shadowed {
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  border-radius: 0.4rem;
 }
 
-.squared {
-  aspect-ratio: 1;
+.shadowed {
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 
 .inline-flex {

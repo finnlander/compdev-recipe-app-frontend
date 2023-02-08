@@ -20,9 +20,7 @@
       <div class="img-area">
         <img
           [src]="recipe?.imageUrl"
-          [alt]="recipe?.name"
-          class="img-responsive img-rounded"
-          style="max-height: 7rem"
+          [alt]="recipe ? 'image of ' + recipe.name : ''"
         />
       </div>
     </div>
