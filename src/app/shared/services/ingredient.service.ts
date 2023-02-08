@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { map, take, tap } from 'rxjs/operators';
 import { IngredientsApi } from '../../api/services/ingredients-api.service';
 import { Ingredient } from '../models/ingredient.model';
 
@@ -14,6 +14,8 @@ export class IngredientService {
   // local cache structures
   private ingredientsById: Map<number, Ingredient> = new Map();
   private ingredientIdsByName: Map<string, number> = new Map();
+
+  ingredients$ = new BehaviorSubject<Ingredient[]>([]);
 
   constructor(private ingredientsApi: IngredientsApi) {}
 
@@ -61,13 +63,23 @@ export class IngredientService {
     this.ingredientIdsByName.clear();
     this.ingredientsById.clear();
 
-    return this.ingredientsApi.getAllIngredients().pipe(
-      tap((res) => {
-        if (res.ok) {
-          res.data.forEach((ingredient) => this.setToCache(ingredient));
-        }
-      })
-    );
+    this.ingredientsApi
+      .getAllIngredients()
+      .pipe(
+        take(1),
+        tap((res) => {
+          if (res.ok) {
+            res.data.forEach((ingredient) => this.setToCache(ingredient));
+            this.reportIngredientsChanged();
+          }
+        })
+      )
+      .subscribe();
+  }
+
+  private reportIngredientsChanged() {
+    const ingredients = [...this.ingredientsById.values()];
+    this.ingredients$.next(ingredients);
   }
 
   private requestNewIngredient(ingredientName: string): Observable<Ingredient> {
@@ -83,6 +95,7 @@ export class IngredientService {
       tap((res) => {
         if (res.ok) {
           res.data.forEach((ingredient) => this.setToCache(ingredient));
+          this.reportIngredientsChanged();
         }
       }),
       map((res) => {

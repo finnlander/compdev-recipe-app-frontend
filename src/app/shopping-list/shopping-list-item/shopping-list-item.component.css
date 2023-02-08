@@ -1,11 +1,16 @@
 .flex-container {
-  padding-left: 1em;
-  padding-right: 0.5em;
+  padding-left: 1rem;
+  padding-right: 0.5rem;
+  padding-top: 1rem;
   display: flex;
   flex-flow: row wrap;
   gap: 1rem;
   align-items: center;
   color: #555;
+}
+
+.input-field {
+  max-height: 100vh;
 }
 
 .flex-text {

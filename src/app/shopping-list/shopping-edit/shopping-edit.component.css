@@ -1,37 +1,75 @@
-.flex-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-@media (min-width: 768px) {
-  .flex-container {
-    width: 80%;
-  }
-}
-
-@media (min-width: 992px) ) {
-  .flex-container {
-    width: 60%;
-  }
-}
-
-.flex-row {
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-  gap: 2rem;
-}
-
-.input-item {
-  flex: 1;
-}
-
-.input-item-3x {
-  flex: 3;
-}
-
-.action-row-btn {
+.wrapper {
+  display: grid;
+  margin-left: 1rem;
   margin-right: 1rem;
-  margin-top: 1rem;
+  gap: 1rem;
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    'name name'
+    'amount unit';
+}
+
+@media (min-width: 600px) {
+  .wrapper {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-areas: 'name name amount unit';
+    gap: 2rem;
+    margin-left: 2rem;
+    margin-right: 2rem;
+  }
+}
+
+.name-area {
+  grid-area: name;
+}
+
+.amount-area {
+  grid-area: amount;
+}
+
+.unit-area {
+  grid-area: unit;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-evenly;
+}
+
+.action-button {
+  flex: 1;
+}
+
+@media (min-width: 600px) {
+  .action-buttons {
+    gap: 2rem;
+
+    justify-content: flex-start;
+    margin-left: 2rem;
+    margin-right: 2rem;
+  }
+
+  .action-button {
+    flex: 0;
+  }
+}
+
+.form-buttons {
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 1.5rem;
+  margin-left: 2rem;
+  margin-right: 2rem;
+}
+
+@media (max-width: 599.98px) {
+  .form-buttons {
+    gap: 0;
+    justify-content: space-evenly;
+  }
+
+  .form-button {
+    flex: 1;
+  }
 }

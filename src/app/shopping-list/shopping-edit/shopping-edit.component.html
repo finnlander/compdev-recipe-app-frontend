@@ -1,74 +1,64 @@
 <form (ngSubmit)="onSubmit(form)" #form="ngForm">
-  <div class="flex-container">
-    <div class="flex-row">
-      <div class="input-item-3x form-group">
-        <label for="name">Name</label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          class="form-control"
-          ngModel
-          required
-        />
-      </div>
-      <div class="input-item form-group">
-        <label for="amount">Amount</label>
-        <input
-          type="number"
-          id="amount"
-          name="amount"
-          class="form-control"
-          ngModel
-          required
-          pattern="^[1-9]+[0-9]*"
-        />
-      </div>
-      <div class="input-item form-group">
-        <label for="unit">Unit</label>
-        <select id="unit" name="unit" class="form-control" ngModel required>
-          <option
-            [value]="unit.value"
-            *ngFor="let unit of RecipeUnit | keyvalue"
-          >
-            {{ unit.value }}
-          </option>
-        </select>
-      </div>
+  <div class="wrapper">
+    <div class="name-area">
+      <app-ingredient-field
+        id="name"
+        name="name"
+        ngModel
+        required
+      ></app-ingredient-field>
     </div>
-    <div class="flex-row">
-      <div class="input-item">
-        <button
-          class="btn btn-success action-row-btn"
-          type="submit"
-          [disabled]="!form.valid || (loading$ | async)"
+
+    <mat-form-field class="amount-area" appearance="fill">
+      <mat-label>Amount</mat-label>
+      <input
+        matInput
+        type="number"
+        id="amount"
+        name="amount"
+        ngModel
+        required
+        pattern="^[0-9]+[0-9]*\.?[0-9]*"
+      />
+    </mat-form-field>
+
+    <mat-form-field class="unit-area" appearance="fill">
+      <mat-label>Unit</mat-label>
+      <mat-select id="unit" name="unit" ngModel required>
+        <mat-option
+          [value]="unit.value"
+          *ngFor="let unit of RecipeUnit | keyvalue"
         >
-          <fa-icon
-            [icon]="formMode === 'update' ? iconUpdate : iconAdd"
-          ></fa-icon>
-          {{ formMode === 'update' ? 'Update' : 'Add' }}
-        </button>
-        <button
-          class="btn btn-danger action-row-btn"
-          type="button"
-          *ngIf="formMode === 'update'"
-          (click)="onDelete()"
-        >
-          <fa-icon [icon]="iconDelete"></fa-icon>
-          Delete
-        </button>
-        <button
-          class="btn btn-primary action-row-btn"
-          type="reset"
-          (click)="onClear()"
-          [disabled]="formMode === 'new' && !form.touched"
-        >
-          <fa-icon
-            [icon]="formMode === 'update' ? iconCancel : iconClear"
-          ></fa-icon>
-          {{ formMode === 'update' ? 'Cancel' : 'Clear' }}
-        </button>
-      </div>
-    </div>
+          {{ unit.value }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="action-buttons">
+    <app-action-button
+      class="action-button"
+      type="submit"
+      [icon]="formMode === 'update' ? 'done' : 'add'"
+      [disabled]="!form.valid || (loading$ | async) || false"
+      indent="false"
+      >{{ formMode === 'update' ? 'Update' : 'Add' }}</app-action-button
+    >
+    <app-action-button
+      class="action-button"
+      *ngIf="formMode === 'update'"
+      color="warn"
+      icon="remove_circle"
+      (clicked)="onDelete()"
+      >Delete</app-action-button
+    >
+    <app-action-button
+      class="action-button"
+      type="reset"
+      color="basic"
+      [icon]="formMode === 'update' ? 'cancel' : 'clear'"
+      (clicked)="onClear()"
+      [disabled]="formMode === 'new' && !form.touched"
+      >{{ formMode === 'update' ? 'Cancel' : 'Reset' }}</app-action-button
+    >
   </div>
 </form>

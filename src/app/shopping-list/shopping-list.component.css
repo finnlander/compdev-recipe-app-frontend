@@ -1,5 +1,7 @@
 .content-container {
   width: 100%;
+  max-width: 98vw;
+  max-height: fit-content;
   display: flex;
   flex-direction: row;
 }
@@ -14,8 +16,21 @@
   text-decoration: none;
 }
 
+.shopping-list-item:nth-child(2n) {
+  background-color: rgb(248, 248, 248);
+}
+
+.shopping-list-item {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+}
+
 .selected {
-  background-color: rgba(242, 242, 242, 0.715);
+  background-color: rgba(118, 214, 218, 0.715) !important;
+  border: 1px solid darkgray;
+  border-radius: 1rem;
+  font-weight: 500;
 }
 
 .danger-button {

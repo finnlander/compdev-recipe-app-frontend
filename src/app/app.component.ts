@@ -6,6 +6,7 @@ import { authActions, authSelectors } from './auth/store';
 import { RoutePath } from './config/routes.config';
 import { recipeActions } from './recipes/store';
 import { SubscribingComponent } from './shared/classes/subscribing-component';
+import { IngredientService } from './shared/services/ingredient.service';
 import { shoppingListActions } from './shopping-list/store';
 import { RootState } from './store/app.store';
 
@@ -17,7 +18,11 @@ import { RootState } from './store/app.store';
 export class AppComponent extends SubscribingComponent implements OnInit {
   private loggedIn = false;
 
-  constructor(private router: Router, private store: Store<RootState>) {
+  constructor(
+    private router: Router,
+    private store: Store<RootState>,
+    private ingredientsService: IngredientService
+  ) {
     super();
   }
 
@@ -51,6 +56,7 @@ export class AppComponent extends SubscribingComponent implements OnInit {
   private onLogin() {
     console.debug('onLogin initiated');
     this.store.dispatch(recipeActions.fetchRecipesRequest());
+    this.ingredientsService.loadIngredients();
   }
 
   private onLogout() {

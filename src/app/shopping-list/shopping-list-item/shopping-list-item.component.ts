@@ -5,7 +5,6 @@ import {
   OnInit,
   SimpleChanges,
 } from '@angular/core';
-import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
 import {
   ConfirmationResult,
@@ -25,8 +24,6 @@ export class ShoppingListItemComponent implements OnInit, OnChanges {
   @Input() item!: ShoppingListItem;
 
   newAmount = 0;
-
-  iconTrash = faTrash;
 
   constructor(
     private modalService: ModalService,

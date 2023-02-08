@@ -5,10 +5,9 @@
     <app-shopping-edit></app-shopping-edit>
     <hr *ngIf="!isEmpty" />
 
-    <ul class="list-group">
-      <a
-        class="list-group-item"
-        style="cursor: pointer"
+    <div class="shopping-list">
+      <div
+        class="shopping-list-item"
         *ngFor="let item of items; trackByField: 'ordinal'"
         [ngClass]="selectedItem?.ordinal === item.ordinal ? 'selected' : ''"
         [@shoppingList]
@@ -18,8 +17,8 @@
           [item]="item"
           (click)="onSelectItem(item)"
         ></app-shopping-list-item>
-      </a>
-    </ul>
+      </div>
+    </div>
     <hr />
     <button
       mat-raised-button
@@ -29,7 +28,7 @@
       [disabled]="isEmpty"
     >
       <div class="action-button">
-        <mat-icon>delete</mat-icon>
+        <mat-icon>clear_all</mat-icon>
         <span>Clear all</span>
       </div>
     </button>

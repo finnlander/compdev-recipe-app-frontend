@@ -6,7 +6,6 @@ import {
   trigger,
 } from '@angular/animations';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { faTrashCanArrowUp } from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
 import { sortBy } from 'lodash';
 import { Observable, of } from 'rxjs';
@@ -61,7 +60,6 @@ export class ShoppingListComponent
   extends SubscribingComponent
   implements OnInit, OnDestroy
 {
-  iconClearAll = faTrashCanArrowUp;
   listInitialization = true;
   items: ShoppingListItem[] = [];
   error$: Observable<string | null> = of(null);

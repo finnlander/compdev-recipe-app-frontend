@@ -1,12 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
-import {
-  faCheck,
-  faPlus,
-  faTrashCan,
-  faUndo,
-  faX,
-} from '@fortawesome/free-solid-svg-icons';
 import { Store } from '@ngrx/store';
 import { Observable, of } from 'rxjs';
 import { SubscribingComponent } from '../../shared/classes/subscribing-component';
@@ -45,11 +38,6 @@ export class ShoppingEditComponent
   implements OnInit, OnDestroy
 {
   RecipeUnit = RecipeUnit;
-  iconAdd = faPlus;
-  iconCancel = faUndo;
-  iconClear = faTrashCan;
-  iconDelete = faX;
-  iconUpdate = faCheck;
 
   formMode: 'new' | 'update' = 'new';
   updateItemOrdinal = -1;
