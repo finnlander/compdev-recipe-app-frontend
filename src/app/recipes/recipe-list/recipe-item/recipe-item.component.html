@@ -1,6 +1,5 @@
 <a
-  style="cursor: pointer"
-  class="list-group-item clearfix"
+  class="item-link"
   (click)="onSelect()"
   [ngClass]="(isSelected$ | async) ? 'selected' : ''"
 >
@@ -10,7 +9,7 @@
     </div>
     <div class="content-wrapper">
       <div class="title-area">
-        <h4 class="list-group-item-heading">
+        <h4 class="title">
           {{ recipe?.name | ellipsis : 30 }}
         </h4>
       </div>

@@ -26,3 +26,10 @@ h2,
 h3 {
   margin-left: 1rem !important;
 }
+
+hr {
+  margin-top: 1.2rem;
+  margin-bottom: 1.2rem;
+  border: 0;
+  border-top: 1px solid #eee;
+}
