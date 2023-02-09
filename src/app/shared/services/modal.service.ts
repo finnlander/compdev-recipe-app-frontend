@@ -53,14 +53,18 @@ export class ModalService {
       removeQuotes,
     };
 
-    const modalRef = this.dialog.open(ConfirmationModalComponent, {
+    const modalRef = this.dialog.open<
+      ConfirmationModalComponent,
+      ConfirmationModalContent,
+      ConfirmationResult
+    >(ConfirmationModalComponent, {
       data,
       autoFocus: '#primary-button',
     });
 
     const subscription = modalRef.afterClosed().subscribe((res) => {
       if (onConfirmationResult) {
-        onConfirmationResult(res);
+        onConfirmationResult(res || ConfirmationResult.NO);
       }
 
       if (res == ConfirmationResult.YES && onConfirmYes) {

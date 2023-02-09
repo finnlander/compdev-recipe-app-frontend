@@ -2,9 +2,9 @@
   mat-dialog-title
   class="title"
   [ngClass]="{
-    'title-error': type === 'error',
-    'title-info': type === 'info',
-    'title-warn': type === 'warning'
+    'title-error': data.type === 'error',
+    'title-info': data.type === 'info',
+    'title-warn': data.type === 'warning'
   }"
 >
   {{ data.type | titlecase }}
