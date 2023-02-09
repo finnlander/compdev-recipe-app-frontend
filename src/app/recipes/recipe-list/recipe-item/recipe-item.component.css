@@ -20,7 +20,7 @@
   border-bottom-right-radius: 0.25rem;
 }
 
-.item-link:hover {
+.item-link:hover:not(.selected) {
   color: #555;
   text-decoration: none;
   background-color: #f5f5f5;
