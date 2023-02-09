@@ -28,7 +28,6 @@
     "@ngrx/effects": "^15.1.0",
     "@ngrx/store": "^15.1.0",
     "@types/lodash": "^4.14.191",
-    "bootstrap": "^3.4.1",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.21",
     "ngx-spinner": "^15.0.1",

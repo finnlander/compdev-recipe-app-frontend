@@ -1,5 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { testImports } from '../../../test/test-util';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 
@@ -11,7 +12,7 @@ describe('ShoppingListItemComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [...testImports, FormsModule],
+      imports: [...testImports, FormsModule, NoopAnimationsModule],
       declarations: [ShoppingListItemComponent],
     }).compileComponents();
   }));

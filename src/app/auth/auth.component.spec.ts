@@ -1,5 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { testImports } from '../../test/test-util';
 
 import { AuthComponent } from './auth.component';
@@ -10,7 +11,7 @@ describe('AuthComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [...testImports, FormsModule],
+      imports: [...testImports, FormsModule, NoopAnimationsModule],
       declarations: [AuthComponent],
     }).compileComponents();
   }));

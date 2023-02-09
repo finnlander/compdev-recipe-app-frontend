@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterTestingModule } from '@angular/router/testing';
 import { StoreModule } from '@ngrx/store';
 import { SharedModule } from '../../shared/shared.module';
@@ -16,6 +17,7 @@ describe('RecipeEditComponent', () => {
       imports: [
         RouterTestingModule,
         ReactiveFormsModule,
+        NoopAnimationsModule,
         SharedModule,
         StoreModule.forRoot(reducers),
       ],

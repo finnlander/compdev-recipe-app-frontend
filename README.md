@@ -1,6 +1,6 @@
 # RecipeApp (frontend)
 
-This is an example frontend application made with Angular (15.x), Typescript, Bootstrap (v3) and some additional libraries.
+This is an example frontend application made with Angular (15.x), Typescript, Angular Material UI and some additional libraries.
 
 ## About
 
@@ -12,7 +12,7 @@ The solution is not meant to be used in any production system. I've put it into 
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 15.0.4. Angular CLI can be used to create new components, directives, etc.
 
-The used language is Typescript and the UI styles are done with an older Bootstrap (v3) with quite minimal extra styling changes.
+The used language is Typescript and the UI styles are done with a Angular Material with some extra styling changes.
 
 The project structure follows mainly the practices provided by the official Angular documentation where each component is placed in `src/app/[feature]/[component-specific-dir]`. E.g. Services, directives and models are placed under subdirectories (e.g. `services` for services, etc.). There is also a feature-level directory named as `shared` that contains functionality shared between different features.
 
