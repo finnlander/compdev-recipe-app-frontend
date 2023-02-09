@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BsModalService } from 'ngx-bootstrap/modal';
+import { MatDialog } from '@angular/material/dialog';
 import {
   ConfirmationModalComponent,
   ConfirmationModalContent,
@@ -33,7 +33,7 @@ export interface ConfirmationOperationProps {
   providedIn: 'root',
 })
 export class ModalService {
-  constructor(private bsModalService: BsModalService) {}
+  constructor(private dialog: MatDialog) {}
 
   /**
    * Handle confirmation (e.g. deletion) for a specific item.
@@ -47,18 +47,18 @@ export class ModalService {
       onConfirmYes,
     } = props;
 
-    const initialState: ConfirmationModalContent = {
+    const data: ConfirmationModalContent = {
       confirmationType: confirmationType,
       itemDescription,
       removeQuotes,
     };
 
-    const modalRef = this.bsModalService.show(ConfirmationModalComponent, {
-      initialState,
+    const modalRef = this.dialog.open(ConfirmationModalComponent, {
+      data,
+      autoFocus: '#primary-button',
     });
 
-    const modal = modalRef.content as ConfirmationModalComponent;
-    const subscription = modal.confirmationResult.subscribe((res) => {
+    const subscription = modalRef.afterClosed().subscribe((res) => {
       if (onConfirmationResult) {
         onConfirmationResult(res);
       }

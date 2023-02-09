@@ -14,7 +14,6 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ModalModule } from 'ngx-bootstrap/modal';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { ToastrModule } from 'ngx-toastr';
 import { ActionButtonComponent } from './components/action-button/action-button.component';
@@ -48,7 +47,6 @@ import { MatCardModule } from '@angular/material/card';
     // Module Imports
     CommonModule,
     ReactiveFormsModule,
-    ModalModule.forRoot(),
     ToastrModule.forRoot(),
     NgxSpinnerModule.forRoot({ type: 'ball-newton-cradle' }),
     // Material UI modules

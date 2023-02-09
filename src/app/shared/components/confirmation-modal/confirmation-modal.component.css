@@ -1,7 +1,44 @@
-.float-left {
-  float: left !important;
+hr {
+  margin-left: -1rem;
+  margin-right: -1rem;
 }
 
-.float-right {
-  float: right !important;
+.wrapper {
+  margin: 1rem;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.title {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.title-text {
+  margin: 0;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  gap: 1rem;
+}
+
+.button-green {
+  background-color: #00bf00;
+  color: white;
+}
+.button-red {
+  background-color: #eb2525;
+  color: white;
 }

@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Output } from '@angular/core';
-import { BsModalRef } from 'ngx-bootstrap/modal';
+import { Component, Inject } from '@angular/core';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
   ConfirmationResult,
   ConfirmationType,
@@ -21,28 +21,21 @@ export interface ConfirmationModalContent {
  * Confirmation modal.
  */
 @Component({
-  // eslint-disable-next-line @angular-eslint/component-selector
-  selector: 'modal-content',
+  selector: 'app-confirmation-modal',
   templateUrl: './confirmation-modal.component.html',
   styleUrls: ['./confirmation-modal.component.css'],
 })
 export class ConfirmationModalComponent {
-  itemDescription = '';
-  confirmationType?: ConfirmationType;
-  removeQuotes?: boolean;
-
-  @Output() confirmationResult = new EventEmitter<ConfirmationResult>();
-
   get description(): string {
-    if (!this.removeQuotes) {
-      return `"${this.itemDescription}"`;
+    if (!this.data.removeQuotes) {
+      return `"${this.data.itemDescription}"`;
     }
 
-    return this.itemDescription;
+    return this.data.itemDescription;
   }
 
   get action(): string {
-    switch (this.confirmationType) {
+    switch (this.data.confirmationType) {
       case ConfirmationType.CLEAR_ALL:
         return 'clear all';
       case ConfirmationType.DELETE:
@@ -50,20 +43,26 @@ export class ConfirmationModalComponent {
       case ConfirmationType.PROCEED_CONFIRMATION:
         return 'proceed to';
       default:
-        return '' + this.confirmationType;
+        return '' + this.data.confirmationType;
     }
   }
 
   get yesButtonClasses() {
-    switch (this.confirmationType) {
+    switch (this.data.confirmationType) {
       case ConfirmationType.PROCEED_CONFIRMATION:
-        return 'btn-success';
+        return 'button-green';
       default:
-        return 'btn-danger';
+        return 'button-red';
     }
   }
 
-  constructor(public bsModalRef: BsModalRef) {}
+  constructor(
+    public dialogRef: MatDialogRef<
+      ConfirmationModalComponent,
+      ConfirmationResult
+    >,
+    @Inject(MAT_DIALOG_DATA) public data: ConfirmationModalContent
+  ) {}
 
   onConfirm() {
     this.confirm(ConfirmationResult.YES);
@@ -74,7 +73,6 @@ export class ConfirmationModalComponent {
 
   /* Helper Methods */
   private confirm(result: ConfirmationResult) {
-    this.confirmationResult.emit(result);
-    this.bsModalRef.hide();
+    this.dialogRef.close(result);
   }
 }
