@@ -4,6 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from '../auth/services/auth-guard.service';
 import { SharedModule } from '../shared/shared.module';
 import { RecipeDetailComponent } from './recipe-detail/recipe-detail.component';
+import { IngredientEditModalComponent } from './recipe-edit/ingredient-edit-modal/ingredient-edit-modal.component';
 import { RecipeEditComponent } from './recipe-edit/recipe-edit.component';
 import { RecipeItemComponent } from './recipe-list/recipe-item/recipe-item.component';
 import { RecipeListComponent } from './recipe-list/recipe-list.component';
@@ -47,6 +48,7 @@ const recipeRoutes: Routes = [
     RecipeDetailComponent,
     RecipeEditComponent,
     RecipeItemComponent,
+    IngredientEditModalComponent,
   ],
   imports: [
     // Module imports

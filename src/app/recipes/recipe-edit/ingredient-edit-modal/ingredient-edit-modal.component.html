@@ -1,0 +1,78 @@
+<mat-card class="wrapper">
+  <div class="card-title" mat-dialog-title>
+    <div class="card-title-text">
+      {{ data.ingredient ? 'edit' : 'add new' }} Ingredient
+    </div>
+  </div>
+
+  <form
+    mat-dialog-content
+    class="ingredient-content-wrapper"
+    [formGroup]="form"
+  >
+    <!-- Ingredient -->
+    <app-ingredient-field
+      class="ingredient-input ingredient-name"
+      formControlName="ingredientName"
+    ></app-ingredient-field>
+
+    <mat-form-field
+      class="ingredient-input ingredient-amount"
+      appearance="fill"
+    >
+      <mat-label>Amount</mat-label>
+      <input
+        matInput
+        type="number"
+        id="amount"
+        name="amount"
+        formControlName="amount"
+        pattern="^[0-9]+[0-9]*\.?[0-9]*"
+      />
+    </mat-form-field>
+
+    <mat-form-field class="ingredient-input ingredient-unit" appearance="fill">
+      <mat-label>Unit</mat-label>
+      <mat-select formControlName="unit">
+        <mat-option
+          [value]="unit.value"
+          *ngFor="let unit of RecipeUnit | keyvalue"
+        >
+          {{ unit.value }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field
+      class="ingredient-input ingredient-phase"
+      *ngIf="data.usePhases && data.phases"
+    >
+      <mat-label>Phase</mat-label>
+      <mat-select formControlName="phase">
+        <mat-option *ngFor="let phase of data.phases" [value]="phase">{{
+          phase
+        }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+  <mat-card-actions mat-dialog-actions class="action-buttons">
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      (click)="onSave()"
+      [disabled]="!form.valid"
+    >
+      Save
+    </button>
+    <button
+      mat-raised-button
+      mat-dialog-close
+      color="basic"
+      type="button"
+      (click)="onDismiss()"
+    >
+      Cancel
+    </button>
+  </mat-card-actions>
+</mat-card>

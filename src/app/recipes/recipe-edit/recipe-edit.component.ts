@@ -8,10 +8,10 @@ import {
   FormGroup,
   Validators,
 } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { first } from 'lodash';
 import { Observable, of } from 'rxjs';
 import { IdPathTrackingComponent } from '../../shared/classes/id-path-tracking-component';
 import { ConfirmationType } from '../../shared/models/confirmation.types';
@@ -27,6 +27,11 @@ import {
   RecipeIngredientPayloadItem,
   recipeSelectors,
 } from '../store';
+import {
+  IngredientEditDialogData,
+  IngredientEditDialogResult,
+  IngredientEditModalComponent,
+} from './ingredient-edit-modal/ingredient-edit-modal.component';
 
 /* Types */
 
@@ -50,13 +55,6 @@ const DEFAULT_VALUES: FormModel = {
   usePhases: false,
   newPhaseName: '',
   phases: [],
-};
-
-const DEFAULT_INGREDIENT_VALUES: RecipeIngredientPayloadItem = {
-  ingredientName: '',
-  amount: 1,
-  unit: RecipeUnit.PCS,
-  phase: '',
 };
 
 /**
@@ -85,7 +83,8 @@ export class RecipeEditComponent
     private router: Router,
     private store: Store<RootState>,
     private fb: FormBuilder,
-    private actions$: Actions
+    private actions$: Actions,
+    private dialog: MatDialog
   ) {
     super(route);
     this.form = RecipeEditComponent.createForm(fb);
@@ -234,22 +233,34 @@ export class RecipeEditComponent
   }
 
   onAddIngredient(initialValue?: RecipeIngredientPayloadItem) {
-    const input = initialValue || DEFAULT_INGREDIENT_VALUES;
-    const { phases } = this.getData();
-
     const prevIngredient = this.ingredientItems.value
       .slice(-1)
       .pop() as RecipeIngredientPayloadItem;
 
-    const phase = !this.usePhases
-      ? ''
-      : input.phase || prevIngredient?.phase || first(phases) || '';
-
-    const model = {
-      ...input,
-      phase: phase,
+    const { phases } = this.getData();
+    const data: IngredientEditDialogData = {
+      usePhases: this.usePhases,
+      phases,
+      defaultPhase: prevIngredient?.phase,
+      ingredient: initialValue,
     };
+    const modalRef = this.dialog.open<
+      IngredientEditModalComponent,
+      IngredientEditDialogData,
+      IngredientEditDialogResult
+    >(IngredientEditModalComponent, { data });
+    const subscription = modalRef.afterClosed().subscribe((res) => {
+      if (res) {
+        this.addNewIngredientControl(res.ingredient);
+        this.form.markAsTouched();
+        this.form.markAsDirty();
+      }
 
+      subscription.unsubscribe();
+    });
+  }
+
+  private addNewIngredientControl(value: RecipeIngredientPayloadItem) {
     const ingredientControl = this.fb.group(
       {
         ingredientName: ['', Validators.required],
@@ -263,7 +274,10 @@ export class RecipeEditComponent
       { updateOn: 'change' }
     );
 
-    ingredientControl.setValue(model);
+    ingredientControl.setValue({
+      ...value,
+      phase: value.phase || '',
+    });
     this.ingredientItems.push(ingredientControl);
   }
 
@@ -387,7 +401,7 @@ export class RecipeEditComponent
       phases: phaseNames,
     };
 
-    ingredientItems.forEach((it) => this.onAddIngredient(it));
+    ingredientItems.forEach((it) => this.addNewIngredientControl(it));
     phaseNames.forEach((it) => this.addPhase(it));
 
     this.form.setValue(formData);
