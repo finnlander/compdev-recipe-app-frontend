@@ -1,3 +1,7 @@
+.wrapper {
+  max-width: 94vw;
+}
+
 .btn-secondary {
   margin-left: 1em;
 }
@@ -128,6 +132,7 @@ textarea.ng-invalid.ng-touched {
 }
 
 .vertical-label-box {
+  display: inline;
   align-self: stretch;
   width: max-content;
   height: inherit;
