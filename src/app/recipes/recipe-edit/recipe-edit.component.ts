@@ -1,3 +1,4 @@
+import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import {
   AbstractControlOptions,
@@ -301,6 +302,15 @@ export class RecipeEditComponent
         this.router.navigate(['../'], { relativeTo: this.route });
       }
     }
+  }
+
+  onPhaseDrop(event: CdkDragDrop<FormArray<FormControl>>) {
+    console.log(event);
+    moveItemInArray(
+      this.phases.controls,
+      event.previousIndex,
+      event.currentIndex
+    );
   }
 
   /* Helper Methods */

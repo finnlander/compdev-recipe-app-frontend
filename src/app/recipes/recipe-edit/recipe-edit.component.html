@@ -65,11 +65,21 @@
         <div class="gutter"></div>
         <ng-container *ngIf="phases.length > 0" formArrayName="phases">
           <p>Phases:</p>
-          <mat-list class="phase-list">
+          <mat-list
+            class="phase-list"
+            cdkDropList
+            (cdkDropListDropped)="onPhaseDrop($event)"
+          >
             <mat-list-item
+              class="phase-list-item"
               *ngFor="let phaseControl of phases.controls; let i = index"
+              cdkDrag
             >
               <div class="flex-wrapper">
+                <div class="phase-drag-placeholder" *cdkDragPlaceholder></div>
+                <button mat-icon-button type="button" cdkDragHandle>
+                  <mat-icon>drag_handle</mat-icon>
+                </button>
                 <div class="flex-grow ellipsis-text">
                   {{ phaseControl.value }}
                 </div>

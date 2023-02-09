@@ -1,8 +1,10 @@
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -26,8 +28,6 @@ import { RequireEqualityValidatorDirective } from './directives/require-equality
 import { TrackByFieldDirective } from './directives/track-by-field.directive';
 import { EllipsisPipe } from './pipes/ellipsis.pipe';
 
-import { MatCardModule } from '@angular/material/card';
-
 @NgModule({
   declarations: [
     // Pipes
@@ -50,6 +50,7 @@ import { MatCardModule } from '@angular/material/card';
     ToastrModule.forRoot(),
     NgxSpinnerModule.forRoot({ type: 'ball-newton-cradle' }),
     // Material UI modules
+    DragDropModule,
     MatAutocompleteModule,
     MatButtonModule,
     MatCardModule,
@@ -82,6 +83,7 @@ import { MatCardModule } from '@angular/material/card';
     CommonModule,
     NgxSpinnerModule,
     // Material UI modules
+    DragDropModule,
     MatAutocompleteModule,
     MatButtonModule,
     MatCardModule,
