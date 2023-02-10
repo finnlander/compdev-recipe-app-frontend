@@ -1,11 +1,6 @@
 <div class="flex-container">
   <div>
-    <button
-      mat-raised-button
-      color="primary"
-      [routerLink]="[RecipeRootPath, 'new']"
-      (click)="deselectRecipe()"
-    >
+    <button mat-raised-button color="primary" (click)="onNewRecipe()">
       New Recipe
     </button>
   </div>
