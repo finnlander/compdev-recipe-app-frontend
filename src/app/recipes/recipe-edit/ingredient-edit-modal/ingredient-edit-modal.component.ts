@@ -44,9 +44,7 @@ export class IngredientEditModalComponent {
   }
 
   onSave() {
-    /* TODO */
     const value = this.form.value;
-    console.log('form value:', this.form.value);
 
     const res: IngredientEditDialogResult = {
       ingredient: {

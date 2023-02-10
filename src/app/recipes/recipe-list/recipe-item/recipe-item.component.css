@@ -39,12 +39,13 @@
   writing-mode: vertical-lr;
   text-align: center;
   transform: rotate(180deg);
-  margin-top: -0.55rem;
-  margin-bottom: -0.55rem;
-  margin-left: -1em;
+  margin-top: -0.65rem;
+  margin-bottom: -0.65rem;
+  margin-left: -0.95rem;
   margin-right: 1rem;
   padding-left: 1rem;
   padding-right: 1rem;
+  border-left: 1px solid rgb(190, 190, 190);
 }
 
 .vertical-label {
