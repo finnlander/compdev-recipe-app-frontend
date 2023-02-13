@@ -1,0 +1,25 @@
+.wrapper:hover {
+  color: #555;
+  text-decoration: none;
+  background-color: #f5f5f5;
+}
+
+.ingredient-list-item {
+  height: max-content !important;
+  cursor: pointer !important;
+}
+
+.inline-flex {
+  display: inline-flex;
+  flex-flow: row nowrap;
+  width: 100%;
+}
+
+.flex-grow {
+  flex: 1;
+}
+
+.item-title {
+  text-transform: capitalize;
+  white-space: break-spaces;
+}

@@ -10,6 +10,7 @@ import { RecipeItemComponent } from './recipe-list/recipe-item/recipe-item.compo
 import { RecipeListComponent } from './recipe-list/recipe-list.component';
 import { RecipesComponent } from './recipes.component';
 import { RecipesResolverService } from './services/recipes-resolver.service';
+import { IngredientItemComponent } from './recipe-edit/ingredient-item/ingredient-item.component';
 
 /**
  * Routes for the recipes module
@@ -49,6 +50,7 @@ const recipeRoutes: Routes = [
     RecipeEditComponent,
     RecipeItemComponent,
     IngredientEditModalComponent,
+    IngredientItemComponent,
   ],
   imports: [
     // Module imports

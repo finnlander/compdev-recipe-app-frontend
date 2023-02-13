@@ -64,12 +64,8 @@
         </div>
         <div class="gutter"></div>
         <ng-container *ngIf="phases.length > 0" formArrayName="phases">
-          <p>Phases:</p>
-          <mat-list
-            class="phase-list"
-            cdkDropList
-            (cdkDropListDropped)="onPhaseDrop($event)"
-          >
+          <h4>Phases:</h4>
+          <mat-list cdkDropList (cdkDropListDropped)="onPhaseDrop($event)">
             <mat-list-item
               class="phase-list-item"
               *ngFor="let phaseControl of phases.controls; let i = index"
@@ -77,7 +73,12 @@
             >
               <div class="flex-wrapper">
                 <div class="phase-drag-placeholder" *cdkDragPlaceholder></div>
-                <button mat-icon-button type="button" cdkDragHandle>
+                <button
+                  mat-icon-button
+                  type="button"
+                  title="move order"
+                  cdkDragHandle
+                >
                   <mat-icon>drag_handle</mat-icon>
                 </button>
                 <div class="flex-grow ellipsis-text">
@@ -111,85 +112,69 @@
       <app-action-button
         text="Add ingredient"
         icon="add"
-        (clicked)="onAddIngredient()"
+        (clicked)="onAddOrEditIngredient()"
       ></app-action-button>
-      <hr *ngIf="ingredientItems.length > 0" />
-      <ng-container formArrayName="ingredientItems">
-        <ng-container
-          *ngFor="
-            let ingredientControl of ingredientItems.controls;
-            let i = index
-          "
-          [formGroup]="ingredientControl"
-        >
-          <div class="ingredient-row">
-            <div class="vertical-label-box">
-              <div class="vertical-label">Ingredient</div>
-            </div>
-            <div class="ingredient-content-wrapper">
-              <!-- Ingredient -->
-              <app-ingredient-field
-                class="ingredient-input ingredient-name"
-                formControlName="ingredientName"
-              ></app-ingredient-field>
 
-              <mat-form-field
-                class="ingredient-input ingredient-amount"
-                appearance="fill"
-              >
-                <mat-label>Amount</mat-label>
-                <input
-                  matInput
-                  type="number"
-                  id="amount"
-                  name="amount"
-                  formControlName="amount"
-                  pattern="^[0-9]+[0-9]*\.?[0-9]*"
-                />
-              </mat-form-field>
-
-              <mat-form-field
-                class="ingredient-input ingredient-unit"
-                appearance="fill"
-              >
-                <mat-label>Unit</mat-label>
-                <mat-select formControlName="unit">
-                  <mat-option
-                    [value]="unit.value"
-                    *ngFor="let unit of RecipeUnit | keyvalue"
-                  >
-                    {{ unit.value }}
-                  </mat-option>
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field
-                class="ingredient-input ingredient-phase"
-                *ngIf="usePhases"
-              >
-                <mat-label>Phase</mat-label>
-                <mat-select formControlName="phase">
-                  <mat-option
-                    *ngFor="let phase of form.value.phases"
-                    [value]="phase"
-                    >{{ phase }}</mat-option
-                  >
-                </mat-select>
-              </mat-form-field>
-            </div>
-            <div class="ingredient-right">
-              <button
-                mat-icon-button
-                color="warn"
-                type="button"
-                (click)="onDeleteIngredient(i)"
-              >
-                <mat-icon>close</mat-icon>
-              </button>
-            </div>
-          </div>
+      <mat-list>
+        <!-- without phases-->
+        <ng-container *ngIf="!usePhases">
+          <ng-container *ngFor="let ingredientItem of ingredientItems">
+            <app-ingredient-item
+              [item]="ingredientItem"
+              (deleted)="onDeleteIngredient(ingredientItem)"
+            ></app-ingredient-item>
+          </ng-container>
         </ng-container>
-      </ng-container>
+
+        <!-- with phases -->
+        <ng-container *ngIf="usePhases">
+          <ng-container
+            *ngFor="
+              let unassignedItem of ingredientsWithoutPhases;
+              let first = first;
+              let last = last
+            "
+          >
+            <div *ngIf="first" mat-subheader class="ingredient-phase">
+              no phase assigned:
+            </div>
+            <app-ingredient-item
+              [item]="unassignedItem"
+              (clicked)="onAddOrEditIngredient($event)"
+              (deleted)="onDeleteIngredient($event)"
+            ></app-ingredient-item>
+            <mat-divider
+              *ngIf="last"
+              class="ingredient-phase-divider"
+            ></mat-divider>
+          </ng-container>
+          <ng-container *ngFor="let phase of form.value.phases">
+            <div *ngIf="phase" mat-subheader class="ingredient-phase">
+              {{ phase }}
+            </div>
+            <ng-template
+              #ingredients
+              let-phaseIngredients
+              [ngTemplateOutlet]="ingredients"
+              [ngTemplateOutletContext]="{
+                $implicit: getIngredientItems(phase)
+              }"
+            >
+              <app-ingredient-item
+                *ngFor="let ingredientItem of phaseIngredients"
+                [item]="ingredientItem"
+                (clicked)="onAddOrEditIngredient($event)"
+                (deleted)="onDeleteIngredient($event)"
+              ></app-ingredient-item>
+
+              <mat-divider
+                *ngIf="phase"
+                class="ingredient-phase-divider"
+              ></mat-divider>
+            </ng-template>
+          </ng-container>
+        </ng-container>
+      </mat-list>
     </div>
     <hr />
     <!-- form buttons -->

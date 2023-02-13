@@ -5,13 +5,13 @@ import {
   FormArray,
   FormBuilder,
   FormControl,
-  FormGroup,
   Validators,
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
+import { isEqual, remove } from 'lodash';
 import { Observable, of } from 'rxjs';
 import { IdPathTrackingComponent } from '../../shared/classes/id-path-tracking-component';
 import { ConfirmationType } from '../../shared/models/confirmation.types';
@@ -22,7 +22,6 @@ import { RootState } from '../../store/app.store';
 import { Recipe, RecipeItem } from '../models/recipe.model';
 import { reactOnRecipesActionResult } from '../recipes-util';
 import {
-  AddRecipePayload,
   recipeActions,
   RecipeIngredientPayloadItem,
   recipeSelectors,
@@ -36,7 +35,10 @@ import {
 /* Types */
 
 type EditMode = 'new' | 'edit';
-type FormModel = AddRecipePayload & {
+type FormModel = {
+  name: string;
+  description: string;
+  imageUrl: string;
   usePhases: boolean;
   newPhaseName: string;
   phases: string[];
@@ -51,7 +53,6 @@ const DEFAULT_VALUES: FormModel = {
   name: '',
   description: '',
   imageUrl: DEFAULT_RECIPE_IMG,
-  ingredientItems: [],
   usePhases: false,
   newPhaseName: '',
   phases: [],
@@ -75,6 +76,7 @@ export class RecipeEditComponent
   form: ReturnType<typeof RecipeEditComponent.createForm>;
 
   loading$: Observable<boolean> = of(false);
+  ingredientItems: RecipeIngredientPayloadItem[] = [];
 
   constructor(
     route: ActivatedRoute,
@@ -90,18 +92,16 @@ export class RecipeEditComponent
     this.form = RecipeEditComponent.createForm(fb);
   }
 
-  get ingredientItems() {
-    return this.form.controls[
-      'ingredientItems'
-    ] as unknown as FormArray<FormGroup>;
-  }
-
   get usePhases(): boolean {
     return this.form.controls['usePhases'].value || false;
   }
 
   get phases() {
     return this.form.controls['phases'] as FormArray<FormControl>;
+  }
+
+  get ingredientsWithoutPhases() {
+    return this.ingredientItems.filter((it) => !it.phase);
   }
 
   override ngOnInit(): void {
@@ -139,8 +139,7 @@ export class RecipeEditComponent
   }
 
   canDeletePhase(phaseName: string): boolean {
-    const { ingredientItems } = this.getData();
-    return ingredientItems.findIndex((it) => it.phase === phaseName) == -1;
+    return this.ingredientItems.findIndex((it) => it.phase === phaseName) == -1;
   }
 
   onSubmit() {
@@ -156,7 +155,17 @@ export class RecipeEditComponent
     }
 
     const model = this.getData();
-    const data = { ...model, imageUrl: model.imageUrl || DEFAULT_RECIPE_IMG };
+    const data = {
+      ...model,
+      imageUrl: model.imageUrl || DEFAULT_RECIPE_IMG,
+      ingredientItems: this.ingredientItems.map((it) => {
+        if (this.usePhases) {
+          return it;
+        } else {
+          return { ...it, phase: undefined };
+        }
+      }),
+    };
 
     const action = isNew
       ? recipeActions.addRecipeRequest(data)
@@ -167,7 +176,6 @@ export class RecipeEditComponent
       ? recipeActions.addRecipeSuccess
       : recipeActions.updateRecipeSuccess;
 
-    this.store.dispatch(action);
     reactOnRecipesActionResult(this.actions$, {
       successAction,
       onSuccess: () => {
@@ -177,7 +185,6 @@ export class RecipeEditComponent
             isNew ? 'created' : 'saved'
           } successfully`,
         });
-
         this.router.navigate(['../'], { relativeTo: this.route });
       },
       onFailure: (error) => {
@@ -189,6 +196,7 @@ export class RecipeEditComponent
         });
       },
     });
+    this.store.dispatch(action);
   }
 
   onCancel() {
@@ -212,32 +220,25 @@ export class RecipeEditComponent
     const { newPhaseName } = this.getData();
     this.addPhase(newPhaseName);
 
-    let modelUpdate;
-    if (!isFirst) {
-      modelUpdate = { newPhaseName: '' };
-    } else {
-      const { ingredientItems } = this.getData();
-      modelUpdate = {
-        newPhaseName: '',
-        ingredientItems: ingredientItems.map((it) => {
-          return { ...it, phase: newPhaseName };
-        }),
-      };
+    if (isFirst) {
+      this.ingredientItems = this.ingredientItems.map((it) => ({
+        ...it,
+        phase: newPhaseName,
+      }));
     }
 
-    this.form.patchValue(modelUpdate);
+    this.form.patchValue({ newPhaseName: '' });
   }
 
   onDeletePhase(index: number) {
     this.phases.removeAt(index);
   }
 
-  onAddIngredient(initialValue?: RecipeIngredientPayloadItem) {
-    const prevIngredient = this.ingredientItems.value
-      .slice(-1)
-      .pop() as RecipeIngredientPayloadItem;
+  onAddOrEditIngredient(initialValue?: RecipeIngredientPayloadItem) {
+    const mode: 'new' | 'edit' = initialValue ? 'edit' : 'new';
+    const prevIngredient = this.ingredientItems.slice(-1).pop();
 
-    const { phases } = this.getData();
+    const phases = (this.form.value.phases || []) as string[];
     const data: IngredientEditDialogData = {
       usePhases: this.usePhases,
       phases,
@@ -248,10 +249,23 @@ export class RecipeEditComponent
       IngredientEditModalComponent,
       IngredientEditDialogData,
       IngredientEditDialogResult
-    >(IngredientEditModalComponent, { data });
+    >(IngredientEditModalComponent, {
+      data,
+      autoFocus: initialValue ? 'dialog' : 'first-tabbable',
+    });
     const subscription = modalRef.afterClosed().subscribe((res) => {
       if (res) {
-        this.addNewIngredientControl(res.ingredient);
+        if (mode === 'new') {
+          this.ingredientItems.push(res.ingredient);
+        } else {
+          this.ingredientItems = this.ingredientItems.map((it) => {
+            if (isEqual(it, initialValue)) {
+              return res.ingredient;
+            } else {
+              return it;
+            }
+          });
+        }
         this.form.markAsTouched();
         this.form.markAsDirty();
       }
@@ -260,41 +274,12 @@ export class RecipeEditComponent
     });
   }
 
-  private addNewIngredientControl(value: RecipeIngredientPayloadItem) {
-    const ingredientControl = this.fb.group(
-      {
-        ingredientName: ['', Validators.required],
-        amount: [
-          1,
-          { validators: [Validators.required, Validators.min(0.001)] },
-        ],
-        unit: [RecipeUnit.PCS, Validators.required],
-        phase: '',
-      },
-      { updateOn: 'change' }
-    );
-
-    ingredientControl.setValue({
-      ...value,
-      phase: value.phase || '',
-    });
-    this.ingredientItems.push(ingredientControl);
-  }
-
-  onDeleteIngredient(index: number) {
-    const item = this.ingredientItems.controls[index];
-    const value: RecipeIngredientPayloadItem = item.value;
-
-    if (!value.ingredientName) {
-      this.handleDeleteIngredient(index);
-      return;
-    }
-
+  onDeleteIngredient(value: RecipeIngredientPayloadItem) {
     this.modalService.handleConfirmation({
       confirmationType: ConfirmationType.DELETE,
       itemDescription: `"${value.ingredientName}" ingredient`,
       removeQuotes: true,
-      onConfirmYes: () => this.handleDeleteIngredient(index),
+      onConfirmYes: () => this.handleDeleteIngredient(value),
     });
   }
 
@@ -319,12 +304,17 @@ export class RecipeEditComponent
   }
 
   onPhaseDrop(event: CdkDragDrop<FormArray<FormControl>>) {
-    console.log(event);
     moveItemInArray(
       this.phases.controls,
       event.previousIndex,
       event.currentIndex
     );
+
+    this.phases.updateValueAndValidity();
+  }
+
+  getIngredientItems(phase: unknown): RecipeIngredientPayloadItem[] {
+    return this.ingredientItems.filter((it) => it.phase === phase);
   }
 
   /* Helper Methods */
@@ -343,7 +333,6 @@ export class RecipeEditComponent
       usePhases: [false, defaultFieldOptions],
       newPhaseName: ['', defaultFieldOptions],
       phases: fb.array([], { ...defaultFieldOptions }),
-      ingredientItems: fb.array([], { ...defaultFieldOptions }),
     });
   }
 
@@ -355,8 +344,8 @@ export class RecipeEditComponent
     this.phases.push(phaseControl);
   }
 
-  private handleDeleteIngredient(index: number) {
-    this.ingredientItems.removeAt(index);
+  private handleDeleteIngredient(item: RecipeIngredientPayloadItem) {
+    remove(this.ingredientItems, (it) => isEqual(it, item));
     this.form.markAsDirty();
     this.form.markAsTouched();
   }
@@ -377,14 +366,17 @@ export class RecipeEditComponent
   }
 
   private syncFieldsFrom(recipe: Recipe | null) {
-    this.ingredientItems.clear();
+    this.ingredientItems = [];
     this.phases.clear();
 
     if (!recipe) {
       return;
     }
 
-    const usePhases = recipe.phases.length > 1;
+    const usePhases =
+      recipe.phases.length > 1 ||
+      recipe.phases.findIndex((it) => !!it.name) >= 0;
+
     const phaseNames = recipe.phases.map((it) => it.name).filter((it) => !!it);
 
     const ingredientItems = recipe.phases.flatMap((phase) =>
@@ -396,13 +388,12 @@ export class RecipeEditComponent
       name: recipe.name,
       description: recipe.description,
       imageUrl: recipe.imageUrl,
-      ingredientItems: ingredientItems,
       usePhases,
       phases: phaseNames,
     };
 
-    ingredientItems.forEach((it) => this.addNewIngredientControl(it));
     phaseNames.forEach((it) => this.addPhase(it));
+    this.ingredientItems = ingredientItems;
 
     this.form.setValue(formData);
   }

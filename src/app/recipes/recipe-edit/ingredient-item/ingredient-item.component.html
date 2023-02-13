@@ -1,0 +1,21 @@
+<div class="wrapper" (click)="onClick()">
+  <mat-list-item class="ingredient-list-item">
+    <div class="inline-flex">
+      <div class="flex-grow">
+        <span matListItemTitle class="item-title">
+          {{ item.ingredientName }}
+        </span>
+
+        <div matListItemLine>
+          <span>&nbsp;</span>
+          <span>{{ item.amount }}</span>
+          <span>&nbsp;</span>
+          <span>{{ item.unit }}</span>
+        </div>
+      </div>
+      <button mat-icon-button color="warn" (click)="onDelete($event)">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </mat-list-item>
+</div>
