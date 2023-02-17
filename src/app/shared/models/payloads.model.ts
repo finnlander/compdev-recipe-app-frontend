@@ -27,3 +27,10 @@ export interface ErrorContainer {
 export interface PayloadWithId<T> {
   id: T;
 }
+
+/**
+ * Item with ordinal (number).
+ */
+export type ItemWithOrdinal<T> = T & {
+  ordinal: number;
+};

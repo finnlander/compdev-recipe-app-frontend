@@ -63,16 +63,21 @@
           </div>
         </div>
         <div class="gutter"></div>
-        <ng-container *ngIf="phases.length > 0" formArrayName="phases">
+        <ng-container *ngIf="ingredientData.hasPhases">
           <h4>Phases:</h4>
-          <mat-list cdkDropList (cdkDropListDropped)="onPhaseDrop($event)">
+          <mat-list
+            class="phase-list"
+            cdkDropList
+            (cdkDropListDropped)="onPhaseDrop($event)"
+          >
             <mat-list-item
               class="phase-list-item"
-              *ngFor="let phaseControl of phases.controls; let i = index"
+              *ngFor="let phase of ingredientData.phases"
               cdkDrag
+              cdkDragLockAxis="y"
             >
               <div class="flex-wrapper">
-                <div class="phase-drag-placeholder" *cdkDragPlaceholder></div>
+                <div class="drag-placeholder" *cdkDragPlaceholder></div>
                 <button
                   mat-icon-button
                   type="button"
@@ -82,19 +87,17 @@
                   <mat-icon>drag_handle</mat-icon>
                 </button>
                 <div class="flex-grow ellipsis-text">
-                  {{ phaseControl.value }}
+                  {{ phase }}
                 </div>
                 <button
                   mat-icon-button
                   color="warn"
                   type="button"
-                  [disabled]="!canDeletePhase(phaseControl.value)"
+                  [disabled]="!canDeletePhase(phase)"
                   [title]="
-                    canDeletePhase(phaseControl.value)
-                      ? 'Delete'
-                      : '(phase is in use)'
+                    canDeletePhase(phase) ? 'Delete' : '(phase is in use)'
                   "
-                  (click)="onDeletePhase(i)"
+                  (click)="onDeletePhase(phase)"
                 >
                   <mat-icon>close</mat-icon>
                 </button>
@@ -115,24 +118,41 @@
         (clicked)="onAddOrEditIngredient()"
       ></app-action-button>
 
-      <mat-list>
-        <!-- without phases-->
-        <ng-container *ngIf="!usePhases">
-          <ng-container *ngFor="let ingredientItem of ingredientItems">
+      <!-- without phases-->
+      <ng-container *ngIf="!usePhases">
+        <mat-list
+          class="ingredient-container"
+          cdkDropList
+          (cdkDropListDropped)="onIngredientDrop($event)"
+        >
+          <ng-container
+            *ngFor="
+              let ingredientItem of ingredientData.items;
+              trackByField: 'key'
+            "
+          >
             <app-ingredient-item
               [item]="ingredientItem"
               (deleted)="onDeleteIngredient(ingredientItem)"
             ></app-ingredient-item>
           </ng-container>
-        </ng-container>
+        </mat-list>
+      </ng-container>
 
-        <!-- with phases -->
-        <ng-container *ngIf="usePhases">
+      <!-- with phases -->
+      <ng-container *ngIf="usePhases" cdkDropListGroup>
+        <!-- items without phase -->
+        <mat-list
+          class="ingredient-container"
+          cdkDropList
+          (cdkDropListDropped)="onIngredientDrop($event, undefined)"
+        >
           <ng-container
             *ngFor="
-              let unassignedItem of ingredientsWithoutPhases;
+              let unassignedItem of ingredientData.itemsWithoutPhases;
               let first = first;
-              let last = last
+              let last = last;
+              trackByField: 'key'
             "
           >
             <div *ngIf="first" mat-subheader class="ingredient-phase">
@@ -143,38 +163,38 @@
               (clicked)="onAddOrEditIngredient($event)"
               (deleted)="onDeleteIngredient($event)"
             ></app-ingredient-item>
-            <mat-divider
-              *ngIf="last"
-              class="ingredient-phase-divider"
-            ></mat-divider>
           </ng-container>
-          <ng-container *ngFor="let phase of form.value.phases">
-            <div *ngIf="phase" mat-subheader class="ingredient-phase">
-              {{ phase }}
-            </div>
-            <ng-template
-              #ingredients
-              let-phaseIngredients
-              [ngTemplateOutlet]="ingredients"
-              [ngTemplateOutletContext]="{
-                $implicit: getIngredientItems(phase)
-              }"
-            >
-              <app-ingredient-item
-                *ngFor="let ingredientItem of phaseIngredients"
-                [item]="ingredientItem"
-                (clicked)="onAddOrEditIngredient($event)"
-                (deleted)="onDeleteIngredient($event)"
-              ></app-ingredient-item>
-
-              <mat-divider
-                *ngIf="phase"
-                class="ingredient-phase-divider"
-              ></mat-divider>
-            </ng-template>
-          </ng-container>
-        </ng-container>
-      </mat-list>
+        </mat-list>
+        <mat-list
+          *ngFor="let phase of ingredientData.phases"
+          class="ingredient-container"
+          cdkDropList
+          (cdkDropListDropped)="onIngredientDrop($event, phase)"
+        >
+          <!-- items with phase -->
+          <div *ngIf="phase" mat-subheader class="ingredient-phase">
+            {{ phase }}
+          </div>
+          <ng-template
+            #ingredients
+            let-phaseIngredients
+            [ngTemplateOutlet]="ingredients"
+            [ngTemplateOutletContext]="{
+              $implicit: ingredientData.getItemsByPhase(phase)
+            }"
+          >
+            <app-ingredient-item
+              *ngFor="
+                let ingredientItem of phaseIngredients;
+                trackByField: 'key'
+              "
+              [item]="ingredientItem"
+              (clicked)="onAddOrEditIngredient($event)"
+              (deleted)="onDeleteIngredient($event)"
+            ></app-ingredient-item>
+          </ng-template>
+        </mat-list>
+      </ng-container>
     </div>
     <hr />
     <!-- form buttons -->

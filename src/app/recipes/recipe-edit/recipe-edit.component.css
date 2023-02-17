@@ -71,16 +71,12 @@ textarea.ng-invalid.ng-touched {
   font-weight: 500;
 }
 
-.ingredient-phase-divider {
-  margin-top: 1rem;
-}
-
 .gutter {
   margin-bottom: 1rem;
 }
 
 /* CDK dragging & dropping */
-.phase-drag-placeholder {
+.drag-placeholder {
   background: #ccc;
   border: dotted 3px #999;
   color: black;
@@ -91,7 +87,7 @@ textarea.ng-invalid.ng-touched {
 }
 
 .phase-list.cdk-drop-list-dragging .phase-list-item:not(.cdk-drag-placeholder) {
-  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  transition: transform 500ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .cdk-drag-preview {

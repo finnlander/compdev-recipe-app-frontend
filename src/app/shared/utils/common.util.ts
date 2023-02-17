@@ -9,6 +9,17 @@ export function createUniqueIdString() {
   return hash.toString(16);
 }
 
+/**
+ * Create a hash for object that is different whenever the object fields are different.
+ */
+export function toHash(obj: object) {
+  if (!obj) {
+    return undefined;
+  }
+
+  return createHash(JSON.stringify(obj)).toString(16);
+}
+
 /* Helper Functions */
 
 /**

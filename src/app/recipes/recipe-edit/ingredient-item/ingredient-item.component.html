@@ -1,6 +1,15 @@
 <div class="wrapper" (click)="onClick()">
-  <mat-list-item class="ingredient-list-item">
+  <mat-list-item
+    class="ingredient-list-item"
+    cdkDrag
+    cdkDragLockAxis="y"
+    [cdkDragData]="item"
+  >
     <div class="inline-flex">
+      <div class="drag-placeholder" *cdkDragPlaceholder></div>
+      <button mat-icon-button type="button" title="drag to move" cdkDragHandle>
+        <mat-icon>drag_handle</mat-icon>
+      </button>
       <div class="flex-grow">
         <span matListItemTitle class="item-title">
           {{ item.ingredientName }}

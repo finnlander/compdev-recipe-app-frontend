@@ -1,4 +1,4 @@
-import { flatMap, sumBy } from 'lodash';
+import { sumBy } from 'lodash';
 import { Ingredient } from '../../shared/models/ingredient.model';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 
@@ -35,11 +35,22 @@ export class RecipeAdapter {
   constructor(private recipe: Recipe) {}
 
   get items() {
-    return flatMap(this.recipe.phases, (phase) => phase.items);
+    return this.recipe.phases.flatMap((it) => it.items);
   }
 
   get size() {
     return sumBy(this.recipe.phases, (it) => it.items.length);
+  }
+
+  get hasPhases(): boolean {
+    return (
+      this.recipe.phases.length > 1 ||
+      this.recipe.phases.findIndex((it) => !!it.name) >= 0
+    );
+  }
+
+  get phaseNames(): string[] {
+    return this.recipe.phases.map((it) => it.name).filter((it) => !!it);
   }
 
   addIngredient(
@@ -59,6 +70,15 @@ export class RecipeAdapter {
 
   clearItems() {
     this.recipe.phases = [];
+  }
+
+  getItemsWithPhaseName(): (RecipeItem & { phase: string | undefined })[] {
+    return this.recipe.phases.flatMap((it) =>
+      it.items.map((item) => ({
+        ...item,
+        phase: it.name ? it.name : undefined,
+      }))
+    );
   }
 
   /* Helper Methods */

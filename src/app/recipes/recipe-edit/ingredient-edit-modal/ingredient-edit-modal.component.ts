@@ -65,7 +65,10 @@ export class IngredientEditModalComponent {
 
   /* Helper Methods */
   private static createForm(fb: FormBuilder, data: IngredientEditDialogData) {
-    const input = data.ingredient || DEFAULT_INGREDIENT_VALUES;
+    // note: the reactive form input should be sanitized to guarantee that there is no additional fields that could
+    //        break the functionality.
+    const input =
+      sanitizeIngredientPayload(data.ingredient) || DEFAULT_INGREDIENT_VALUES;
     const phase = !data.usePhases
       ? ''
       : input.phase || data.defaultPhase || first(data.phases) || '';
@@ -91,4 +94,20 @@ export class IngredientEditModalComponent {
     ingredientForm.setValue(model);
     return ingredientForm;
   }
+}
+
+/* Helper Functions */
+function sanitizeIngredientPayload(
+  data: RecipeIngredientPayloadItem | undefined
+): RecipeIngredientPayloadItem | undefined {
+  if (!data) {
+    return undefined;
+  }
+
+  return {
+    ingredientName: data.ingredientName,
+    amount: data.amount,
+    unit: data.unit,
+    phase: data.phase,
+  };
 }

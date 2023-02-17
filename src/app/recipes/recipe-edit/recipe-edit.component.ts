@@ -11,15 +11,17 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Actions } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { isEqual, remove } from 'lodash';
+import { chain, isEqual, remove } from 'lodash';
 import { Observable, of } from 'rxjs';
 import { IdPathTrackingComponent } from '../../shared/classes/id-path-tracking-component';
 import { ConfirmationType } from '../../shared/models/confirmation.types';
+import { ItemWithOrdinal } from '../../shared/models/payloads.model';
 import { RecipeUnit } from '../../shared/models/recipe-unit.model';
 import { ModalService } from '../../shared/services/modal.service';
 import { ToastService } from '../../shared/services/toast.service';
+import { toHash } from '../../shared/utils/common.util';
 import { RootState } from '../../store/app.store';
-import { Recipe, RecipeItem } from '../models/recipe.model';
+import { Recipe, RecipeAdapter, RecipeItem } from '../models/recipe.model';
 import { reactOnRecipesActionResult } from '../recipes-util';
 import {
   recipeActions,
@@ -41,7 +43,6 @@ type FormModel = {
   imageUrl: string;
   usePhases: boolean;
   newPhaseName: string;
-  phases: string[];
 };
 
 /* Default value initializations */
@@ -55,7 +56,6 @@ const DEFAULT_VALUES: FormModel = {
   imageUrl: DEFAULT_RECIPE_IMG,
   usePhases: false,
   newPhaseName: '',
-  phases: [],
 };
 
 /**
@@ -76,7 +76,7 @@ export class RecipeEditComponent
   form: ReturnType<typeof RecipeEditComponent.createForm>;
 
   loading$: Observable<boolean> = of(false);
-  ingredientItems: RecipeIngredientPayloadItem[] = [];
+  ingredientData: IngredientDataAdapter = new IngredientDataAdapter();
 
   constructor(
     route: ActivatedRoute,
@@ -84,9 +84,9 @@ export class RecipeEditComponent
     private toastService: ToastService,
     private router: Router,
     private store: Store<RootState>,
-    private fb: FormBuilder,
     private actions$: Actions,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    fb: FormBuilder
   ) {
     super(route);
     this.form = RecipeEditComponent.createForm(fb);
@@ -94,14 +94,6 @@ export class RecipeEditComponent
 
   get usePhases(): boolean {
     return this.form.controls['usePhases'].value || false;
-  }
-
-  get phases() {
-    return this.form.controls['phases'] as FormArray<FormControl>;
-  }
-
-  get ingredientsWithoutPhases() {
-    return this.ingredientItems.filter((it) => !it.phase);
   }
 
   override ngOnInit(): void {
@@ -134,12 +126,12 @@ export class RecipeEditComponent
   }
 
   canAddPhase(): boolean {
-    const { newPhaseName, phases } = this.getData();
-    return !!newPhaseName && !phases.find((it) => it === newPhaseName);
+    const newPhaseName = this.form.value.newPhaseName;
+    return !!newPhaseName && !this.ingredientData.hasPhase(newPhaseName);
   }
 
   canDeletePhase(phaseName: string): boolean {
-    return this.ingredientItems.findIndex((it) => it.phase === phaseName) == -1;
+    return !this.ingredientData.isPhaseInUse(phaseName);
   }
 
   onSubmit() {
@@ -158,7 +150,7 @@ export class RecipeEditComponent
     const data = {
       ...model,
       imageUrl: model.imageUrl || DEFAULT_RECIPE_IMG,
-      ingredientItems: this.ingredientItems.map((it) => {
+      ingredientItems: this.ingredientData.items.map((it) => {
         if (this.usePhases) {
           return it;
         } else {
@@ -216,33 +208,32 @@ export class RecipeEditComponent
   }
 
   onAddPhase() {
-    const isFirst = this.phases.length === 0;
-    const { newPhaseName } = this.getData();
-    this.addPhase(newPhaseName);
+    const newPhaseName = this.form.value.newPhaseName;
+    if (!newPhaseName) {
+      return;
+    }
+
+    const isFirst = !this.ingredientData.hasPhases;
+    this.ingredientData.addPhase(newPhaseName);
 
     if (isFirst) {
-      this.ingredientItems = this.ingredientItems.map((it) => ({
-        ...it,
-        phase: newPhaseName,
-      }));
+      this.ingredientData.applyDefaultPhase();
     }
 
     this.form.patchValue({ newPhaseName: '' });
   }
 
-  onDeletePhase(index: number) {
-    this.phases.removeAt(index);
+  onDeletePhase(phase: string) {
+    this.ingredientData.deletePhase(phase);
   }
 
   onAddOrEditIngredient(initialValue?: RecipeIngredientPayloadItem) {
-    const mode: 'new' | 'edit' = initialValue ? 'edit' : 'new';
-    const prevIngredient = this.ingredientItems.slice(-1).pop();
+    const lastItem = this.ingredientData.lastItem;
 
-    const phases = (this.form.value.phases || []) as string[];
     const data: IngredientEditDialogData = {
       usePhases: this.usePhases,
-      phases,
-      defaultPhase: prevIngredient?.phase,
+      phases: this.ingredientData.phases,
+      defaultPhase: lastItem?.phase,
       ingredient: initialValue,
     };
     const modalRef = this.dialog.open<
@@ -255,16 +246,10 @@ export class RecipeEditComponent
     });
     const subscription = modalRef.afterClosed().subscribe((res) => {
       if (res) {
-        if (mode === 'new') {
-          this.ingredientItems.push(res.ingredient);
+        if (!initialValue) {
+          this.ingredientData.addItem(res.ingredient);
         } else {
-          this.ingredientItems = this.ingredientItems.map((it) => {
-            if (isEqual(it, initialValue)) {
-              return res.ingredient;
-            } else {
-              return it;
-            }
-          });
+          this.ingredientData.updateItem(initialValue, res.ingredient);
         }
         this.form.markAsTouched();
         this.form.markAsDirty();
@@ -304,17 +289,23 @@ export class RecipeEditComponent
   }
 
   onPhaseDrop(event: CdkDragDrop<FormArray<FormControl>>) {
-    moveItemInArray(
-      this.phases.controls,
-      event.previousIndex,
-      event.currentIndex
-    );
+    this.ingredientData.movePhase(event.previousIndex, event.currentIndex);
 
-    this.phases.updateValueAndValidity();
+    this.form.markAsDirty();
+    this.form.markAsTouched();
   }
 
-  getIngredientItems(phase: unknown): RecipeIngredientPayloadItem[] {
-    return this.ingredientItems.filter((it) => it.phase === phase);
+  onIngredientDrop(
+    event: CdkDragDrop<unknown, unknown, IngredientData>,
+    targetPhase?: string
+  ) {
+    const targetItem = event.item.data;
+    const phase = this.usePhases ? targetPhase : undefined;
+
+    this.ingredientData.moveItem(targetItem, phase, event.currentIndex);
+
+    this.form.markAsDirty();
+    this.form.markAsTouched();
   }
 
   /* Helper Methods */
@@ -332,20 +323,11 @@ export class RecipeEditComponent
       imageUrl: ['', { updateOn: 'blur' }],
       usePhases: [false, defaultFieldOptions],
       newPhaseName: ['', defaultFieldOptions],
-      phases: fb.array([], { ...defaultFieldOptions }),
     });
   }
 
-  private addPhase(phaseName: string) {
-    const defaultFieldOptions: AbstractControlOptions = {
-      updateOn: 'change',
-    };
-    const phaseControl = this.fb.control(phaseName, defaultFieldOptions);
-    this.phases.push(phaseControl);
-  }
-
   private handleDeleteIngredient(item: RecipeIngredientPayloadItem) {
-    remove(this.ingredientItems, (it) => isEqual(it, item));
+    this.ingredientData.deleteItem(item);
     this.form.markAsDirty();
     this.form.markAsTouched();
   }
@@ -366,35 +348,28 @@ export class RecipeEditComponent
   }
 
   private syncFieldsFrom(recipe: Recipe | null) {
-    this.ingredientItems = [];
-    this.phases.clear();
+    this.ingredientData = new IngredientDataAdapter();
 
     if (!recipe) {
       return;
     }
 
-    const usePhases =
-      recipe.phases.length > 1 ||
-      recipe.phases.findIndex((it) => !!it.name) >= 0;
+    const recipeAdapter = new RecipeAdapter(recipe);
+    const phaseNames = recipeAdapter.phaseNames;
 
-    const phaseNames = recipe.phases.map((it) => it.name).filter((it) => !!it);
-
-    const ingredientItems = recipe.phases.flatMap((phase) =>
-      phase.items.map((item) => toRecipeIngredientPayload(item, phase.name))
-    );
+    const ingredientItems = recipeAdapter
+      .getItemsWithPhaseName()
+      .map((item) => toRecipeIngredientPayload(item, item.phase));
 
     const formData: FormModel = {
       ...DEFAULT_VALUES,
       name: recipe.name,
       description: recipe.description,
       imageUrl: recipe.imageUrl,
-      usePhases,
-      phases: phaseNames,
+      usePhases: recipeAdapter.hasPhases,
     };
 
-    phaseNames.forEach((it) => this.addPhase(it));
-    this.ingredientItems = ingredientItems;
-
+    this.ingredientData.setItems(ingredientItems);
     this.form.setValue(formData);
   }
 
@@ -417,12 +392,256 @@ export class RecipeEditComponent
 
 function toRecipeIngredientPayload(
   item: RecipeItem,
-  phase = ''
+  phase: string | undefined = ''
 ): RecipeIngredientPayloadItem {
   return {
     ingredientName: item.ingredient.name,
     amount: item.amount,
     unit: item.unit,
-    phase: phase,
+    phase,
   };
+}
+
+/* Helper class: RecipeDataAdapter */
+
+type IngredientData = ItemWithOrdinal<RecipeIngredientPayloadItem> & {
+  key: string | undefined;
+};
+
+class IngredientDataAdapter {
+  private _items: IngredientData[] = [];
+  private _phases: string[] = [];
+
+  get items(): IngredientData[] {
+    return this._items;
+  }
+
+  get itemsWithoutPhases() {
+    return this._items.filter((it) => !it.phase);
+  }
+  get lastItem() {
+    return this._items.length > 0
+      ? this._items[this._items.length - 1]
+      : undefined;
+  }
+
+  get phases(): string[] {
+    return this._phases;
+  }
+
+  get hasPhases(): boolean {
+    return this._phases.length > 0;
+  }
+
+  addItem(item: RecipeIngredientPayloadItem) {
+    if (item.phase && !this._phases.includes(item.phase)) {
+      this._phases.push(item.phase);
+    }
+
+    const existingItem = this._items.find((it) => isEqual(it, item));
+    if (existingItem) {
+      // merge
+      existingItem.amount += item.amount;
+      existingItem.key = toHash(existingItem);
+      return;
+    }
+
+    const data = {
+      ...item,
+      phase: item.phase ?? undefined,
+      ordinal: this._items.length + 1,
+    };
+
+    this._items.push({ ...data, key: toHash(data) });
+  }
+
+  updateItem(
+    existingValue: RecipeIngredientPayloadItem,
+    newValue: RecipeIngredientPayloadItem
+  ) {
+    const index = this._items.findIndex((it) => isEqual(it, existingValue));
+    if (index < 0) {
+      console.debug(
+        'update item called without matching existing value. existingItem:',
+        existingValue,
+        'newItem:',
+        newValue
+      );
+      return;
+    }
+
+    const existingItem = this._items[index];
+    const data = {
+      ...newValue,
+      ordinal: existingItem.ordinal,
+    };
+
+    this._items[index] = { ...data, key: toHash(data) };
+  }
+
+  deleteItem(item: RecipeIngredientPayloadItem) {
+    if (!item) {
+      return;
+    }
+
+    if (remove(this._items, (it) => isEqual(it, item)).length > 0) {
+      this.refreshOrdinalNumbers();
+    }
+  }
+
+  moveItem(
+    item: IngredientData,
+    targetPhase: string | undefined,
+    offsetFromStart: number
+  ) {
+    const currentIndex = this._items.findIndex((it) => it.key === item.key);
+    const offset = offsetFromStart < 0 ? 0 : offsetFromStart;
+
+    if (currentIndex < 0) {
+      return;
+    }
+
+    if (!this.hasPhases) {
+      if (currentIndex === offset) {
+        return;
+      }
+
+      moveItemInArray(this._items, currentIndex, offset);
+    } else {
+      const phaseStartIndex = this._items.findIndex(
+        (it) => it.phase === targetPhase
+      );
+
+      if (phaseStartIndex < 0) {
+        if (currentIndex === 0) {
+          return;
+        }
+
+        moveItemInArray(this._items, currentIndex, 0);
+      } else {
+        // include diminishing one position if the rest of the list will be shifted one up (as the source item is removed from above the target)
+        const newIndex =
+          phaseStartIndex + offset - (currentIndex < phaseStartIndex ? 1 : 0);
+
+        if (currentIndex === newIndex) {
+          if (this.hasPhases) {
+            // case: only phase was changed, but the index position remains the same
+            this.updatePhaseByKey(item.key, targetPhase);
+          }
+          return;
+        }
+
+        moveItemInArray(this._items, currentIndex, newIndex);
+      }
+    }
+
+    if (this.hasPhases) {
+      this.updatePhaseByKey(item.key, targetPhase);
+    }
+
+    this.refreshOrdinalNumbers();
+  }
+
+  setItems(items: RecipeIngredientPayloadItem[]) {
+    this._items = [];
+    this._phases = [];
+
+    items.forEach((it) => {
+      this.addItem(it);
+    });
+
+    this.refreshOrdinalNumbers();
+  }
+
+  getItemsByPhase(phase: string) {
+    return this._items.filter((it) => it.phase === phase);
+  }
+
+  addPhase(phase: string) {
+    if (!phase || this._phases.includes(phase)) {
+      return;
+    }
+
+    this._phases.push(phase);
+  }
+
+  applyDefaultPhase() {
+    if (!this.hasPhases) {
+      return;
+    }
+
+    const defaultPhase = this._phases[this.phases.length - 1];
+    this._items.forEach((it) => {
+      if (!it.phase) {
+        it.phase = defaultPhase;
+      }
+    });
+  }
+
+  deletePhase(phase: string) {
+    if (!phase || this.isPhaseInUse(phase)) {
+      return;
+    }
+
+    const index = this._phases.findIndex((it) => it === phase);
+    if (index >= 0) {
+      this._phases.splice(index, 1);
+    }
+  }
+
+  movePhase(previousIndex: number, newIndex: number) {
+    moveItemInArray(this._phases, previousIndex, newIndex);
+
+    // sort ingredient items based on phase order to allow drag & drop order to work based on index numbers
+    this.refreshOrdinalNumbers();
+  }
+
+  hasPhase(phase?: string): boolean {
+    return !!phase && this._phases.findIndex((it) => it === phase) >= 0;
+  }
+
+  isPhaseInUse(phase?: string): boolean {
+    if (!phase) {
+      return false;
+    }
+
+    return this._items.findIndex((it) => it.phase === phase) < 0;
+  }
+
+  /* Helper Methods */
+  private getItemsSortedByPhase(items: RecipeIngredientPayloadItem[]) {
+    return chain(items)
+      .sortBy((it) => this._phases.findIndex((phase) => phase === it.phase))
+      .map((it, index) => ({ ...it, ordinal: index + 1 }))
+      .map((it) => ({ ...it, key: toHash(it) }))
+      .value();
+  }
+
+  private refreshOrdinalNumbers() {
+    this._items = this.getItemsSortedByPhase(this._items);
+  }
+
+  private updatePhaseByKey(
+    key: string | undefined,
+    newPhase: string | undefined
+  ) {
+    if (!key) {
+      return;
+    }
+
+    const targetItemIndex = this._items.findIndex((it) => it.key === key);
+    if (targetItemIndex < 0) {
+      return;
+    }
+
+    const targetItem = this.items[targetItemIndex];
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { key: _, ...existingDataWithoutKey } = targetItem;
+    const data = { ...existingDataWithoutKey, phase: newPhase };
+
+    this.items[targetItemIndex] = {
+      ...data,
+      key: toHash(data),
+    };
+  }
 }
